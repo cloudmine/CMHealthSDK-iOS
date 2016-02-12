@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13A5C6CE84317F429EC31374 /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D9005251CB082D96588CAB7 /* Pods_CMHealth_Tests.framework */; };
-		50DA3D2D0C9CCDDE4110CB66 /* Pods_CMHealth_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20403B30699C68ACB5FAA984 /* Pods_CMHealth_Example.framework */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -23,6 +21,8 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
+		97C0DAB66397A93784E32D33 /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 431D85A5C170F2A74B023DD6 /* Pods_CMHealth_Tests.framework */; };
+		AADE274BB5620631181D3B4A /* Pods_CMHealth_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0A86E2796A10F23CD8FFB5E /* Pods_CMHealth_Example.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,10 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		20403B30699C68ACB5FAA984 /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23175DD71A0716F8960DE2C5 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		2C7A9EE1CC8E5EB244D173F4 /* Pods-CMHealth_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Example/Pods-CMHealth_Example.release.xcconfig"; sourceTree = "<group>"; };
-		2D9005251CB082D96588CAB7 /* Pods_CMHealth_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		431D85A5C170F2A74B023DD6 /* Pods_CMHealth_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DB332A4478E858CCD2BF2C8 /* CMHealth.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = CMHealth.podspec; path = ../CMHealth.podspec; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* CMHealth_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CMHealth_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -64,6 +63,7 @@
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		974DEEB5A4116D10FF749933 /* Pods-CMHealth_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Tests/Pods-CMHealth_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		9B8848021EAD16D813BECEAA /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		F0A86E2796A10F23CD8FFB5E /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEB06221139C06DAA962E0A6 /* Pods-CMHealth_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Tests/Pods-CMHealth_Tests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -75,7 +75,7 @@
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
-				50DA3D2D0C9CCDDE4110CB66 /* Pods_CMHealth_Example.framework in Frameworks */,
+				AADE274BB5620631181D3B4A /* Pods_CMHealth_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,7 +86,7 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
-				13A5C6CE84317F429EC31374 /* Pods_CMHealth_Tests.framework in Frameworks */,
+				97C0DAB66397A93784E32D33 /* Pods_CMHealth_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,8 +121,8 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				20403B30699C68ACB5FAA984 /* Pods_CMHealth_Example.framework */,
-				2D9005251CB082D96588CAB7 /* Pods_CMHealth_Tests.framework */,
+				F0A86E2796A10F23CD8FFB5E /* Pods_CMHealth_Example.framework */,
+				431D85A5C170F2A74B023DD6 /* Pods_CMHealth_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

@@ -2,6 +2,7 @@
 #import "CMHUserData.h"
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
+#import "ORKResult+CMHealth.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -57,7 +58,7 @@
 
         self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
 
-        [consentResult cm_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
+        [consentResult cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
             if (nil == uploadStatus) {
                 if (nil != block) {
                     NSString *uploadErrorMessage = [NSString localizedStringWithFormat:@"Failed to create consent object; %@", error.localizedDescription];

@@ -3,5 +3,6 @@
 
 #import "CMHUserData.h"
 #import "CMHUser.h"
+#import "ORKResult+CMHealth.h"
 
 #endif
