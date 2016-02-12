@@ -1,29 +1,12 @@
-//
-//  CMHealthTests.m
-//  CMHealthTests
-//
-//  Created by Ben DiFrancesco on 02/12/2016.
-//  Copyright (c) 2016 Ben DiFrancesco. All rights reserved.
-//
-
-// https://github.com/Specta/Specta
+#import <ResearchKit/ResearchKit.h>
+#import "CMHResultWrapper.h"
 
 SpecBegin(InitialSpecs)
 
-describe(@"these will fail", ^{
-
-    it(@"can do maths", ^{
-        expect(1).to.equal(2);
-    });
-
-    it(@"can read", ^{
-        expect(@"number").to.equal(@"string");
-    });
-    
-    it(@"will wait for 10 seconds and fail", ^{
-        waitUntil(^(DoneCallback done) {
-        
-        });
+describe(@"CMHResultWrapper", ^{
+    it(@"should generate dynamic class with wrapped class name embedded", ^{
+        Class wrapperClass = [CMHResultWrapper wrapperClassForResultClass:[ORKTaskResult class]];
+        expect(NSStringFromClass(wrapperClass)).equal(@"CMHORKTaskResultWrapper");
     });
 });
 
