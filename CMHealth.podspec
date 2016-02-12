@@ -1,32 +1,20 @@
-#
-# Be sure to run `pod lib lint CMHealth.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
   s.name             = "CMHealth"
   s.version          = "0.1.0"
-  s.summary          = "A short description of CMHealth."
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!  
+  s.summary          = "Store and retrieve ResearchKit data to CloudMine with ease"
   s.description      = <<-DESC
+                        Store and retrieve ResearchKit data to CloudMine's backend with ease.
+                        Build your ResearchKit app just as you always would, and call a simple
+                        method to serialize the results and store them securely with CloudMine.
+                        Retrieving your data is equally simple.
                        DESC
 
-  s.homepage         = "https://github.com/<GITHUB_USERNAME>/CMHealth"
-  # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
+  s.homepage         = "https://github.com/cloudmine/CMHealthSDK"
   s.license          = 'MIT'
-  s.author           = { "Ben DiFrancesco" => "ben.difrancesco@gmail.com" }
-  s.source           = { :git => "https://github.com/<GITHUB_USERNAME>/CMHealth.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { "CloudMine" => "support@cloudmine.me" }
+  s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK.git", :tag => s.version.to_s }
 
-  s.platform     = :ios, '7.0'
+  s.platform     = :ios, '8.0'
   s.requires_arc = true
 
   s.source_files = 'Pod/Classes/**/*'
@@ -36,5 +24,6 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'ResearchKit', '~> 1.3'
+  s.dependency 'CloudMine', '~> 1.7'
 end
