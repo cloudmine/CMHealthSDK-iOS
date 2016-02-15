@@ -10,7 +10,7 @@
     Class resultWrapperClass = [CMHResultWrapper wrapperClassForResultClass:[self class]];
 
     NSAssert([[resultWrapperClass class] isSubclassOfClass:[CMHResultWrapper class]],
-             @"Fatal Error: Result wrapper class not a result of ACMResultWrapper");
+             @"Fatal Error: Result wrapper class not a result of CMHResultWrapper");
 
     CMHResultWrapper *resultWrapper = [[resultWrapperClass alloc] initWithResult:self];
 
@@ -73,7 +73,7 @@
 + (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
 {
     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
-    NSError *error = [NSError errorWithDomain:@"ACMResultSaveError" code:code userInfo:userInfo];
+    NSError *error = [NSError errorWithDomain:@"CMHResultSaveError" code:code userInfo:userInfo];
     return error;
 }
 

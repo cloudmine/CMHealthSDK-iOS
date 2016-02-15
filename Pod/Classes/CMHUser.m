@@ -81,8 +81,8 @@
               password:(NSString *_Nonnull)password
          andCompletion:(_Nullable CMHUserAuthCompletion)block
 {
-    NSAssert(nil != email, @"ACMUserController: Attempted to login with nil email");
-    NSAssert(nil != password, @"ACMUserController: Attempted to login with nil password");
+    NSAssert(nil != email, @"CMHUser: Attempted to login with nil email");
+    NSAssert(nil != password, @"CMHUser: Attempted to login with nil password");
 
     self.userData = nil;
     CMHInternalUser *user = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
@@ -164,7 +164,7 @@
 + (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
 {
     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
-    NSError *error = [NSError errorWithDomain:@"ACMUserAuthenticationError" code:code userInfo:userInfo];
+    NSError *error = [NSError errorWithDomain:@"CMHUserAuthenticationError" code:code userInfo:userInfo];
     return error;
 }
 
