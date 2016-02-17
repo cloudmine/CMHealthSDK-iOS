@@ -3,6 +3,7 @@
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
 #import "ORKResult+CMHealth.h"
+#import "CMHConsentValidator.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -37,14 +38,22 @@
              andConsent:(ORKTaskResult *_Nonnull)consentResult
          withCompletion:(_Nullable CMHUserAuthCompletion)block
 {
+    NSError *consentError = nil;
+    ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:consentResult error:&consentError];
+
+    if (nil != consentError) {
+        if (nil != block) {
+            block(consentError);
+        }
+        return;
+    }
+
     self.userData = nil;
     CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
     [CMStore defaultStore].user = newUser;
 
-    // TODO: Somewhere, we need to verify the ORKTaskResult is a consent result and the user actually consented
-    ORKConsentSignatureResult *signatureResult = [CMHUser signatureInResults:consentResult.results];
-    newUser.familyName = signatureResult.signature.familyName;
-    newUser.givenName = signatureResult.signature.givenName;
+    newUser.familyName = signature.familyName;
+    newUser.givenName = signature.givenName;
 
     [newUser createAccountAndLoginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
         if (CMUserAccountOperationFailed(resultCode)) {
@@ -132,34 +141,6 @@
 }
 
 # pragma mark Private
-
-+ (ORKConsentSignatureResult *_Nullable)signatureInResults:(NSArray<ORKResult *> *_Nullable)results
-{
-    if (nil == results) {
-        return nil;
-    }
-
-    // Check these results
-    for (ORKResult *aResult in results) {
-        if ([aResult isKindOfClass:[ORKConsentSignatureResult class]]) {
-            return (ORKConsentSignatureResult *)aResult;
-        }
-    }
-
-    // Recusrively check results of results
-    for (ORKResult *aResult in results) {
-        if (![aResult respondsToSelector:@selector(results)]) {
-            continue;
-        }
-
-        ORKConsentSignatureResult *recusrivResult = [self signatureInResults:[aResult performSelector:@selector(results)]];
-        if (nil != recusrivResult) {
-            return recusrivResult;
-        }
-    }
-
-    return nil;
-}
 
 + (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
 {
