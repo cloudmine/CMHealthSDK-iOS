@@ -5,6 +5,7 @@
 #import "ORKResult+CMHealth.h"
 #import "CMHConsentValidator.h"
 #import "CMHConsent_internal.h"
+#import "CMHErrorUtilities.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -67,14 +68,19 @@
         }
 
         self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
-
         NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
         // TODO: Generate the image name based on study id
-        [[CMStore defaultStore] saveUserFileWithData:signatureData named:@"consent.jpg" additionalOptions:nil callback:^(CMFileUploadResponse *response) {
-            // TODO: error handling
+        [[CMStore defaultStore] saveUserFileWithData:signatureData named:@"consent.jpg" additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
+            NSError *fileUploadError = [CMHUser errorForSignatureUploadResponse:fileResponse];
+            if (nil != fileUploadError) {
+                if (nil != block) {
+                    block(fileUploadError);
+                }
+                return;
+            }
 
-            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:response.key];
+            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:fileResponse.key];
             [consent saveWithUser:newUser callback:^(CMObjectUploadResponse *response) {
                 if (nil == block) {
                     return;
@@ -166,6 +172,33 @@
     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
     NSError *error = [NSError errorWithDomain:@"CMHUserAuthenticationError" code:code userInfo:userInfo];
     return error;
+}
+
++ (NSError *_Nullable)errorForSignatureUploadResponse:(CMFileUploadResponse *)response
+{
+    if (nil != response.error) {
+        NSString *fileUploadMessage = [NSString localizedStringWithFormat:@"Failed to upload signature; %@", response.error.localizedDescription];
+        NSError *fileUploadError = [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
+                                                   localizedDescription:fileUploadMessage];
+        return fileUploadError;
+    }
+
+    return [self errorForSignatureUploadResult:response.result];
+}
+
++ (NSError * _Nullable)errorForSignatureUploadResult:(CMFileUploadResult)result
+{
+    switch (result) {
+        case CMFileCreated:
+            return nil;
+        case CMFileUpdated:
+            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
+                               localizedDescription:NSLocalizedString(@"Overwrote an existing signature while saving", nil)];
+        case CMFileUploadFailed:
+        default:
+            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
+                               localizedDescription:NSLocalizedString(@"Failed to upload signature", nil)];
+    }
 }
 
 @end
