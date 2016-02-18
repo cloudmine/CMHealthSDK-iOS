@@ -4,6 +4,7 @@
 #import "CMHInternalUser.h"
 #import "ORKResult+CMHealth.h"
 #import "CMHConsentValidator.h"
+#import "CMHConsent_internal.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -67,21 +68,32 @@
 
         self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
 
-        [consentResult cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
-            if (nil == uploadStatus) {
-                if (nil != block) {
-                    NSString *uploadErrorMessage = [NSString localizedStringWithFormat:@"Failed to create consent object; %@", error.localizedDescription];
-                    NSError *uploadError = [CMHUser errorWithMessage:uploadErrorMessage
-                                                                 andCode:error.code];
-                    block(uploadError);
-                }
-
+        CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult];
+        [consent saveWithUser:newUser callback:^(CMObjectUploadResponse *response) {
+            if (nil == block) {
                 return;
             }
 
-            if (nil != block) {
-                block(nil);
+            if (nil != response.error) {
+                block(response.error);
+                return;
             }
+
+            if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:consent.objectId]) {
+                NSError *nullStatusError = [CMHUser errorWithMessage:@"Failed to upload user consent" andCode:100];
+                block(nullStatusError);
+                return;
+            }
+
+            NSString *resultUploadStatus = [response.uploadStatuses objectForKey:consent.objectId];
+            if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
+                NSString *message = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
+                NSError *invalidStatusError = [CMHUser errorWithMessage:message andCode:101];
+                block(invalidStatusError);
+                return;
+            }
+            
+            block(nil);
         }];
     }];
 }
