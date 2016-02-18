@@ -72,7 +72,7 @@
 
 + (BOOL)signatureIsMissingName:(ORKConsentSignature *_Nonnull)signature
 {
-    return nil == (signature.givenName || [signature.givenName isEqualToString:@""] ||
+    return (nil == signature.givenName || [signature.givenName isEqualToString:@""] ||
                    nil == signature.familyName || [signature.familyName isEqualToString:@""]);
 }
 

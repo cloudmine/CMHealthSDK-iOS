@@ -3,12 +3,13 @@
 
 @implementation CMHConsent
 
-- (_Nonnull instancetype)initWithConsentResult:(ORKTaskResult *)consentResult
+- (_Nonnull instancetype)initWithConsentResult:(ORKTaskResult *)consentResult andSignatureImageFilename:(NSString *)filename
 {
     self = [super init];
     if (nil == self) return nil;
 
     self.consentResult = consentResult;
+    self.signatureImageFilename = filename;
 
     return self;
 }
@@ -19,6 +20,7 @@
     if (nil == self) return nil;
 
     self.consentResult = [aDecoder decodeObjectForKey:@"consentResult"];
+    self.signatureImageFilename = [aDecoder decodeObjectForKey:@"signatureImageFilename"];
 
     return self;
 }
@@ -27,6 +29,7 @@
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.consentResult forKey:@"consentResult"];
+    [aCoder encodeObject:self.signatureImageFilename forKey:@"signatureImageFilename"];
 }
 
 @end

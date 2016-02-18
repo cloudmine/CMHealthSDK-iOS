@@ -68,32 +68,39 @@
 
         self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
 
-        CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult];
-        [consent saveWithUser:newUser callback:^(CMObjectUploadResponse *response) {
-            if (nil == block) {
-                return;
-            }
+        NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
-            if (nil != response.error) {
-                block(response.error);
-                return;
-            }
+        // TODO: Generate the image name based on study id
+        [[CMStore defaultStore] saveUserFileWithData:signatureData named:@"consent.jpg" additionalOptions:nil callback:^(CMFileUploadResponse *response) {
+            // TODO: error handling
 
-            if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:consent.objectId]) {
-                NSError *nullStatusError = [CMHUser errorWithMessage:@"Failed to upload user consent" andCode:100];
-                block(nullStatusError);
-                return;
-            }
+            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:response.key];
+            [consent saveWithUser:newUser callback:^(CMObjectUploadResponse *response) {
+                if (nil == block) {
+                    return;
+                }
 
-            NSString *resultUploadStatus = [response.uploadStatuses objectForKey:consent.objectId];
-            if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-                NSString *message = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
-                NSError *invalidStatusError = [CMHUser errorWithMessage:message andCode:101];
-                block(invalidStatusError);
-                return;
-            }
-            
-            block(nil);
+                if (nil != response.error) {
+                    block(response.error);
+                    return;
+                }
+
+                if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:consent.objectId]) {
+                    NSError *nullStatusError = [CMHUser errorWithMessage:@"Failed to upload user consent" andCode:100];
+                    block(nullStatusError);
+                    return;
+                }
+
+                NSString *resultUploadStatus = [response.uploadStatuses objectForKey:consent.objectId];
+                if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
+                    NSString *message = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
+                    NSError *invalidStatusError = [CMHUser errorWithMessage:message andCode:101];
+                    block(invalidStatusError);
+                    return;
+                }
+                
+                block(nil);
+            }];
         }];
     }];
 }
