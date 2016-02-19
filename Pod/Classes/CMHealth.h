@@ -11,4 +11,6 @@
 
 + (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret;
 
++ (ORKConsentSection *)initCloudMineSecureConsentSection;
+
 @end

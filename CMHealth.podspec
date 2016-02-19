@@ -14,13 +14,18 @@ Pod::Spec.new do |s|
   s.author           = { "CloudMine" => "support@cloudmine.me" }
   s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK.git", :tag => s.version.to_s }
 
-  s.platform     = :ios, '8.0'
-  s.requires_arc = true
+  s.platform         = :ios, '8.0'
+  s.requires_arc     = true
 
   s.source_files = 'Pod/Classes/**/*'
+
   s.resource_bundles = {
-    'CMHealth' => ['Pod/Assets/*.png']
+    'CMHealth' => ['Pod/Assets/*']
   }
+  # we can move this to the CMHealth bundle once cocoapods 1.0 is released -
+  # Assets.car compilation is not supported in 0.39
+  s.resource         = 'Pod/CMHealthAssets.xcassets'
+
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
