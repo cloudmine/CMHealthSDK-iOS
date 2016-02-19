@@ -42,10 +42,9 @@
             return;
         }
 
-        if (CMUserAccountOperationFailed(resultCode)) {
-            NSError *accountError = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to create account and login", nil)
-                                                      andCode:(100 + resultCode)];
-            block(accountError);
+        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        if (nil != error) {
+            block(error);
             return;
         }
 
@@ -142,10 +141,11 @@
     user.givenName = signature.givenName;
 
     [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
-        if (CMUserAccountOperationFailed(resultCode)) {
-            NSError *accountError = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to create account and login", nil)
-                                                      andCode:(100 + resultCode)];
-            block(accountError);
+        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        if (nil != error) {
+            if (nil != block) {
+                block(error);
+            }
             return;
         }
 
@@ -166,10 +166,9 @@
     [CMStore defaultStore].user = user;
 
     [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        if (CMUserAccountOperationFailed(resultCode)) {
+        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        if (nil != error) {
             if (nil != block) {
-                NSError *error = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to log in", nil)  // TODO: different domain?
-                                                             andCode:(100 + resultCode)];
                 block(error);
             }
             return;
@@ -186,10 +185,9 @@
 - (void)logoutWithCompletion:(_Nullable CMHUserLogoutCompletion)block
 {
     [[CMHInternalUser currentUser] logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        if (CMUserAccountOperationFailed(resultCode)) {
+        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        if (nil != error) {
             if (nil != block) {
-                NSError *error = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to logout", nil)  // TODO: different domain?
-                                                             andCode:(100 + resultCode)];
                 block(error);
             }
             return;
@@ -210,6 +208,18 @@
 
 # pragma mark Private
 
++ (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
+{
+    // TODO: Update this to provide complete and unique error message/codes
+    if (CMUserAccountOperationFailed(resultCode)) {
+        return [CMHUser errorWithMessage:[NSString localizedStringWithFormat:@"Account action failed with code: %li", (long)resultCode]
+                                 andCode:(100 + resultCode)];
+    }
+
+    return nil;
+}
+
+// TODO: This method should go away once proper error generation is done
 + (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
 {
     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
