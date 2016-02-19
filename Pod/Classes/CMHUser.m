@@ -73,12 +73,6 @@
         return;
     }
 
-    // TODO: Save this jawn
-    //newUser.familyName = signature.familyName;
-    //newUser.givenName = signature.givenName;
-    //self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
-    //[CMStore defaultStore].user = [CMHInternalUser currentUser];
-
     [self conditionallySaveNameFromSignature:signature withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
@@ -98,7 +92,10 @@
                 return;
             }
 
-            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:fileResponse.key];
+            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult
+                                                  andSignatureImageFilename:fileResponse.key
+                                                     forStudyWithDescriptor:descriptor];
+            
             [consent saveWithUser:[CMHInternalUser currentUser] callback:^(CMObjectUploadResponse *response) {
                 if (nil == block) {
                     return;
