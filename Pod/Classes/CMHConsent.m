@@ -23,6 +23,8 @@
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
+    // TODO: Pull the wrapper class, decode the object and ensure it is of
+    // the same type as the wrapper class. Set _consentResult to the wrapper.wrappedResult
     self.consentResult = [aDecoder decodeObjectForKey:@"consentResult"];
     self.signatureImageFilename = [aDecoder decodeObjectForKey:@"signatureImageFilename"];
     self.studyDescriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];
