@@ -68,10 +68,11 @@
         }
 
         self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+        [CMStore defaultStore].user = [CMHInternalUser currentUser];
+        
         NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
-        // TODO: Generate the image name based on study id
-        [[CMStore defaultStore] saveUserFileWithData:signatureData named:@"consent.jpg" additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
+        [[CMStore defaultStore] saveUserFileWithData:signatureData additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
             NSError *fileUploadError = [CMHUser errorForSignatureUploadResponse:fileResponse];
             if (nil != fileUploadError) {
                 if (nil != block) {
