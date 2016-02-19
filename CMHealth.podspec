@@ -20,12 +20,8 @@ Pod::Spec.new do |s|
   s.source_files = 'Pod/Classes/**/*'
 
   s.resource_bundles = {
-    'CMHealth' => ['Pod/CMHealthAssets.xcassets', 'Pod/Assets/*']
+    'CMHealth' => ['Pod/Assets/*']
   }
-  # we can move this to the CMHealth bundle once cocoapods 1.0 is released -
-  # Assets.car compilation is not supported in 0.39
-  s.resource         = 'Pod/CMHealthAssets.xcassets'
-
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
