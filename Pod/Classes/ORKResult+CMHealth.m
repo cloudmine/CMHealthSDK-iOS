@@ -2,8 +2,14 @@
 #import "CMHResultWrapper.h"
 #import "Cocoa+CMHealth.h"
 #import "ORKConsentSignature+CMHealth.h"
+#import "CMHConstants_internal.h"
 
 @implementation ORKResult (CMHealth)
+
+- (void)cmh_saveWithCompletion:(_Nullable CMHSaveCompletion)block
+{
+    [self cmh_saveToStudyWithDescriptor:nil withCompletion:block];
+}
 
 - (void)cmh_saveToStudyWithDescriptor:(NSString *)descriptor withCompletion:(_Nullable CMHSaveCompletion)block;
 {
@@ -46,10 +52,20 @@
     }];
 }
 
-+ (void)cmh_fetchUserResultsWithCompletion:(_Nullable CMHFetchCompletion)block;
++ (void)cmh_fetchUserResultsWithCompletion:(_Nullable CMHFetchCompletion)block
+{
+    [self cmh_fetchUserResultsForStudyWithDescriptor:nil withCompletion:block];
+}
+
++ (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor withCompletion:(_Nullable CMHFetchCompletion)block;
 {
     Class wrapperClass = [CMHResultWrapper wrapperClassForResultClass:[self class]];
-    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\"]", CMInternalClassStorageKey, [self class]];
+
+    if (nil == descriptor) {
+        descriptor = @"";
+    }
+
+    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [self class], CMHStudyDescriptorKey, descriptor];
 
     [[CMStore defaultStore] searchUserObjects:queryString
                             additionalOptions:nil

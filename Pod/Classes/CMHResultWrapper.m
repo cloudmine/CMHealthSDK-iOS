@@ -1,5 +1,6 @@
 #import "CMHResultWrapper.h"
 #import <objc/runtime.h>
+#import "CMHConstants_internal.h"
 
 @interface CMHResultWrapper ()
 @property (nonatomic, nonnull) ORKResult *result;
@@ -40,7 +41,7 @@
 {
     NSAssert([CMHResultWrapper class] != [self class], @"Attempted to called encodeWithCoder: directly on CMHResultWrapper. Only sublcasses returned by wrapperClassForResultClass: should be used.");
 
-    [aCoder encodeObject:self.studyDescriptor forKey:@"studyDescriptor"];
+    [aCoder encodeObject:self.studyDescriptor forKey:CMHStudyDescriptorKey];
     [self.result encodeWithCoder:aCoder];
 }
 
