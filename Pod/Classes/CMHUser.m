@@ -31,14 +31,29 @@
     return _sharedInstance;
 }
 
+- (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
+{
+    self.userData = nil;
+    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
+    [CMStore defaultStore].user = newUser;
 
-// TODO: Ponder: this is nice from a consumption standpoint, but could leave the user in a weird place if account creation succeeds
-// but uploading consent fails. Need to think more broadly about what the SDK will actually provide in terms of consent flows.
-// Somehow this probably needs to be seperated into two steps: signup, upload consent.
-- (void)signUpWithEmail:(NSString *_Nonnull)email
-               password:(NSString *_Nonnull)password
-             andConsent:(ORKTaskResult *_Nonnull)consentResult
-         withCompletion:(_Nullable CMHUserAuthCompletion)block
+    [newUser createAccountAndLoginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+        if (nil == block) {
+            return;
+        }
+
+        if (CMUserAccountOperationFailed(resultCode)) {
+            NSError *accountError = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to create account and login", nil)
+                                                      andCode:(100 + resultCode)];
+            block(accountError);
+            return;
+        }
+
+        block(nil);
+    }];
+}
+
+- (void)uploadUserConsent:(ORKTaskResult *)consentResult forStudyWithDescriptor:(NSString *)descriptor andCompletion:(CMHUploadConsentCompletion)block
 {
     NSError *consentError = nil;
     ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:consentResult error:&consentError];
@@ -50,26 +65,29 @@
         return;
     }
 
-    self.userData = nil;
-    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
-    [CMStore defaultStore].user = newUser;
+    if (![[CMHInternalUser currentUser] isLoggedIn]) {
+        if (nil != block) {
+            NSError *loggedOutError = [CMHErrorUtilities errorWithCode:CMHErrorUserNotLoggedIn localizedDescription:@"Must be logged in to upload consent"];
+            block(loggedOutError);
+        }
 
-    newUser.familyName = signature.familyName;
-    newUser.givenName = signature.givenName;
+        return;
+    }
 
-    [newUser createAccountAndLoginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        if (CMUserAccountOperationFailed(resultCode)) {
+    // TODO: Save this jawn
+    //newUser.familyName = signature.familyName;
+    //newUser.givenName = signature.givenName;
+    //self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+    //[CMStore defaultStore].user = [CMHInternalUser currentUser];
+
+    [self conditionallySaveNameFromSignature:signature withCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
             if (nil != block) {
-                NSError *accountError = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to create account and login", nil)
-                                                             andCode:(100 + resultCode)];
-                block(accountError);
+                block(error);
             }
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
-        [CMStore defaultStore].user = [CMHInternalUser currentUser];
-        
         NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
         [[CMStore defaultStore] saveUserFileWithData:signatureData additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
@@ -82,7 +100,7 @@
             }
 
             CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:fileResponse.key];
-            [consent saveWithUser:newUser callback:^(CMObjectUploadResponse *response) {
+            [consent saveWithUser:[CMHInternalUser currentUser] callback:^(CMObjectUploadResponse *response) {
                 if (nil == block) {
                     return;
                 }
@@ -109,6 +127,30 @@
                 block(nil);
             }];
         }];
+    }];
+}
+
+- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(_Nonnull CMHUploadConsentCompletion)block
+{
+    CMHInternalUser *user = [CMHInternalUser currentUser];
+    if (user.hasName) {
+        block(nil);
+        return;
+    }
+
+    user.familyName = signature.familyName;
+    user.givenName = signature.givenName;
+
+    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
+        if (CMUserAccountOperationFailed(resultCode)) {
+            NSError *accountError = [CMHUser errorWithMessage:NSLocalizedString(@"Failed to create account and login", nil)
+                                                      andCode:(100 + resultCode)];
+            block(accountError);
+            return;
+        }
+
+        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
+        block(nil);
     }];
 }
 

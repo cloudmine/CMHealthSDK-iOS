@@ -5,6 +5,7 @@
 
 typedef void(^CMHUserAuthCompletion)(NSError * _Nullable error);
 typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
+typedef void(^CMHUploadConsentCompletion)(NSError *_Nullable error);
 
 @interface CMHUser : NSObject
 
@@ -12,8 +13,11 @@ typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
 
 - (void)signUpWithEmail:(NSString *_Nonnull)email
                password:(NSString *_Nonnull)password
-             andConsent:(ORKTaskResult *_Nonnull)consentResult
-         withCompletion:(_Nullable CMHUserAuthCompletion)block;
+          andCompletion:(_Nullable CMHUserAuthCompletion)block;
+
+- (void)uploadUserConsent:(ORKTaskResult *_Nullable)consentResult
+   forStudyWithDescriptor:(NSString *_Nullable)descriptor
+            andCompletion:(_Nullable CMHUploadConsentCompletion)block;
 
 - (void)loginWithEmail:(NSString *_Nonnull)email
               password:(NSString *_Nonnull)password
