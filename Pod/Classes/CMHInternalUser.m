@@ -31,4 +31,9 @@
     }
 }
 
+- (BOOL)hasName
+{
+    return !(nil == self.familyName || [@"" isEqualToString:self.familyName] || nil == self.givenName || [@"" isEqualToString:self.givenName]);
+}
+
 @end
