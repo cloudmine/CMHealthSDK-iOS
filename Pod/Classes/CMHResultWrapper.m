@@ -3,11 +3,12 @@
 
 @interface CMHResultWrapper ()
 @property (nonatomic, nonnull) ORKResult *result;
+@property (nonatomic, nonnull) NSString *studyDescriptor;
 @end
 
 @implementation CMHResultWrapper
 
-- (instancetype)initWithResult:(ORKResult *)result
+- (_Nonnull instancetype)initWithResult:(ORKResult *_Nonnull)result studyDescriptor:(NSString *)descriptor;
 {
     self = [super init];
     if (nil == self) return nil;
@@ -15,9 +16,12 @@
     NSAssert([CMHResultWrapper class] != [self class], @"Attempted to called initWithResult: directly on CMHResultWrapper. Only sublcasses returned by wrapperClassForResultClass: should be used.");
 
     self.result = result;
+    self.studyDescriptor = descriptor;
 
     return self;
 }
+
+#pragma mark NSCoding
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -36,12 +40,24 @@
 {
     NSAssert([CMHResultWrapper class] != [self class], @"Attempted to called encodeWithCoder: directly on CMHResultWrapper. Only sublcasses returned by wrapperClassForResultClass: should be used.");
 
+    [aCoder encodeObject:self.studyDescriptor forKey:@"studyDescriptor"];
     [self.result encodeWithCoder:aCoder];
 }
+
+#pragma mark Getters-Setters
 
 - (ORKResult *)wrappedResult
 {
     return self.result;
+}
+
+- (NSString *)studyDescriptor
+{
+    if (nil == _studyDescriptor) {
+        return @"";
+    }
+
+    return _studyDescriptor;
 }
 
 // Returns the name of the wrapped class, rather than the wrapper class name itself

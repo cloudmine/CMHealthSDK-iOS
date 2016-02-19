@@ -5,14 +5,14 @@
 
 @implementation ORKResult (CMHealth)
 
-- (void)cmh_saveWithCompletion:(_Nullable CMHSaveCompletion)block
+- (void)cmh_saveToStudyWithDescriptor:(NSString *)descriptor withCompletion:(_Nullable CMHSaveCompletion)block;
 {
     Class resultWrapperClass = [CMHResultWrapper wrapperClassForResultClass:[self class]];
 
     NSAssert([[resultWrapperClass class] isSubclassOfClass:[CMHResultWrapper class]],
              @"Fatal Error: Result wrapper class not a result of CMHResultWrapper");
 
-    CMHResultWrapper *resultWrapper = [[resultWrapperClass alloc] initWithResult:self];
+    CMHResultWrapper *resultWrapper = [[resultWrapperClass alloc] initWithResult:self studyDescriptor:descriptor];
 
     [resultWrapper saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
         if (nil == block) {
