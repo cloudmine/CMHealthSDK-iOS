@@ -11,6 +11,9 @@
 
 + (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret;
 
-+ (ORKConsentSection *)initCloudMineSecureConsentSection;
++ (ORKConsentSection *_Nonnull)initCloudMineSecureConsentSection;
 
 @end
+
+#define SETUP_CMHEALTH_BUNDLE \
+  NSBundle *CMHealthBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"CMHealth" ofType:@"bundle"]];

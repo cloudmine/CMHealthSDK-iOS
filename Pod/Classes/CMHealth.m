@@ -13,30 +13,21 @@
 }
 
 
-+ (ORKConsentSection *)initCloudMineSecureConsentSection
++ (ORKConsentSection *_Nonnull)initCloudMineSecureConsentSection
 {
-    NSBundle *CMHealthBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle]
-                                                         pathForResource:@"CMHealth"
-                                                         ofType:@"bundle"]];
-    
-    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[CMHealthBundle bundlePath] error:nil];
-    NSLog(@"XXXXXXXXXXXXXX local bundle: %@", files);
-    
-    NSArray *mfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[[NSBundle mainBundle] bundlePath] error:nil];
-    NSLog(@"XXXXXXXXXXXXXX main bundle: %@", mfiles);
+    SETUP_CMHEALTH_BUNDLE
     
     ORKConsentSection *section = [[ORKConsentSection alloc] initWithType:ORKConsentSectionTypeCustom];
     
     section.title = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionTitle" value:nil table:nil];
     
-    // after cocoapods 1.0 is released use this.  don't forget to update the CMHealth.podspec
-    //section.customImage = [UIImage imageNamed:@"CloudMineLogo" inBundle:CMHealthBundle compatibleWithTraitCollection:nil];
-    section.customImage = [UIImage imageNamed:@"CloudMineLogo"];
-    NSLog(@"XXXXXXXXXXXXXX image from bundle: %@", [section.customImage description]);
-    
     section.summary = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionSummary" value:nil table:nil];
     
     section.content = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionContent" value:nil table:nil];
+    
+    // after cocoapods 1.0 is released we can use Assets.xcasetts for images, etc.
+    // don't forget to update the CMHealth.podspec
+    section.customImage = [[UIImage imageNamed:@"cloudmine-logo.png" inBundle:CMHealthBundle compatibleWithTraitCollection:nil] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     
     return section;
 }
