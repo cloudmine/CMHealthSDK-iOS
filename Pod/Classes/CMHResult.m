@@ -24,16 +24,28 @@
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
-    self.studyDescriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];
+    NSString *descriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];
+    if ([@"" isEqualToString:descriptor]) {
+        self.studyDescriptor = nil;
+    } else {
+        self.studyDescriptor = descriptor;
+    }
+
     self.rkResult = [aDecoder decodeObjectForKey:CMHResearchKitResultKey];
 
-    return nil;
+    return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [super encodeWithCoder:aCoder];
-    [aCoder encodeObject:self.studyDescriptor forKey:CMHResearchKitResultKey];
+
+    if (nil == self.studyDescriptor) {
+        [aCoder encodeObject:@"" forKey:CMHStudyDescriptorKey];
+    } else {
+        [aCoder encodeObject:self.studyDescriptor forKey:CMHStudyDescriptorKey];
+    }
+
     [aCoder encodeObject:self.rkResult forKey:CMHResearchKitResultKey];
 }
 
