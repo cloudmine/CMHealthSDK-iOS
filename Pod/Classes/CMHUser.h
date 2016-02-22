@@ -2,10 +2,12 @@
 #import <ResearchKit/ResearchKit.h>
 
 @class CMHUserData;
+@class CMHConsent;
 
 typedef void(^CMHUserAuthCompletion)(NSError * _Nullable error);
 typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
 typedef void(^CMHUploadConsentCompletion)(NSError *_Nullable error);
+typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 
 @interface CMHUser : NSObject
 
@@ -16,8 +18,16 @@ typedef void(^CMHUploadConsentCompletion)(NSError *_Nullable error);
           andCompletion:(_Nullable CMHUserAuthCompletion)block;
 
 - (void)uploadUserConsent:(ORKTaskResult *_Nullable)consentResult
+           withCompletion:(_Nullable CMHUploadConsentCompletion)block;
+
+- (void)uploadUserConsent:(ORKTaskResult *_Nullable)consentResult
    forStudyWithDescriptor:(NSString *_Nullable)descriptor
             andCompletion:(_Nullable CMHUploadConsentCompletion)block;
+
+- (void)fetchUserConsentForStudyWithCompletion:(_Nonnull CMHFetchConsentCompletion)block;
+
+- (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
+                                 andCompletion:(_Nonnull CMHFetchConsentCompletion)block;
 
 - (void)loginWithEmail:(NSString *_Nonnull)email
               password:(NSString *_Nonnull)password

@@ -1,4 +1,5 @@
 #import "CMHUser.h"
+#import <CloudMine/CloudMine.h>
 #import "CMHUserData.h"
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
@@ -6,6 +7,7 @@
 #import "CMHConsentValidator.h"
 #import "CMHConsent_internal.h"
 #import "CMHErrorUtilities.h"
+#import "CMHConstants_internal.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -52,6 +54,11 @@
     }];
 }
 
+- (void)uploadUserConsent:(ORKTaskResult *)consentResult withCompletion:(CMHUploadConsentCompletion)block
+{
+    [self uploadUserConsent:consentResult forStudyWithDescriptor:nil andCompletion:block];
+}
+
 - (void)uploadUserConsent:(ORKTaskResult *)consentResult forStudyWithDescriptor:(NSString *)descriptor andCompletion:(CMHUploadConsentCompletion)block
 {
     NSError *consentError = nil;
@@ -73,12 +80,6 @@
         return;
     }
 
-    // TODO: Save this jawn
-    //newUser.familyName = signature.familyName;
-    //newUser.givenName = signature.givenName;
-    //self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
-    //[CMStore defaultStore].user = [CMHInternalUser currentUser];
-
     [self conditionallySaveNameFromSignature:signature withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
@@ -98,7 +99,10 @@
                 return;
             }
 
-            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult andSignatureImageFilename:fileResponse.key];
+            CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:consentResult
+                                                  andSignatureImageFilename:fileResponse.key
+                                                     forStudyWithDescriptor:descriptor];
+            
             [consent saveWithUser:[CMHInternalUser currentUser] callback:^(CMObjectUploadResponse *response) {
                 if (nil == block) {
                     return;
@@ -129,28 +133,46 @@
     }];
 }
 
-- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(_Nonnull CMHUploadConsentCompletion)block
+- (void)fetchUserConsentForStudyWithCompletion:(CMHFetchConsentCompletion)block
 {
-    CMHInternalUser *user = [CMHInternalUser currentUser];
-    if (user.hasName) {
-        block(nil);
-        return;
+    [self fetchUserConsentForStudyWithDescriptor:nil andCompletion:block];
+}
+
+- (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
+                                 andCompletion:(_Nonnull CMHFetchConsentCompletion)block
+{
+    if (nil == descriptor) {
+        descriptor = @"";
     }
 
-    user.familyName = signature.familyName;
-    user.givenName = signature.givenName;
+    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHConsent class], CMHStudyDescriptorKey, descriptor];
 
-    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
-        if (nil != error) {
-            if (nil != block) {
-                block(error);
-            }
+    [[CMStore defaultStore] searchUserObjects:queryString
+                            additionalOptions:nil
+                                     callback:^(CMObjectFetchResponse *response)
+    {
+        if (nil == block) {
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
-        block(nil);
+        if (nil != response.error) {
+            block(nil, response.error); // TODO: Consider, should we create a custom error?
+            return;
+        }
+
+        if (response.objectErrors.count > 0) {
+            NSError *firstError = response.objectErrors.allKeys.firstObject;
+            block(nil, firstError);
+            return;
+        }
+
+        if (response.count == 0) {
+            block(nil, nil);
+            return;
+        }
+
+        CMHConsent *firstConsent = response.objects.firstObject;
+        block(firstConsent, nil);
     }];
 }
 
@@ -207,6 +229,31 @@
 }
 
 # pragma mark Private
+
+- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(_Nonnull CMHUploadConsentCompletion)block
+{
+    CMHInternalUser *user = [CMHInternalUser currentUser];
+    if (user.hasName) {
+        block(nil);
+        return;
+    }
+
+    user.familyName = signature.familyName;
+    user.givenName = signature.givenName;
+
+    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
+        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        if (nil != error) {
+            if (nil != block) {
+                block(error);
+            }
+            return;
+        }
+
+        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
+        block(nil);
+    }];
+}
 
 + (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
 {

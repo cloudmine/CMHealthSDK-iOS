@@ -1,5 +1,5 @@
 #import "ORKResult+CMHealth.h"
-#import "CMHResultWrapper.h"
+#import "CMHResult.h"
 #import "Cocoa+CMHealth.h"
 #import "ORKConsentSignature+CMHealth.h"
 #import "CMHConstants_internal.h"
@@ -11,14 +11,9 @@
     [self cmh_saveToStudyWithDescriptor:nil withCompletion:block];
 }
 
-- (void)cmh_saveToStudyWithDescriptor:(NSString *)descriptor withCompletion:(_Nullable CMHSaveCompletion)block;
+- (void)cmh_saveToStudyWithDescriptor:(NSString *_Nullable)descriptor withCompletion:(_Nullable CMHSaveCompletion)block;
 {
-    Class resultWrapperClass = [CMHResultWrapper wrapperClassForResultClass:[self class]];
-
-    NSAssert([[resultWrapperClass class] isSubclassOfClass:[CMHResultWrapper class]],
-             @"Fatal Error: Result wrapper class not a result of CMHResultWrapper");
-
-    CMHResultWrapper *resultWrapper = [[resultWrapperClass alloc] initWithResult:self studyDescriptor:descriptor];
+    CMHResult *resultWrapper = [[CMHResult alloc] initWithResearchKitResult:self andStudyDescriptor:descriptor];
 
     [resultWrapper saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
         if (nil == block) {
@@ -59,25 +54,23 @@
 
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor withCompletion:(_Nullable CMHFetchCompletion)block;
 {
-    Class wrapperClass = [CMHResultWrapper wrapperClassForResultClass:[self class]];
-
     if (nil == descriptor) {
         descriptor = @"";
     }
 
-    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [self class], CMHStudyDescriptorKey, descriptor];
+    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
 
     [[CMStore defaultStore] searchUserObjects:queryString
                             additionalOptions:nil
                                      callback:^(CMObjectFetchResponse *response)
      {
          NSMutableArray *mutableResults = [NSMutableArray new];
-         for (id object in response.objects) {
-             if ([object class] != wrapperClass || ![[object wrappedResult] isKindOfClass:[self class]]) {
+         for (CMHResult *wrappedResult in response.objects) {
+             if (nil == wrappedResult.rkResult || ![wrappedResult.rkResult isKindOfClass:[self class]]) {
                  continue;
              }
 
-             [mutableResults addObject:[object wrappedResult]];
+             [mutableResults addObject:wrappedResult.rkResult];
          }
 
          block([mutableResults copy], nil);
