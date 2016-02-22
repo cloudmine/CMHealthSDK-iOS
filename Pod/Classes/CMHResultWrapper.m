@@ -1,6 +1,7 @@
 #import "CMHResultWrapper.h"
 #import <objc/runtime.h>
 #import "CMHConstants_internal.h"
+#import <CloudMine/CloudMine.h>
 
 @interface CMHResultWrapper ()
 @property (nonatomic, nonnull) ORKResult *result;
@@ -104,6 +105,8 @@
 
     Class wrapperClass = objc_allocateClassPair([self class], [wrapperClassName cStringUsingEncoding:NSASCIIStringEncoding], 0);
     objc_registerClassPair(wrapperClass);
+
+    [[CMObjectClassNameRegistry sharedInstance] refreshRegistry];
     
     return wrapperClass;
 }
