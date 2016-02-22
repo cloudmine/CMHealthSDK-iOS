@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "CMHealth"
-  s.version          = "0.1.7"
+  s.version          = "0.1.8"
   s.summary          = "Store and retrieve ResearchKit data to CloudMine with ease"
   s.description      = <<-DESC
                         Store and retrieve ResearchKit data to CloudMine's backend with ease.
