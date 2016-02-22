@@ -18,8 +18,13 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
           andCompletion:(_Nullable CMHUserAuthCompletion)block;
 
 - (void)uploadUserConsent:(ORKTaskResult *_Nullable)consentResult
+           withCompletion:(_Nullable CMHUploadConsentCompletion)block;
+
+- (void)uploadUserConsent:(ORKTaskResult *_Nullable)consentResult
    forStudyWithDescriptor:(NSString *_Nullable)descriptor
             andCompletion:(_Nullable CMHUploadConsentCompletion)block;
+
+- (void)fetchUserConsentForStudyWithCompletion:(_Nonnull CMHFetchConsentCompletion)block;
 
 - (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                  andCompletion:(_Nonnull CMHFetchConsentCompletion)block;

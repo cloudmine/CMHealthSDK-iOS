@@ -54,6 +54,11 @@
     }];
 }
 
+- (void)uploadUserConsent:(ORKTaskResult *)consentResult withCompletion:(CMHUploadConsentCompletion)block
+{
+    [self uploadUserConsent:consentResult forStudyWithDescriptor:nil andCompletion:block];
+}
+
 - (void)uploadUserConsent:(ORKTaskResult *)consentResult forStudyWithDescriptor:(NSString *)descriptor andCompletion:(CMHUploadConsentCompletion)block
 {
     NSError *consentError = nil;
@@ -126,6 +131,11 @@
             }];
         }];
     }];
+}
+
+- (void)fetchUserConsentForStudyWithCompletion:(CMHFetchConsentCompletion)block
+{
+    [self fetchUserConsentForStudyWithDescriptor:nil andCompletion:block];
 }
 
 - (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
