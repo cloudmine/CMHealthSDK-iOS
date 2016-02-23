@@ -40,16 +40,15 @@
     [CMStore defaultStore].user = newUser;
 
     [newUser createAccountAndLoginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        if (nil == block) {
-            return;
-        }
-
         NSError *error = [CMHUser errorForAccountResult:resultCode];
         if (nil != error) {
-            block(error);
+            if (nil != block) {
+                block(error);
+            }
             return;
         }
 
+        self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
         block(nil);
     }];
 }
