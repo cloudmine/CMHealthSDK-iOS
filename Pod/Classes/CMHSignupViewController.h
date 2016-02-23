@@ -2,4 +2,6 @@
 
 @interface CMHSignupViewController : UIViewController
 
++ (_Nonnull instancetype)signupViewController;
+
 @end
