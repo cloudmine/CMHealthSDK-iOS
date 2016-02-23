@@ -3,7 +3,7 @@
 @protocol CMHSignupViewDelegate <NSObject>
 
 - (void)signupViewDidCancel;
-- (void)signupViewDidCompleteWithUsername:(NSString *_Nonnull)username andPassword:(NSString *_Nonnull)password;
+- (void)signupViewDidCompleteWithEmail:(NSString *_Nonnull)email andPassword:(NSString *_Nonnull)password;
 
 @end
 

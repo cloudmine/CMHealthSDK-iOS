@@ -186,6 +186,11 @@
                             </mask>
                         </variation>
                     </view>
+                    <connections>
+                        <outlet property="emailTextField" destination="qvp-zQ-GI4" id="iB3-xp-fgb"/>
+                        <outlet property="nextButton" destination="bws-9R-79r" id="MvT-Ht-KBa"/>
+                        <outlet property="passwordTextField" destination="nL8-tz-E1y" id="ge9-lE-eWj"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tiy-Bt-bfK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
