@@ -152,9 +152,15 @@
                                     <navigationItem title="Registration" id="Hvr-wg-n2r">
                                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="eJG-77-voL">
                                             <color key="tintColor" red="0.050980392159999999" green="0.58823529409999997" blue="0.83921568629999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <action selector="cancelButtonDidPress:" destination="Sqq-X3-Yv0" id="3Ka-er-feg"/>
+                                            </connections>
                                         </barButtonItem>
                                         <barButtonItem key="rightBarButtonItem" title="Next" id="bws-9R-79r">
                                             <color key="tintColor" red="0.050980392159999999" green="0.58823529409999997" blue="0.83921568629999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <action selector="nextButtonDidPress:" destination="Sqq-X3-Yv0" id="cVf-P3-M3n"/>
+                                            </connections>
                                         </barButtonItem>
                                     </navigationItem>
                                 </items>
