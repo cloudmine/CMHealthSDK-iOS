@@ -1,0 +1,7 @@
+unreleased=false
+github-site=https://github.com/cloudmine/CMHealthSDK
+project=CMHealthSDK
+unreleased=false
+since-tag=0.1.4
+simple-list=true
+header=CMHealthSDK Change Log

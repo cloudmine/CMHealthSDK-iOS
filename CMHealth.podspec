@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
 
   s.homepage         = "https://github.com/cloudmine/CMHealthSDK"
   s.license          = 'MIT'
-  s.author           = { "CloudMine" => "support@cloudmine.me" }
+  s.author           = { "CloudMine" => "support@cloudmineinc.com" }
   s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK.git", :tag => s.version.to_s }
 
   s.platform         = :ios, '8.0'
