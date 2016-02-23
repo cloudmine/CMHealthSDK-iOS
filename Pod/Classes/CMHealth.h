@@ -7,14 +7,10 @@
 #import "CMHConsent.h"
 #import "CMHUser.h"
 #import "ORKResult+CMHealth.h"
+#import "ORKConsentSection+CMHealth.h"
 
 @interface CMHealth : NSObject
 
 + (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret;
 
-+ (ORKConsentSection *_Nonnull)initCloudMineSecureConsentSection;
-
 @end
-
-#define SETUP_CMHEALTH_BUNDLE \
-  NSBundle *CMHealthBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"CMHealth" ofType:@"bundle"]];

@@ -12,24 +12,4 @@
     credentials.appSecret = secret;
 }
 
-
-+ (ORKConsentSection *_Nonnull)initCloudMineSecureConsentSection
-{
-    SETUP_CMHEALTH_BUNDLE
-    
-    ORKConsentSection *section = [[ORKConsentSection alloc] initWithType:ORKConsentSectionTypeCustom];
-    
-    section.title = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionTitle" value:nil table:nil];
-    
-    section.summary = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionSummary" value:nil table:nil];
-    
-    section.content = [CMHealthBundle localizedStringForKey:@"CMHSecureConsentSectionContent" value:nil table:nil];
-    
-    // after cocoapods 1.0 is released we can use Assets.xcasetts for images, etc.
-    // don't forget to update the CMHealth.podspec
-    section.customImage = [[UIImage imageNamed:@"cloudmine-logo.png" inBundle:CMHealthBundle compatibleWithTraitCollection:nil] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    
-    return section;
-}
-
 @end
