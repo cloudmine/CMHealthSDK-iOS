@@ -3,10 +3,19 @@
 #import "CMHInputValidators.h"
 #import "CMHAlerter.h"
 
+typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
+    CHMAuthViewControllerConfigSignup,
+    CHMAuthViewControllerConfigLogin
+};
+
 @interface CMHSignupViewController ()
+@property (weak, nonatomic) IBOutlet UINavigationItem *navItem;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
+@property (weak, nonatomic) IBOutlet UILabel *topMessageLabel;
 @property (weak, nonatomic) IBOutlet UITextField *emailTextField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
+@property (weak, nonatomic) IBOutlet UIButton *forgotPasswordButton;
+@property (nonatomic) CHMAuthViewControllerConfig authType;
 @end
 
 @implementation CMHSignupViewController
@@ -15,8 +24,22 @@
 
 + (_Nonnull instancetype)signupViewController
 {
+    CMHSignupViewController *signupVC = [self viewControllerFromStoryboard];
+    signupVC.authType = CHMAuthViewControllerConfigSignup;
+    return signupVC;
+}
+
++ (_Nonnull instancetype)loginViewController
+{
+    CMHSignupViewController *loginVC = [self viewControllerFromStoryboard];
+    loginVC.authType = CHMAuthViewControllerConfigLogin;
+    return loginVC;
+}
+
++ (_Nonnull instancetype)viewControllerFromStoryboard
+{
     UIViewController *vc = [[UIStoryboard storyboardWithName:@"CMHSignup" bundle:[CMHBundler instance].bundle] instantiateInitialViewController];
-    NSAssert(nil != vc, @"Failed to load CMHSignupViewController from Storyboard");
+    NSAssert(nil != vc, @"Failed to load %@ from Storyboard", [self class]);
     NSAssert([vc isKindOfClass:[self class]], @"Expected to load %@ but got %@", [self class], [vc class]);
     return (CMHSignupViewController *)vc;
 }
@@ -26,6 +49,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    switch (self.authType) {
+        case CHMAuthViewControllerConfigLogin:
+            self.navItem.title = NSLocalizedString(@"Log In", nil);
+            self.topMessageLabel.text = NSLocalizedString(@"Please log in to your account to store and access your research data.", nil);
+            self.forgotPasswordButton.hidden = NO;
+            break;
+        default:
+            self.navItem.title = NSLocalizedString(@"Registration", nil);
+            self.topMessageLabel.text = NSLocalizedString(@"Please create an account to store and access your research data.", nil);
+            self.forgotPasswordButton.hidden = YES;
+    }
 
     self.nextButton.enabled = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextChange) name:UITextFieldTextDidChangeNotification object:nil];
@@ -53,6 +88,10 @@
 - (IBAction)cancelButtonDidPress:(UIBarButtonItem *)sender
 {
     [self.delegate signupViewDidCancel];
+}
+- (IBAction)forgotPasswordButtonDidPress:(UIButton *)sender
+{
+
 }
 
 #pragma mark Notifications

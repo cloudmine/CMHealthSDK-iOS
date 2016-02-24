@@ -23,7 +23,7 @@
                                 <rect key="frame" x="0.0" y="20" width="600" height="44"/>
                                 <color key="barTintColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                 <items>
-                                    <navigationItem title="Registration" id="Hvr-wg-n2r">
+                                    <navigationItem title="TITLE" id="Hvr-wg-n2r">
                                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="eJG-77-voL">
                                             <color key="tintColor" red="0.0" green="0.4823529412" blue="0.79607843140000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <connections>
@@ -43,10 +43,16 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="324"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VMc-HZ-89V" userLabel="Content View">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="301"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="281"/>
                                         <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TOP MESSAGE" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.75" translatesAutoresizingMaskIntoConstraints="NO" id="iLe-tT-tdz">
+                                                <rect key="frame" x="25" y="50" width="550" height="24"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bBy-RP-gOb" userLabel="Fields Container">
-                                                <rect key="frame" x="0.0" y="130" width="600" height="151"/>
+                                                <rect key="frame" x="0.0" y="98" width="600" height="151"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="did-uh-k7C" userLabel="Email Container">
                                                         <rect key="frame" x="0.0" y="23" width="600" height="64"/>
@@ -58,7 +64,7 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Required" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="qvp-zQ-GI4">
-                                                                <rect key="frame" x="127.5" y="19.5" width="456.5" height="24"/>
+                                                                <rect key="frame" x="127" y="20" width="456.5" height="24"/>
                                                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
@@ -90,7 +96,7 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Required" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nL8-tz-E1y">
-                                                                <rect key="frame" x="127.5" y="19.5" width="456.5" height="24"/>
+                                                                <rect key="frame" x="127" y="20" width="456.5" height="24"/>
                                                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
@@ -136,12 +142,16 @@
                                                     </mask>
                                                 </variation>
                                             </view>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please create an account to store and access your research data" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.75" translatesAutoresizingMaskIntoConstraints="NO" id="iLe-tT-tdz">
-                                                <rect key="frame" x="25" y="50" width="550" height="48"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PMy-mQ-vEI">
+                                                <rect key="frame" x="216.5" y="245" width="166" height="32"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <state key="normal" title="Forgot your password?">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="forgotPasswordButtonDidPress:" destination="Sqq-X3-Yv0" eventType="touchUpInside" id="nEU-lW-Sdf"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <constraints>
@@ -149,13 +159,17 @@
                                             <constraint firstAttribute="trailing" secondItem="bBy-RP-gOb" secondAttribute="trailing" id="5r0-Qh-Bbe"/>
                                             <constraint firstAttribute="trailing" secondItem="iLe-tT-tdz" secondAttribute="trailing" constant="25" id="OUE-hU-BRj"/>
                                             <constraint firstItem="iLe-tT-tdz" firstAttribute="top" secondItem="VMc-HZ-89V" secondAttribute="top" constant="50" id="Ttb-7A-6x4"/>
+                                            <constraint firstAttribute="bottom" secondItem="PMy-mQ-vEI" secondAttribute="bottom" constant="4" id="XIx-N6-zXR"/>
                                             <constraint firstItem="bBy-RP-gOb" firstAttribute="leading" secondItem="VMc-HZ-89V" secondAttribute="leading" id="XhF-4y-4ig"/>
                                             <constraint firstAttribute="bottom" secondItem="bBy-RP-gOb" secondAttribute="bottom" constant="20" symbolic="YES" id="b25-Vh-Ofz"/>
                                             <constraint firstItem="bBy-RP-gOb" firstAttribute="top" secondItem="VMc-HZ-89V" secondAttribute="top" id="e6X-r6-fRO"/>
-                                            <constraint firstItem="bBy-RP-gOb" firstAttribute="top" secondItem="iLe-tT-tdz" secondAttribute="bottom" constant="32" id="vVn-MR-T8k"/>
+                                            <constraint firstItem="bBy-RP-gOb" firstAttribute="bottom" secondItem="PMy-mQ-vEI" secondAttribute="top" constant="4" id="nf8-py-ZL6"/>
+                                            <constraint firstItem="PMy-mQ-vEI" firstAttribute="centerX" secondItem="VMc-HZ-89V" secondAttribute="centerX" id="ugL-a8-eFf"/>
+                                            <constraint firstItem="bBy-RP-gOb" firstAttribute="top" secondItem="iLe-tT-tdz" secondAttribute="bottom" constant="24" id="vVn-MR-T8k"/>
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
+                                                <exclude reference="b25-Vh-Ofz"/>
                                                 <exclude reference="e6X-r6-fRO"/>
                                             </mask>
                                         </variation>
@@ -179,7 +193,7 @@
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="© 2016. CloudMine, Inc." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V8R-rc-IXw">
-                                        <rect key="frame" x="204.5" y="180.5" width="191.5" height="21.5"/>
+                                        <rect key="frame" x="204" y="180" width="191.5" height="21.5"/>
                                         <fontDescription key="fontDescription" type="system" weight="light" pointSize="18"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
@@ -223,8 +237,11 @@
                     </view>
                     <connections>
                         <outlet property="emailTextField" destination="qvp-zQ-GI4" id="iB3-xp-fgb"/>
+                        <outlet property="forgotPasswordButton" destination="PMy-mQ-vEI" id="Jbn-y4-f1U"/>
+                        <outlet property="navItem" destination="Hvr-wg-n2r" id="j2g-yN-Nln"/>
                         <outlet property="nextButton" destination="bws-9R-79r" id="MvT-Ht-KBa"/>
                         <outlet property="passwordTextField" destination="nL8-tz-E1y" id="ge9-lE-eWj"/>
+                        <outlet property="topMessageLabel" destination="iLe-tT-tdz" id="TkJ-RD-8Dq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tiy-Bt-bfK" userLabel="First Responder" sceneMemberID="firstResponder"/>

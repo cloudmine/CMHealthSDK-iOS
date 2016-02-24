@@ -10,6 +10,8 @@
 @interface CMHSignupViewController : UIViewController
 
 + (_Nonnull instancetype)signupViewController;
++ (_Nonnull instancetype)loginViewController;
+
 @property (weak, nonatomic, nullable) id<CMHSignupViewDelegate> delegate;
 
 @end
