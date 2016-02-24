@@ -30,7 +30,7 @@
                                                 <action selector="cancelButtonDidPress:" destination="Sqq-X3-Yv0" id="3Ka-er-feg"/>
                                             </connections>
                                         </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" title="Next" id="bws-9R-79r">
+                                        <barButtonItem key="rightBarButtonItem" title="Submit" id="bws-9R-79r">
                                             <color key="tintColor" red="0.0" green="0.4823529412" blue="0.79607843140000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <connections>
                                                 <action selector="nextButtonDidPress:" destination="Sqq-X3-Yv0" id="cVf-P3-M3n"/>
@@ -39,7 +39,7 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oR5-C6-ull">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oR5-C6-ull" customClass="TPKeyboardAvoidingScrollView">
                                 <rect key="frame" x="0.0" y="64" width="600" height="324"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VMc-HZ-89V" userLabel="Content View">
