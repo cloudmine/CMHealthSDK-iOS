@@ -82,12 +82,12 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
         return;
     }
 
-    [self.delegate signupViewDidCompleteWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text];
+    [self.delegate authViewDidSubmitWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text];
 }
 
 - (IBAction)cancelButtonDidPress:(UIBarButtonItem *)sender
 {
-    [self.delegate signupViewDidCancel];
+    [self.delegate authViewDidCancel];
 }
 - (IBAction)forgotPasswordButtonDidPress:(UIButton *)sender
 {

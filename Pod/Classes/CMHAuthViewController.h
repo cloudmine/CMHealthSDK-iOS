@@ -1,9 +1,9 @@
 #import <UIKit/UIKit.h>
 
-@protocol CMHSignupViewDelegate <NSObject>
+@protocol CMHAuthViewDelegate <NSObject>
 
-- (void)signupViewDidCancel;
-- (void)signupViewDidCompleteWithEmail:(NSString *_Nonnull)email andPassword:(NSString *_Nonnull)password;
+- (void)authViewDidCancel;
+- (void)authViewDidSubmitWithEmail:(NSString *_Nonnull)email andPassword:(NSString *_Nonnull)password;
 
 @end
 
@@ -12,6 +12,6 @@
 + (_Nonnull instancetype)signupViewController;
 + (_Nonnull instancetype)loginViewController;
 
-@property (weak, nonatomic, nullable) id<CMHSignupViewDelegate> delegate;
+@property (weak, nonatomic, nullable) id<CMHAuthViewDelegate> delegate;
 
 @end
