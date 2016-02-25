@@ -184,6 +184,13 @@ get all of the core CloudMine functionality for free.  To go beyond the Research
 of CMHealth, start with the [CloudMine iOS documentation](https://cloudmine.io/docs/#/ios).
 
 
+### CMHealth in Action
+
+To get a sense of how CMHealth works seamlessly with ResearchKit, you can check out the CloudMine
+[AsthmaHealth](https://github.com/cloudmine/AsthmaHealth/) demo application.  AsthmaHealth
+can also serve as a starting point for your own ResearchKit enabled app.
+
+
 ## License
 
 CMHealth is available under the MIT license. See the LICENSE file for more info.
