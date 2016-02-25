@@ -3,6 +3,8 @@
 #import "CMHInputValidators.h"
 #import "CMHAlerter.h"
 
+static NSString *const CMHAuthStoryboardName = @"CMHAuth";
+
 typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
     CHMAuthViewControllerConfigSignup,
     CHMAuthViewControllerConfigLogin
@@ -38,7 +40,7 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
 
 + (_Nonnull instancetype)viewControllerFromStoryboard
 {
-    UIViewController *vc = [[UIStoryboard storyboardWithName:@"CMHSignup" bundle:[CMHBundler instance].bundle] instantiateInitialViewController];
+    UIViewController *vc = [[UIStoryboard storyboardWithName:CMHAuthStoryboardName bundle:[CMHBundler instance].bundle] instantiateInitialViewController];
     NSAssert(nil != vc, @"Failed to load %@ from Storyboard", [self class]);
     NSAssert([vc isKindOfClass:[self class]], @"Expected to load %@ but got %@", [self class], [vc class]);
     return (CMHAuthViewController *)vc;
