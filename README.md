@@ -2,7 +2,7 @@
 
 CMHealth is the easiest way to add secure, compliant cloud data storage
 to your [ResearchKit](http://researchkit.org/) clinical study app.
-Built and backed by [CloudMine](https://cloudmine.me/).
+Built and backed by [CloudMine](https://cloudmineinc.com/).
 
 **IMPORTANT NOTICE**: This SDK is pre-1.0 software. It is very likely there will
 be breaking changes to the API and data schema before a stable release. Your
@@ -177,8 +177,14 @@ email and password. Data is returned via delegation.
 @end
 ```
 
+### The Rest of CloudMine
+
+CMHealth includes and extends the [CloudMine iOS SDK](https://cocoapods.org/pods/CloudMine), so you
+get all of the core CloudMine functionality for free.  To go beyond the ResearchKit specific parts
+of CMHealth, start with the [CloudMine iOS documentation](https://cloudmine.io/docs/#/ios).
+
 
 ## License
 
 CMHealth is available under the MIT license. See the LICENSE file for more info.
-`
+
