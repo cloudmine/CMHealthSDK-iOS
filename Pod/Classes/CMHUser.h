@@ -7,6 +7,7 @@
 typedef void(^CMHUserAuthCompletion)(NSError * _Nullable error);
 typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
 typedef void(^CMHUploadConsentCompletion)(NSError *_Nullable error);
+typedef void(^CMHResetPasswordCompletion)(NSError *_Nullable error);
 typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 
 @interface CMHUser : NSObject
@@ -32,6 +33,9 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
 - (void)loginWithEmail:(NSString *_Nonnull)email
               password:(NSString *_Nonnull)password
          andCompletion:(_Nullable CMHUserAuthCompletion)block;
+
+- (void)resetPasswordForAccountWithEmail:(NSString *_Nonnull)email
+                          withCompletion:(_Nullable CMHResetPasswordCompletion)block;
 
 - (void)logoutWithCompletion:(_Nullable CMHUserLogoutCompletion)block;
 

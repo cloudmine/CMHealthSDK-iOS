@@ -203,6 +203,35 @@
     }];
 }
 
+- (void)resetPasswordForAccountWithEmail:(NSString *_Nonnull)email
+                          withCompletion:(_Nullable CMHResetPasswordCompletion)block
+{
+     NSAssert(nil != email, @"CMHUser: Attempted to reset password for account with nil email");
+
+    CMUser *resetUser = [[CMUser alloc] initWithEmail:email andPassword:@""];
+    [resetUser resetForgottenPasswordWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+        if (nil == block) {
+            return;
+        }
+
+        NSError *resetError = nil;
+        switch (resultCode) {
+            case CMUserAccountPasswordResetEmailSent:
+                break;
+            case CMUserAccountOperationFailedUnknownAccount:
+                resetError = [CMHErrorUtilities errorWithCode:CMHErrorResetInvalidAcct
+                                         localizedDescription:NSLocalizedString(@"Account does not exist", nil)];
+                break;
+            default:
+                resetError = [CMHErrorUtilities errorWithCode:CMHErrorResetUnknownResult
+                                         localizedDescription:NSLocalizedString(@"Unknown result while attempting to reset account", nil)];
+                break;
+        }
+
+        block(resetError);
+    }];
+}
+
 - (void)logoutWithCompletion:(_Nullable CMHUserLogoutCompletion)block
 {
     [[CMHInternalUser currentUser] logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {

@@ -2,6 +2,7 @@
 #import "CMHBundler.h"
 #import "CMHInputValidators.h"
 #import "CMHAlerter.h"
+#import "CMHUser.h"
 
 static NSString *const CMHAuthStoryboardName = @"CMHAuth";
 
@@ -142,6 +143,19 @@ static NSString *const CMHAuthStoryboardName = @"CMHAuth";
         [CMHAlerter displayAlertWithTitle:NSLocalizedString(@"", nil) andMessage:invalidEmailMessage inViewController:self];
         return;
     }
+
+    [[CMHUser currentUser] resetPasswordForAccountWithEmail:email withCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
+            [CMHAlerter displayAlertWithTitle:NSLocalizedString(@"Password Reset Failed", nil)
+                                   andMessage:error.localizedDescription
+                             inViewController:self];
+            return;
+        }
+
+        [CMHAlerter displayAlertWithTitle:NSLocalizedString(@"Password Reset", nil)
+                               andMessage:NSLocalizedString(@"An email with instructions for reseting your password has been sent", nil)
+                         inViewController:self];
+    }];
 }
 
 @end
