@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
                         backed by CloudMine and the CloudMine Connected Health Cloud.
                        DESC
 
-  s.homepage         = "https://github.com/cloudmine/CMHealthSDK"
+  s.homepage         = "https://github.com/cloudmine/CMHealthSDK-iOS"
   s.license          = 'MIT'
   s.author           = { "CloudMine" => "support@cloudmineinc.com" }
   s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK-iOS.git", :tag => s.version.to_s }
