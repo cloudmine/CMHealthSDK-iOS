@@ -7,7 +7,7 @@
 
 @end
 
-@interface CMHSignupViewController : UIViewController
+@interface CMHAuthViewController : UIViewController
 
 + (_Nonnull instancetype)signupViewController;
 + (_Nonnull instancetype)loginViewController;

@@ -1,4 +1,4 @@
-#import "CMHSignupViewController.h"
+#import "CMHAuthViewController.h"
 #import "CMHBundler.h"
 #import "CMHInputValidators.h"
 #import "CMHAlerter.h"
@@ -8,7 +8,7 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
     CHMAuthViewControllerConfigLogin
 };
 
-@interface CMHSignupViewController ()
+@interface CMHAuthViewController ()
 @property (weak, nonatomic) IBOutlet UINavigationItem *navItem;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
 @property (weak, nonatomic) IBOutlet UILabel *topMessageLabel;
@@ -18,20 +18,20 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
 @property (nonatomic) CHMAuthViewControllerConfig authType;
 @end
 
-@implementation CMHSignupViewController
+@implementation CMHAuthViewController
 
 #pragma mark Factory Instantiation
 
 + (_Nonnull instancetype)signupViewController
 {
-    CMHSignupViewController *signupVC = [self viewControllerFromStoryboard];
+    CMHAuthViewController *signupVC = [self viewControllerFromStoryboard];
     signupVC.authType = CHMAuthViewControllerConfigSignup;
     return signupVC;
 }
 
 + (_Nonnull instancetype)loginViewController
 {
-    CMHSignupViewController *loginVC = [self viewControllerFromStoryboard];
+    CMHAuthViewController *loginVC = [self viewControllerFromStoryboard];
     loginVC.authType = CHMAuthViewControllerConfigLogin;
     return loginVC;
 }
@@ -41,7 +41,7 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
     UIViewController *vc = [[UIStoryboard storyboardWithName:@"CMHSignup" bundle:[CMHBundler instance].bundle] instantiateInitialViewController];
     NSAssert(nil != vc, @"Failed to load %@ from Storyboard", [self class]);
     NSAssert([vc isKindOfClass:[self class]], @"Expected to load %@ but got %@", [self class], [vc class]);
-    return (CMHSignupViewController *)vc;
+    return (CMHAuthViewController *)vc;
 }
 
 #pragma mark Lifecycle

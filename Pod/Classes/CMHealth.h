@@ -8,7 +8,7 @@
 #import "CMHUser.h"
 #import "ORKResult+CMHealth.h"
 #import "ORKConsentSection+CMHealth.h"
-#import "CMHSignupViewController.h"
+#import "CMHAuthViewController.h"
 
 @interface CMHealth : NSObject
 

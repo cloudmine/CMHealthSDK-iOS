@@ -7,10 +7,10 @@
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
-        <!--Signup View Controller-->
+        <!--Auth View Controller-->
         <scene sceneID="yXi-OT-1Y6">
             <objects>
-                <viewController id="Sqq-X3-Yv0" customClass="CMHSignupViewController" sceneMemberID="viewController">
+                <viewController id="Sqq-X3-Yv0" customClass="CMHAuthViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="9bt-sV-bnc"/>
                         <viewControllerLayoutGuide type="bottom" id="1d4-Yk-lYd"/>
