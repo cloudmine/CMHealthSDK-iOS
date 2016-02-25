@@ -5,11 +5,6 @@
 
 static NSString *const CMHAuthStoryboardName = @"CMHAuth";
 
-typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
-    CHMAuthViewControllerConfigSignup,
-    CHMAuthViewControllerConfigLogin
-};
-
 @interface CMHAuthViewController ()
 @property (weak, nonatomic) IBOutlet UINavigationItem *navItem;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
@@ -17,7 +12,7 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
 @property (weak, nonatomic) IBOutlet UITextField *emailTextField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 @property (weak, nonatomic) IBOutlet UIButton *forgotPasswordButton;
-@property (nonatomic) CHMAuthViewControllerConfig authType;
+@property (nonatomic) CMHAuthType authType;
 @end
 
 @implementation CMHAuthViewController
@@ -27,14 +22,14 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
 + (_Nonnull instancetype)signupViewController
 {
     CMHAuthViewController *signupVC = [self viewControllerFromStoryboard];
-    signupVC.authType = CHMAuthViewControllerConfigSignup;
+    signupVC.authType = CMHAuthTypeSignup;
     return signupVC;
 }
 
 + (_Nonnull instancetype)loginViewController
 {
     CMHAuthViewController *loginVC = [self viewControllerFromStoryboard];
-    loginVC.authType = CHMAuthViewControllerConfigLogin;
+    loginVC.authType = CMHAuthTypeLogin;
     return loginVC;
 }
 
@@ -53,7 +48,7 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
     [super viewDidLoad];
 
     switch (self.authType) {
-        case CHMAuthViewControllerConfigLogin:
+        case CMHAuthTypeLogin:
             self.navItem.title = NSLocalizedString(@"Log In", nil);
             self.topMessageLabel.text = NSLocalizedString(@"Please log in to your account to store and access your research data.", nil);
             self.forgotPasswordButton.hidden = NO;
@@ -84,12 +79,12 @@ typedef NS_ENUM(NSUInteger, CHMAuthViewControllerConfig) {
         return;
     }
 
-    [self.delegate authViewDidSubmitWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text];
+    [self.delegate authViewOfType:self.authType didSubmitWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text];
 }
 
 - (IBAction)cancelButtonDidPress:(UIBarButtonItem *)sender
 {
-    [self.delegate authViewDidCancel];
+    [self.delegate authViewCancelledType:self.authType];
 }
 - (IBAction)forgotPasswordButtonDidPress:(UIButton *)sender
 {

@@ -1,9 +1,14 @@
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSUInteger, CMHAuthType) {
+    CMHAuthTypeSignup,
+    CMHAuthTypeLogin
+};
+
 @protocol CMHAuthViewDelegate <NSObject>
 
-- (void)authViewDidCancel;
-- (void)authViewDidSubmitWithEmail:(NSString *_Nonnull)email andPassword:(NSString *_Nonnull)password;
+- (void)authViewCancelledType:(CMHAuthType)authType;
+- (void)authViewOfType:(CMHAuthType)authType didSubmitWithEmail:(NSString *_Nonnull)email andPassword:(NSString *_Nonnull)password;
 
 @end
 
