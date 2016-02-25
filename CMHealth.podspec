@@ -1,18 +1,17 @@
 Pod::Spec.new do |s|
   s.name             = "CMHealth"
-  s.version          = "0.1.12"
-  s.summary          = "Store and retrieve ResearchKit data to CloudMine with ease"
+  s.version          = "0.2.0"
+  s.summary          = "A HIPAA compliant data storage interface for ResearchKit, from CloudMine."
   s.description      = <<-DESC
-                        Store and retrieve ResearchKit data to CloudMine's backend with ease.
-                        Build your ResearchKit app just as you always would, and call a simple
-                        method to serialize the results and store them securely with CloudMine.
-                        Retrieving your data is equally simple.
+                        CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage
+                        and user management to your ResearchKit clinical study iOS app.  Built and
+                        backed by CloudMine and the CloudMine Connected Health Cloud.
                        DESC
 
   s.homepage         = "https://github.com/cloudmine/CMHealthSDK"
   s.license          = 'MIT'
   s.author           = { "CloudMine" => "support@cloudmineinc.com" }
-  s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/cloudmine/CMHealthSDK-iOS.git", :tag => s.version.to_s }
 
   s.platform         = :ios, '8.0'
   s.requires_arc     = true
