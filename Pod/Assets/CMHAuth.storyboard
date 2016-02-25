@@ -43,16 +43,16 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="324"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VMc-HZ-89V" userLabel="Content View">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="281"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="267"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TOP MESSAGE" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.75" translatesAutoresizingMaskIntoConstraints="NO" id="iLe-tT-tdz">
-                                                <rect key="frame" x="25" y="50" width="550" height="24"/>
+                                                <rect key="frame" x="25" y="36" width="550" height="24"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bBy-RP-gOb" userLabel="Fields Container">
-                                                <rect key="frame" x="0.0" y="98" width="600" height="151"/>
+                                                <rect key="frame" x="0.0" y="84" width="600" height="151"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="did-uh-k7C" userLabel="Email Container">
                                                         <rect key="frame" x="0.0" y="23" width="600" height="64"/>
@@ -143,7 +143,7 @@
                                                 </variation>
                                             </view>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PMy-mQ-vEI">
-                                                <rect key="frame" x="216.5" y="245" width="166" height="32"/>
+                                                <rect key="frame" x="216.5" y="231" width="166" height="32"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                 <state key="normal" title="Forgot your password?">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -158,7 +158,7 @@
                                             <constraint firstItem="iLe-tT-tdz" firstAttribute="leading" secondItem="VMc-HZ-89V" secondAttribute="leading" constant="25" id="3Qw-SA-lEV"/>
                                             <constraint firstAttribute="trailing" secondItem="bBy-RP-gOb" secondAttribute="trailing" id="5r0-Qh-Bbe"/>
                                             <constraint firstAttribute="trailing" secondItem="iLe-tT-tdz" secondAttribute="trailing" constant="25" id="OUE-hU-BRj"/>
-                                            <constraint firstItem="iLe-tT-tdz" firstAttribute="top" secondItem="VMc-HZ-89V" secondAttribute="top" constant="50" id="Ttb-7A-6x4"/>
+                                            <constraint firstItem="iLe-tT-tdz" firstAttribute="top" secondItem="VMc-HZ-89V" secondAttribute="top" constant="36" id="Ttb-7A-6x4"/>
                                             <constraint firstAttribute="bottom" secondItem="PMy-mQ-vEI" secondAttribute="bottom" constant="4" id="XIx-N6-zXR"/>
                                             <constraint firstItem="bBy-RP-gOb" firstAttribute="leading" secondItem="VMc-HZ-89V" secondAttribute="leading" id="XhF-4y-4ig"/>
                                             <constraint firstAttribute="bottom" secondItem="bBy-RP-gOb" secondAttribute="bottom" constant="20" symbolic="YES" id="b25-Vh-Ofz"/>
