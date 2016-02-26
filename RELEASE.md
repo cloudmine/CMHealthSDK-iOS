@@ -31,7 +31,7 @@ git push origin 0.2.1
 ```
 pod spec lint
 ```
-5. push the pod to CocoaPods
+5. push the pod to CocoaPods (allowing warnings if things aren't completely tidy.  but let's hope that's not the case...)
 ```
 6. pod --allow-warnings trunk push CMHealth.podspec
 ```
