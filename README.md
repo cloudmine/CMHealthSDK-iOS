@@ -207,5 +207,5 @@ document to get started.
 
 ## License
 
-CMHealth is available under the MIT license. See the LICENSE file for more info.
+CMHealth is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
 
