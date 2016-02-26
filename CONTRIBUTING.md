@@ -22,7 +22,7 @@ Please adhere to the following process when contributing to CMHealth
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/CMHealth-iOS.git
+   git clone git@github.com:<your github username>/CMHealth-iOS.git
    # Navigate to the newly cloned directory
    cd CMHealth-iOS
    # Assign the original repo to a remote called "cloudmine"
