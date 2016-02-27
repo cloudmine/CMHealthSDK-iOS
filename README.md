@@ -2,13 +2,14 @@
 
 CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage
 and user management to your [ResearchKit](http://researchkit.org/) clinical study
-iOS app.  Built and backed by [CloudMine](https://cloudmineinc.com/) and the
+iOS app.  Built and backed by [CloudMine](http://cloudmineinc.com/) and the
 CloudMine Connected Health Cloud.
 
 **IMPORTANT NOTICE**: This SDK is pre-1.0 software. It is very likely there will
 be breaking changes to the API and data schema before a stable release. Your
 feedback is welcomed in this process. Please feel free to open an issue or
 pull request.
+
 
 ## Installation
 
@@ -41,6 +42,7 @@ and fetch results with ease.
         }
     }];
 ```
+
 ### Fetch
 ```Objective-C
 #import <CMHealth/CMHealth.h>
@@ -78,6 +80,7 @@ The SDK also provides [preconfigured screens](#authentication-screens)
 for participant authentication.
 
 ### Consent
+
 The SDK provides specific methods for archiving and fetching participant consent.
 In ResearchKit, user consent is collected in any `ORKTask` with special consent and signature
 steps included. CMHealth allows you to archive the resulting `ORKTaskResult` object
@@ -119,6 +122,7 @@ To ensure your participants have a valid consent on file before allowing them to
 ```
 
 ### Authentication Screens
+
 For convenience, the SDK provides preconfigured view controllers for user sign up and login.
 These screens can be presented modally and handle the collection and validation of user
 email and password. Data is returned via delegation.
@@ -185,14 +189,23 @@ get all of the core CloudMine functionality for free.  To go beyond the Research
 of CMHealth, start with the [CloudMine iOS documentation](https://cloudmine.io/docs/#/ios).
 
 
-### CMHealth in Action
+## CMHealth in Action
 
 To get a sense of how CMHealth works seamlessly with ResearchKit, you can check out the CloudMine
 [AsthmaHealth](https://github.com/cloudmine/AsthmaHealth/) demo application.  AsthmaHealth
 can also serve as a starting point for your own ResearchKit enabled app.
 
 
+## Support
+
+For general CMHealth support, please email support@cloudmine.me - we are here to help!
+
+For the more advantageous, we encourage getting directly involved via standard GitHub
+fork, issue tracker, and pull request pathways.  See the [CONTRIBUTING](CONTRIBUTING.md)
+document to get started.
+
+
 ## License
 
-CMHealth is available under the MIT license. See the LICENSE file for more info.
+CMHealth is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
 
