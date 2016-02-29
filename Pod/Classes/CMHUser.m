@@ -226,20 +226,7 @@
             return;
         }
 
-        NSError *resetError = nil;
-        switch (resultCode) {
-            case CMUserAccountPasswordResetEmailSent:
-                break;
-            case CMUserAccountOperationFailedUnknownAccount:
-                resetError = [CMHErrorUtilities errorWithCode:CMHErrorResetInvalidAcct
-                                         localizedDescription:NSLocalizedString(@"Account does not exist", nil)];
-                break;
-            default:
-                resetError = [CMHErrorUtilities errorWithCode:CMHErrorResetUnknownResult
-                                         localizedDescription:NSLocalizedString(@"Unknown result while attempting to reset account", nil)];
-                break;
-        }
-
+        NSError *resetError = [CMHUser errorForAccountResult:resultCode];
         block(resetError);
     }];
 }
@@ -297,13 +284,49 @@
 
 + (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
 {
-    // TODO: Update this to provide complete and unique error message/codes
-    if (CMUserAccountOperationFailed(resultCode)) {
-        return [CMHUser errorWithMessage:[NSString localizedStringWithFormat:@"Account action failed with code: %li", (long)resultCode]
-                                 andCode:(100 + resultCode)];
+    if (CMUserAccountOperationSuccessful(resultCode)) {
+        return nil;
     }
 
-    return nil;
+    NSString *errorMessage = nil;
+    CMHError code = -1;
+
+    switch (resultCode) {
+        case CMUserAccountCreateFailedInvalidRequest:
+            code = CMHErrorInvalidRequest;
+            errorMessage = NSLocalizedString(@"Request was invalid", nil);
+            break;
+        case CMUserAccountProfileUpdateFailed:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = NSLocalizedString(@"Failed to update profile", nil);
+            break;
+        case CMUserAccountCreateFailedDuplicateAccount:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account email", nil);
+            break;
+        case CMUserAccountCredentialChangeFailedDuplicateEmail:
+        case CMUserAccountCredentialChangeFailedDuplicateUsername:
+        case CMUserAccountCredentialChangeFailedDuplicateInfo:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account data", nil);
+            break;
+        case CMUserAccountLoginFailedIncorrectCredentials:
+        case CMUserAccountCredentialChangeFailedInvalidCredentials:
+        case CMUserAccountPasswordChangeFailedInvalidCredentials:
+            code = CMHErrorInvalidCredentials;
+            errorMessage = NSLocalizedString(@"Invalid username or password", nil);
+            break;
+        case CMUserAccountOperationFailedUnknownAccount:
+            code = CMHErrorInvalidAccount;
+            errorMessage = NSLocalizedString(@"Account does not exist", nil);
+            break;
+        default:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = [NSString localizedStringWithFormat:@"Unknown account error with code: %li", (long)resultCode];
+            break;
+    }
+
+    return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
 }
 
 // TODO: This method should go away once proper error generation is done
