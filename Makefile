@@ -33,3 +33,17 @@ cocoapods-push:
 	@$(MAKE) bump-patch
 
 release: get-version tag-version verify-tag push-origin cocoapods-push
+
+clairvoyance-docs:
+	-@find docs/ -name "*.md" -exec rm -rf {} \;
+	git clone git@github.com:cloudmine/clairvoyance.git
+	-@rsync -rtuvl --exclude=.git clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/ docs/
+	-@rm -rf clairvoyance
+	@$(MAKE) readme
+
+readme:
+	-@find docs -name "*.md" -exec sh -c "cat {}; echo" \; \
+	| sed -e 's/^# /## /' \
+	| sed -e 's/## CMHealth and ResearchKit/# CMHealth/' \
+	| perl -pe 's#img/(CMHealth-SDK-Login-Screen.png)#$$1#' \
+	| sed -e s'#https://github.com/cloudmine/CMHealthSDK-iOS/blob/master/##' > README.md
