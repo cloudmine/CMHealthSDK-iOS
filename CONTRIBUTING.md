@@ -8,7 +8,7 @@ is looking forward to working with you!
 
 ## Reporting Bugs in CMHealth
 
-The [public GitHub issue tracker](https://github.com/cloudmine/cloudmine-ios/issues) is
+The [public GitHub issue tracker](https://github.com/cloudmine/CloudMineSDK-iOS/issues) is
 the preferred channel for bug reports, features requests and submitting pull requests.
 
 
