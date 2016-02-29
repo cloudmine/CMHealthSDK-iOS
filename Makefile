@@ -38,7 +38,7 @@ clairvoyance-docs:
 	-@find docs/ -name "*.md" -exec rm -rf {} \;
 	git clone git@github.com:cloudmine/clairvoyance.git
 	-@rsync -rtuvl --exclude=.git --delete clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/ docs/
-	-@ln -s CMHealth-SDK-Login-Screen.png docs/CMHealth-SDK-Login-Screen.png
+	-@cp clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/CMHealth-SDK-Login-Screen.png .
 	-@rm -rf clairvoyance
 	@$(MAKE) readme
 
