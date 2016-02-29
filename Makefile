@@ -37,7 +37,7 @@ release: get-version tag-version verify-tag push-origin cocoapods-push
 clairvoyance-docs:
 	-@find docs/ -name "*.md" -exec rm -rf {} \;
 	git clone git@github.com:cloudmine/clairvoyance.git
-	-@rsync -rtuvl --exclude=.git clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/ docs/
+	-@rsync -rtuvl --exclude=.git --delete clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/ docs/
 	-@rm -rf clairvoyance
 	@$(MAKE) readme
 
