@@ -39,17 +39,29 @@
     CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
     [CMStore defaultStore].user = newUser;
 
-    [newUser createAccountAndLoginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
-        if (nil != error) {
+    [newUser createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
+        NSError *createError = [CMHUser errorForAccountResult:createResultCode];
+        if (nil != createError) {
             if (nil != block) {
-                block(error);
+                block(createError);
             }
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
-        block(nil);
+        [newUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+            NSError *loginError = [CMHUser errorForAccountResult:resultCode];
+            if (nil != loginError) {
+                if (nil != block) {
+                    block(loginError);
+                }
+                return;
+            }
+
+            self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
+            if (nil != block) {
+                block(nil);
+            }
+        }];
     }];
 }
 
