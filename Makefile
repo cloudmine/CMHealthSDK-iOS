@@ -42,8 +42,11 @@ clairvoyance-docs:
 	@$(MAKE) readme
 
 readme:
+	-@find docs/*/* -name "*.md" -not -name "*index*" -exec perl -i.bak -pe 's{^# }{### };' "{}" \;
+	-@find docs/* -name "*.md" -exec perl -i.bak -pe 's{^# }{## };' "{}" \;
 	-@find docs -name "*.md" -exec sh -c "cat {}; echo" \; \
-	| sed -e 's/^# /## /' \
 	| sed -e 's/## CMHealth and ResearchKit/# CMHealth/' \
-	| perl -pe 's#img/(CMHealth-SDK-Login-Screen.png)#$$1#' \
+	| perl -pe 's#\(img/(.*\.png)\)#($$1)#' \
 	| sed -e s'#https://github.com/cloudmine/CMHealthSDK-iOS/blob/master/##' > README.md
+	-@find . -name "*.bak" -exec rm -rf {} \;
+
