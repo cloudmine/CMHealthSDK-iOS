@@ -34,11 +34,11 @@ cocoapods-push:
 
 release: get-version tag-version verify-tag push-origin cocoapods-push
 
-clairvoyance-docs:
+docs:
 	-@find docs/ -name "*.md" -exec rm -rf {} \;
 	git clone git@github.com:cloudmine/clairvoyance.git
 	-@rsync -rtuvl --exclude=.git --delete clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/ docs/
-	-@cp clairvoyance/docs/3_iOS/9_CMHealthSDK_and_ResearchKit/CMHealth-SDK-Login-Screen.png .
+	-@cp clairvoyance/app/img/CMHealth-SDK-Login-Screen.png .
 	-@rm -rf clairvoyance
 	@$(MAKE) readme
 
@@ -51,3 +51,4 @@ readme:
 	| sed -e s'#https://github.com/cloudmine/CMHealthSDK-iOS/blob/master/##' > README.md
 	-@find . -name "*.bak" -exec rm -rf {} \;
 
+.PHONY: docs
