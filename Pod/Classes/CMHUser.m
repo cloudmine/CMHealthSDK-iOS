@@ -172,7 +172,7 @@
         }
 
         if (response.objectErrors.count > 0) {
-            NSError *firstError = response.objectErrors.allKeys.firstObject;
+            NSError *firstError = response.objectErrors[response.objectErrors.allKeys.firstObject];
             block(nil, firstError);
             return;
         }
