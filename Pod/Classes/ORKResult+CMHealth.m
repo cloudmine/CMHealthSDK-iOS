@@ -54,13 +54,30 @@
 
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor withCompletion:(_Nullable CMHFetchCompletion)block;
 {
+    [self cmh_fetchUserResultsForStudyWithDescriptor:descriptor andQuery:nil withCompletion:block];
+}
+
++ (void)cmh_fetchUserResultsForStudyWithQuery:(NSString *_Nullable)query
+                               withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    [self cmh_fetchUserResultsForStudyWithDescriptor:nil andQuery:query withCompletion:block];
+}
+
++ (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
+                                          andQuery:(NSString *_Nullable)query
+                                    withCompletion:(_Nullable CMHFetchCompletion)block
+{
     if (nil == descriptor) {
         descriptor = @"";
     }
 
-    NSString *queryString = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
+    NSString *composedQuery = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
 
-    [[CMStore defaultStore] searchUserObjects:queryString
+    if (nil != query) {
+        composedQuery = [NSString stringWithFormat:@"%@.rkResult%@", composedQuery, query];
+    }
+
+    [[CMStore defaultStore] searchUserObjects:composedQuery
                             additionalOptions:nil
                                      callback:^(CMObjectFetchResponse *response)
      {
