@@ -1,9 +1,10 @@
 # CMHealth
 
-CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage
+
+[CMHealth](https://cocoapods.org/pods/CMHealth) is the easiest way to add secure, HIPAA compliant cloud data storage
 and user management to your [ResearchKit](http://researchkit.org/) clinical study
 iOS app.  Built and backed by [CloudMine](http://cloudmineinc.com/) and the
-CloudMine Connected Health Cloud.
+CloudMine [Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
 
 **IMPORTANT NOTICE**: This SDK is pre-1.0 software. It is very likely there will
 be breaking changes to the API and data schema before a stable release. Your
@@ -12,7 +13,7 @@ pull request.
 
 ## Installation
 
-CMHealth is available through [CocoaPods](http://cocoapods.org). To install
+[CMHealth](https://cocoapods.org/pods/CMHealth) is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
@@ -24,6 +25,9 @@ pod "CMHealth"
 The SDK provides category methods on standard ResearchKit classes, allowing you 
 to save and fetch `ORKResult` object subclasses, such as `ORKTaskResult` and `ORKStepResult`,
 to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
+
+You can see the full documentation and class references on [CocoaPods](http://cocoadocs.org/docsets/CMHealth/)
+or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
 
 ### Save
 
@@ -82,7 +86,7 @@ methods for user authentication.
 The SDK also provides [preconfigured screens](#authentication-screens)
 for participant authentication.
 
-## Authentication Screens
+### Authentication Screens
 
 For convenience, the SDK provides preconfigured view controllers for user sign up and login.
 These screens can be presented modally and handle the collection and validation of user
@@ -187,9 +191,9 @@ To ensure your participants have a valid consent on file before allowing them to
 
 ## Using the CloudMine iOS SDK with CMHealth
 
-CMHealth includes and extends the [CloudMine iOS SDK](https://cocoapods.org/pods/CloudMine), so you
+[CMHealth](https://cocoapods.org/pods/CMHealth) includes and extends the [CloudMine iOS SDK](https://cocoapods.org/pods/CloudMine), so you
 get all of the core CloudMine functionality for free.  To go beyond the ResearchKit specific parts
-of CMHealth, start with the [CloudMine iOS documentation](https://cloudmine.io/docs/#/ios).
+of [CMHealth](https://cocoapods.org/pods/CMHealth), start with the [CloudMine iOS documentation](https://cloudmine.io/docs/#/ios).
 
 ## CMHealth Examples
 
@@ -199,7 +203,7 @@ can also serve as a starting point for your own ResearchKit enabled app.
 
 ## Support
 
-For general CMHealth support, please email support@cloudmine.me - we are here to help!
+For general [CMHealth](https://cocoapods.org/pods/CMHealth) support, please email support@cloudmine.me - we are here to help!
 
 For the more advantageous, we encourage getting directly involved via standard GitHub
 fork, issue tracker, and pull request pathways.  See the [CONTRIBUTING](CONTRIBUTING.md)

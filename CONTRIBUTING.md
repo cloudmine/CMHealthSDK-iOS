@@ -9,8 +9,7 @@ is looking forward to working with you!
 ## Reporting Bugs in CMHealth
 
 The [public GitHub issue tracker](https://github.com/cloudmine/CMHealthSDK-iOS/issues) is
-the preferred channel for [bug reports](#bug-reports), [features requests](#feature-requests)
-and [submitting pull requests](#pull-requests).
+the preferred channel for bug reports, features requests and submitting pull requests.
 
 
 ## Contributing

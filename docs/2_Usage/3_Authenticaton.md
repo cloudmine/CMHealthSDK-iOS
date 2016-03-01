@@ -19,7 +19,7 @@ methods for user authentication.
 The SDK also provides [preconfigured screens](#authentication-screens)
 for participant authentication.
 
-## Authentication Screens
+### Authentication Screens
 
 For convenience, the SDK provides preconfigured view controllers for user sign up and login.
 These screens can be presented modally and handle the collection and validation of user
