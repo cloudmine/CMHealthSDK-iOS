@@ -19,6 +19,7 @@ typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorDuplicateAccount        = 710,
     CMHErrorInvalidRequest          = 711,
     CMHErrorUnknownAccountError     = 712,
+    CMHErrorFailedToFetchConsent    = 713,
 };
 
 #endif

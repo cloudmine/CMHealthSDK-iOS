@@ -153,14 +153,10 @@
             return;
         }
 
-        if (nil != response.error) {
-            block(nil, response.error); // TODO: Consider, should we create a custom error?
-            return;
-        }
+        NSError *error = [CMHUser errorForConsentWithFetchResponse:response];
 
-        if (response.objectErrors.count > 0) {
-            NSError *firstError = response.objectErrors[response.objectErrors.allKeys.firstObject];
-            block(nil, firstError);
+        if (nil != error) {
+            block(nil, error);
             return;
         }
 
@@ -345,7 +341,7 @@
     }
 }
 
-+ (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response
++ (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
 {
     if (nil != response.error) {
         NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; %@", response.error.localizedDescription];
@@ -362,6 +358,22 @@
     if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
         NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
         return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:invalidStatusMessage];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response
+{
+    NSError *responseError = response.error;
+
+    if (nil == responseError) {
+        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
+    }
+
+    if (nil != responseError) {
+        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch consent; %@", responseError.localizedDescription];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchConsent localizedDescription:message];
     }
 
     return nil;
