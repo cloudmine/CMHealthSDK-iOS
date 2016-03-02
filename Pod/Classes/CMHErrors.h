@@ -12,12 +12,13 @@ typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorUserDidNotProvideName   = 703,
     CMHErrorUserDidNotSign          = 704,
     CMHErrorFailedToUploadSignature = 705,
-    CMHErrorUserNotLoggedIn         = 706,
-    CMHErrorInvalidAccount          = 707,
-    CMHErrorInvalidCredentials      = 708,
-    CMHErrorDuplicateAccount        = 709,
-    CMHErrorInvalidRequest          = 710,
-    CMHErrorUnknownAccountError     = 711
+    CMHErrorFailedToUploadConsent   = 706,
+    CMHErrorUserNotLoggedIn         = 707,
+    CMHErrorInvalidAccount          = 708,
+    CMHErrorInvalidCredentials      = 709,
+    CMHErrorDuplicateAccount        = 710,
+    CMHErrorInvalidRequest          = 711,
+    CMHErrorUnknownAccountError     = 712,
 };
 
 #endif
