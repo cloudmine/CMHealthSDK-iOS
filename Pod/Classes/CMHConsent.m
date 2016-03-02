@@ -1,6 +1,8 @@
 #import "CMHConsent_internal.h"
 #import "Cocoa+CMHealth.h"
 #import "CMHConstants_internal.h"
+#import "CMHErrorUtilities.h"
+#import "CMHErrors.h"
 
 @implementation CMHConsent
 
@@ -42,11 +44,14 @@
         }
 
         if (nil != response.error) {
-            block(nil, response.error); //TODO: Local error
+            block(nil, response.error);
+            return;
         }
 
         if (nil == response.file.fileData) {
-            block(nil, nil); //TODO: create error
+            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
+                        localizedDescription:NSLocalizedString(@"No signature image data returned", nil)];
+            return;
         }
 
         UIImage *image = [UIImage imageWithData:response.file.fileData];
