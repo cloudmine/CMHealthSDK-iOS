@@ -55,6 +55,12 @@
         }
 
         UIImage *image = [UIImage imageWithData:response.file.fileData];
+        if (nil == image) {
+            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
+                        localizedDescription:NSLocalizedString(@"Signature image data was invalid or corrupted", nil)];
+            return;
+        }
+
         self.signatureImage = image;
         block(image, nil);
     }];
