@@ -3,8 +3,12 @@
 #import "Cocoa+CMHealth.h"
 #import "ORKConsentSignature+CMHealth.h"
 #import "CMHConstants_internal.h"
+#import "CMHErrors.h"
+#import "CMHErrorUtilities.h"
 
 @implementation ORKResult (CMHealth)
+
+#pragma mark Public API
 
 - (void)cmh_saveWithCompletion:(_Nullable CMHSaveCompletion)block
 {
@@ -20,30 +24,13 @@
             return;
         }
 
-        if (nil != response.error) {
-            block(nil, response.error);
+        NSError *error = [ORKResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
+        if (nil != error) {
+            block(nil, error);
             return;
         }
 
-        // Thought: as we expand the functionality of the SDK, would it make sense to return the objectId to the
-        // the caller so they could later fetch the same results? This would esepcially make sense if we eventually
-        // want to support serializing and uploading things other than results, such as in-progress-ORKTasks that might
-        // be continued by the user later
-        if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:resultWrapper.objectId]) {
-            NSError *nullStatusError = [ORKResult errorWithMessage:@"CloudMine upload status not returned" andCode:100];
-            block(nil, nullStatusError);
-            return;
-        }
-
-        NSString *resultUploadStatus = [response.uploadStatuses objectForKey:resultWrapper.objectId];
-        if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-            NSString *message = [NSString localizedStringWithFormat:@"CloudMine invalid upload status returned: %@", resultUploadStatus];
-            NSError *invalidStatusError = [ORKResult errorWithMessage:message andCode:101];
-            block(nil, invalidStatusError);
-            return;
-        }
-
-        block(resultUploadStatus, nil);
+        block(response.uploadStatuses[resultWrapper.objectId], nil);
     }];
 }
 
@@ -94,13 +81,99 @@
      }];
 }
 
-# pragma mark Private
+# pragma mark Error Generators
 
 + (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
 {
     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
     NSError *error = [NSError errorWithDomain:@"CMHResultSaveError" code:code userInfo:userInfo];
     return error;
+}
+
++ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response
+{
+    NSString *errorPrefix = NSLocalizedString(@"Failed to save results", nil);
+
+    NSError *responseError = [self errorForInternalError:response.error withPrefix:errorPrefix];
+    if (nil != responseError) {
+        return responseError;
+    }
+
+    if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
+        NSString *noStatusMessage = [NSString localizedStringWithFormat:@"%@. No response received", errorPrefix];
+        return [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse
+                           localizedDescription:noStatusMessage];
+    }
+
+    NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
+
+    if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
+        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"%@. Invalid upload status returned: %@", errorPrefix, resultUploadStatus];
+        return [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse localizedDescription:invalidStatusMessage];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForInternalError:(NSError *_Nullable)error withPrefix:(NSString *_Nonnull)prefix
+{
+    if (nil == error) {
+        return nil;
+    }
+
+    if (![error.domain isEqualToString:CMErrorDomain]) {
+        NSString *unknownMessage = [NSString stringWithFormat:@"%@. %@ (%@, %li)", prefix, error.localizedDescription, error.domain, error.code];
+        return [CMHErrorUtilities errorWithCode:CMHErrorUnknown localizedDescription:unknownMessage];
+    }
+
+    CMHError localCode = [self localCodeForCloudMineCode:error.code];
+    NSString *message = [NSString stringWithFormat:@"%@. %@", prefix, [self messageForCode:localCode]];
+
+    return [CMHErrorUtilities errorWithCode:localCode localizedDescription:message];
+}
+
++ (CMHError)localCodeForCloudMineCode:(CMErrorCode)code
+{
+    switch (code) {
+        case CMErrorUnknown:
+            return CMHErrorUnknown;
+        case CMErrorServerConnectionFailed:
+            return CMHErrorServerConnectionFailed;
+        case CMErrorServerError:
+            return CMHErrorServerError;
+        case CMErrorNotFound:
+            return CMHErrorNotFound;
+        case CMErrorInvalidRequest:
+            return CMHErrorInvalidRequest;
+        case CMErrorInvalidResponse:
+            return CMHErrorInvalidResponse;
+        case CMErrorUnauthorized:
+            return CMHErrorUnauthorized;
+        default:
+            return CMHErrorUnknown;
+    }
+}
+
++ (NSString *_Nullable)messageForCode:(CMHError)errorCode
+{
+    switch (errorCode) {
+        case CMHErrorServerConnectionFailed:
+            return NSLocalizedString(@"Connection to the server failed", nil);
+        case CMHErrorServerError:
+            return NSLocalizedString(@"A server error occurred", nil);
+        case CMHErrorNotFound:
+            return NSLocalizedString(@"Requested object was not found", nil);
+        case CMHErrorInvalidRequest:
+            return NSLocalizedString(@"The request was invalid", nil);
+        case CMHErrorInvalidResponse:
+            return NSLocalizedString(@"The response was invalid", nil);
+        case CMHErrorUnauthorized:
+            return NSLocalizedString(@"The request was unauthorized", nil);
+        case CMHErrorUnknown:
+        default:
+            return NSLocalizedString(@"An unknown error occurred", nil);
+            break;
+    }
 }
 
 @end
