@@ -30,9 +30,12 @@ cocoapods-push:
 	pod spec lint
 	pod trunk push CMHealth.podspec
 	pod trunk add-owner CMHealth tech@cloudmine.me
-	@$(MAKE) bump-patch
 
-release: get-version tag-version verify-tag push-origin cocoapods-push
+stage-next-release: bump-patch
+	git commit -m"bump to ${VERSION}" CMHealth.podspec
+	git push origin master
+
+release: get-version tag-version verify-tag push-origin cocoapods-push stage-next-release
 
 docs:
 	-@find docs/ -name "*.md" -exec rm -rf {} \;
@@ -50,5 +53,9 @@ readme:
 	| perl -pe 's#\(img/(.*\.png)\)#($$1)#' \
 	| sed -e s'#https://github.com/cloudmine/CMHealthSDK-iOS/blob/master/##' > README.md
 	-@find . -name "*.bak" -exec rm -rf {} \;
+
+open:
+	cd Example; pod install
+	open Example/CMHealth.xcworkspace
 
 .PHONY: docs
