@@ -278,7 +278,7 @@
 
     switch (resultCode) {
         case CMUserAccountCreateFailedInvalidRequest:
-            code = CMHErrorInvalidRequest;
+            code = CMHErrorInvalidUserRequest;
             errorMessage = NSLocalizedString(@"Request was invalid", nil);
             break;
         case CMUserAccountProfileUpdateFailed:

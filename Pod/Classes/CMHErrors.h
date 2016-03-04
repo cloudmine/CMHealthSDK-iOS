@@ -17,10 +17,17 @@ typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorInvalidAccount          = 708,
     CMHErrorInvalidCredentials      = 709,
     CMHErrorDuplicateAccount        = 710,
-    CMHErrorInvalidRequest          = 711,
+    CMHErrorInvalidUserRequest      = 711,
     CMHErrorUnknownAccountError     = 712,
     CMHErrorFailedToFetchConsent    = 713,
     CMHErrorFailedToFetchSignature  = 714,
+    CMHErrorUnknown                 = 800,
+    CMHErrorServerConnectionFailed  = 801,
+    CMHErrorServerError             = 802,
+    CMHErrorNotFound                = 803,
+    CMHErrorInvalidRequest          = 804,
+    CMHErrorInvalidResponse         = 805,
+    CMHErrorUnauthorized            = 806,
 };
 
 #endif
