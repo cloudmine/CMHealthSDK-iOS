@@ -1,8 +1,12 @@
 #import "CMHConsent_internal.h"
 #import "Cocoa+CMHealth.h"
 #import "CMHConstants_internal.h"
+#import "CMHErrorUtilities.h"
+#import "CMHErrors.h"
 
 @implementation CMHConsent
+
+#pragma mark Internal
 
 - (_Nonnull instancetype)initWithConsentResult:(ORKTaskResult *)consentResult
                      andSignatureImageFilename:(NSString *)filename
@@ -18,13 +22,57 @@
     return self;
 }
 
+#pragma mark Public
+
+- (void)fetchSignatureImageWithCompletion:(CMHFetchSignatureCompletion)block
+{
+    /* Return the memoized image in memory rather than re-fetching
+     * This is safe because we assume the signature image will never change
+     * after initially being uploaded. To be even more efficient, we could
+     * cache the image on disk. */
+    if (nil != self.signatureImage) {
+        if (nil != block) {
+            block(self.signatureImage, nil);
+        }
+
+        return;
+    }
+
+    [CMStore.defaultStore userFileWithName:self.signatureImageFilename additionalOptions:nil callback:^(CMFileFetchResponse *response) {
+        if (nil == block) {
+            return;
+        }
+
+        if (nil != response.error) {
+            block(nil, response.error);
+            return;
+        }
+
+        if (nil == response.file.fileData) {
+            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
+                        localizedDescription:NSLocalizedString(@"No signature image data returned", nil)];
+            return;
+        }
+
+        UIImage *image = [UIImage imageWithData:response.file.fileData];
+        if (nil == image) {
+            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
+                        localizedDescription:NSLocalizedString(@"Signature image data was invalid or corrupted", nil)];
+            return;
+        }
+
+        self.signatureImage = image;
+        block(image, nil);
+    }];
+}
+
+#pragma mark NSCoding
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
-    // TODO: Pull the wrapper class, decode the object and ensure it is of
-    // the same type as the wrapper class. Set _consentResult to the wrapper.wrappedResult
     self.consentResult = [aDecoder decodeObjectForKey:@"consentResult"];
     self.signatureImageFilename = [aDecoder decodeObjectForKey:@"signatureImageFilename"];
     self.studyDescriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];

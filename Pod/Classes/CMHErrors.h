@@ -20,6 +20,7 @@ typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorInvalidRequest          = 711,
     CMHErrorUnknownAccountError     = 712,
     CMHErrorFailedToFetchConsent    = 713,
+    CMHErrorFailedToFetchSignature  = 714,
 };
 
 #endif
