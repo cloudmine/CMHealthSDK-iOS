@@ -68,6 +68,16 @@
                             additionalOptions:nil
                                      callback:^(CMObjectFetchResponse *response)
      {
+         if (nil == block) {
+             return;
+         }
+
+         NSError *error = [ORKResult errorForFetchWithResponse:response];
+         if (nil != error) {
+             block(nil, error);
+             return;
+         }
+
          NSMutableArray *mutableResults = [NSMutableArray new];
          for (CMHResult *wrappedResult in response.objects) {
              if (nil == wrappedResult.rkResult || ![wrappedResult.rkResult isKindOfClass:[self class]]) {
@@ -82,12 +92,25 @@
 }
 
 # pragma mark Error Generators
-
-+ (NSError * _Nullable)errorWithMessage:(NSString * _Nonnull)message andCode:(NSInteger)code
++ (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response
 {
-    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: message };
-    NSError *error = [NSError errorWithDomain:@"CMHResultSaveError" code:code userInfo:userInfo];
-    return error;
+    NSString *errorPrefix = NSLocalizedString(@"Failed to fetch results", nil);
+
+    NSError *responseError = [self errorForInternalError:response.error withPrefix:errorPrefix];
+    if (nil != responseError) {
+        return responseError;
+    }
+
+    // Note: an error with any result will cause an error for the whole fetch.
+    // This decision keeps the API simple, but is there a compelling reason why
+    // we wouldn't want this?
+    NSError *objectInternalError = response.objectErrors[response.objectErrors.allKeys.firstObject];
+    if(nil != objectInternalError) {
+        NSString *objectErrorPrefix = [NSString localizedStringWithFormat:@"%@; there was an error with at least one object (key: %@)", errorPrefix, response.objectErrors.allKeys.firstObject];
+        return [self errorForInternalError:objectInternalError withPrefix:objectErrorPrefix];
+    }
+
+    return nil;
 }
 
 + (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response
