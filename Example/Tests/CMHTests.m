@@ -72,7 +72,7 @@ describe(@"CMHealthIntegration", ^{
         expect([CMHUser currentUser].userData.givenName).to.equal(@"John");
     });
 
-    it(@"should fetch a user's consent", ^{
+    it(@"should fetch a user's consent and signature image", ^{
         __block CMHConsent *fetchedConsent = nil;
         __block NSError *consentError = nil;
 
@@ -93,6 +93,22 @@ describe(@"CMHealthIntegration", ^{
 
         expect(signature.givenName).to.equal([CMHUser currentUser].userData.givenName);
         expect(signature.familyName).to.equal([CMHUser currentUser].userData.familyName);
+
+        __block UIImage *signatureImage = nil;
+        __block NSError *fetchError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [fetchedConsent fetchSignatureImageWithCompletion:^(UIImage *image, NSError *error) {
+                signatureImage = image;
+                fetchError = error;
+                done();
+            }];
+        });
+
+        expect(fetchError).to.beNil();
+        expect(signatureImage).toNot.beNil();
+        expect(signatureImage.size.width).to.equal(1.0f);
+        expect(signatureImage.size.height).to.equal(1.0f);
     });
 
     it(@"should return nothing for a consent that is not on file", ^{
@@ -107,11 +123,9 @@ describe(@"CMHealthIntegration", ^{
             }];
         });
 
-
         expect(consentError).to.beNil();
         expect(fetchedConsent).to.beNil();
     });
-    
 
     it(@"should pass", ^{
         expect(YES).to.beTruthy();
