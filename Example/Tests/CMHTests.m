@@ -1,6 +1,8 @@
 #import <CMHealth/CMHealth.h>
 #import "CMHTest-Secrets.h"
 
+static NSString *const TestDescriptor = @"CMHTestDescriptor";
+
 SpecBegin(CMHealth)
 
 describe(@"CMHealthIntegration", ^{
@@ -34,11 +36,14 @@ describe(@"CMHealthIntegration", ^{
         NSString *unixTime = [NSNumber numberWithInt:(int)[NSDate new].timeIntervalSince1970].stringValue;
         NSString *emailAddress = [NSString stringWithFormat:@"cmhealth+%@@cloudmineinc.com", unixTime];
 
-        [[CMHUser currentUser] signUpWithEmail:emailAddress password:@"test-password1" andCompletion:^(NSError *error) {
-        }];
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] signUpWithEmail:emailAddress password:@"test-password1" andCompletion:^(NSError *error) {
+                done();
+            }];
+        });
 
-        expect([CMHUser currentUser].isLoggedIn).will.equal(YES);
-        expect([CMHUser currentUser].userData.email).will.equal(emailAddress);
+        expect([CMHUser currentUser].isLoggedIn).to.equal(YES);
+        expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
     });
 
     it(@"should upload a user consent", ^{
@@ -55,13 +60,39 @@ describe(@"CMHealthIntegration", ^{
         consentResult.results = @[signatureResult];
 
         __block NSError *uploadError = nil;
-        [[CMHUser currentUser] uploadUserConsent:consentResult forStudyWithDescriptor:@"CMHTestDescriptor" andCompletion:^(NSError *error) {
-            uploadError = error;
-        }];
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] uploadUserConsent:consentResult forStudyWithDescriptor:TestDescriptor andCompletion:^(NSError *error) {
+                uploadError = error;
+                done();
+            }];
+        });
 
-        expect(uploadError).will.beNil();
-        expect([CMHUser currentUser].userData.familyName).will.equal(@"Doe");
-        expect([CMHUser currentUser].userData.givenName).will.equal(@"John");
+        expect(uploadError).to.beNil();
+        expect([CMHUser currentUser].userData.familyName).to.equal(@"Doe");
+        expect([CMHUser currentUser].userData.givenName).to.equal(@"John");
+    });
+
+    it(@"should fetch a user's consent", ^{
+        __block CMHConsent *fetchedConsent = nil;
+        __block NSError *consentError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] fetchUserConsentForStudyWithDescriptor:TestDescriptor andCompletion:^(CMHConsent *consent, NSError *error) {
+                fetchedConsent = consent;
+                consentError = error;
+                done();
+            }];
+        });
+
+
+        expect(consentError).to.beNil();
+        expect(fetchedConsent).toNot.beNil();
+        expect(fetchedConsent.consentResult).toNot.beNil();
+
+        ORKConsentSignature *signature = ((ORKConsentSignatureResult *)fetchedConsent.consentResult.results.firstObject).signature;
+
+        expect(signature.givenName).to.equal([CMHUser currentUser].userData.givenName);
+        expect(signature.familyName).to.equal([CMHUser currentUser].userData.familyName);
     });
     
 
