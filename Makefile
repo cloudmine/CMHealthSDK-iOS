@@ -54,4 +54,8 @@ readme:
 	| sed -e s'#https://github.com/cloudmine/CMHealthSDK-iOS/blob/master/##' > README.md
 	-@find . -name "*.bak" -exec rm -rf {} \;
 
+open:
+	cd Example; pod install
+	open Example/CMHealth.xcworkspace
+
 .PHONY: docs
