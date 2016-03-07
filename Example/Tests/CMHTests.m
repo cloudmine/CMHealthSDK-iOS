@@ -127,6 +127,34 @@ describe(@"CMHealthIntegration", ^{
         expect(fetchedConsent).to.beNil();
     });
 
+    it(@"should upload a result", ^{
+        ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier"
+                                                                      taskRunUUID:[NSUUID new]
+                                                                  outputDirectory:nil];
+
+        ORKScaleQuestionResult *scaleResult = [ORKScaleQuestionResult new];
+        scaleResult.scaleAnswer = [NSNumber numberWithDouble:1.16];
+
+        ORKBooleanQuestionResult *booleanResult = [ORKBooleanQuestionResult new];
+        booleanResult.booleanAnswer = [NSNumber numberWithBool:YES];
+
+        taskResult.results = @[scaleResult, booleanResult];
+
+        __block NSString *uploadStatus = nil;
+        __block NSError *uploadError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [taskResult cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
+                uploadStatus = status;
+                uploadError = error;
+                done();
+            }];
+        });
+
+        expect(uploadError).to.beNil();
+        expect(uploadStatus).to.equal(@"created");
+    });
+
     it(@"should pass", ^{
         expect(YES).to.beTruthy();
     });
