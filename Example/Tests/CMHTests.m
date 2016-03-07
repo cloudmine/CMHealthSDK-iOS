@@ -94,6 +94,23 @@ describe(@"CMHealthIntegration", ^{
         expect(signature.givenName).to.equal([CMHUser currentUser].userData.givenName);
         expect(signature.familyName).to.equal([CMHUser currentUser].userData.familyName);
     });
+
+    it(@"should return nothing for a consent that is not on file", ^{
+        __block CMHConsent *fetchedConsent = nil;
+        __block NSError *consentError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] fetchUserConsentForStudyWithDescriptor:@"IncorrectDescriptor" andCompletion:^(CMHConsent *consent, NSError *error) {
+                fetchedConsent = consent;
+                consentError = error;
+                done();
+            }];
+        });
+
+
+        expect(consentError).to.beNil();
+        expect(fetchedConsent).to.beNil();
+    });
     
 
     it(@"should pass", ^{
