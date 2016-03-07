@@ -23,7 +23,7 @@ tag-version: get-version
 verify-tag: get-version
 	git tag --verify ${VERSION}
 
-push-origin: get-version
+push-tag-to-origin: get-version
 	git push origin ${VERSION}
 
 cocoapods-push:
@@ -35,7 +35,7 @@ stage-next-release: bump-patch
 	git commit -m"bump to ${VERSION}" CMHealth.podspec
 	git push origin master
 
-release: get-version tag-version verify-tag push-origin cocoapods-push stage-next-release
+release: get-version tag-version verify-tag push-tag-to-origin cocoapods-push stage-next-release
 
 docs:
 	-@find docs/ -name "*.md" -exec rm -rf {} \;
