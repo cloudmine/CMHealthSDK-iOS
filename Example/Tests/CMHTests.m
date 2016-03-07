@@ -35,11 +35,33 @@ describe(@"CMHealthIntegration", ^{
         NSString *emailAddress = [NSString stringWithFormat:@"cmhealth+%@@cloudmineinc.com", unixTime];
 
         [[CMHUser currentUser] signUpWithEmail:emailAddress password:@"test-password1" andCompletion:^(NSError *error) {
-
         }];
 
         expect([CMHUser currentUser].isLoggedIn).will.equal(YES);
         expect([CMHUser currentUser].userData.email).will.equal(emailAddress);
+    });
+
+    it(@"should upload a user consent", ^{
+        ORKTaskResult *consentResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"" taskRunUUID:[NSUUID new] outputDirectory:nil];
+        ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
+        signatureResult.consented = YES;
+        signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
+                                                                    dateFormatString:nil
+                                                                    identifier:@"CMHTestIdentifier"
+                                                                           givenName:@"John"
+                                                                          familyName:@"Doe"
+                                                                      signatureImage:[UIImage imageNamed:@"Test-Signature-Image.png"]
+                                                                          dateString:nil];
+        consentResult.results = @[signatureResult];
+
+        __block NSError *uploadError = nil;
+        [[CMHUser currentUser] uploadUserConsent:consentResult forStudyWithDescriptor:@"CMHTestDescriptor" andCompletion:^(NSError *error) {
+            uploadError = error;
+        }];
+
+        expect(uploadError).will.beNil();
+        expect([CMHUser currentUser].userData.familyName).will.equal(@"Doe");
+        expect([CMHUser currentUser].userData.givenName).will.equal(@"John");
     });
     
 
