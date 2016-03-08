@@ -11,16 +11,16 @@ SpecBegin(CMHealth)
 describe(@"CMHealthIntegration", ^{
 
     beforeAll(^{
-        expect(CMHTestsAppId.length).to.beGreaterThan(0);
-        expect(CMHTestsAppId).notTo.equal(@"REPLACE_WITH_AN_APP_ID_TO_USE_FOR_TESTING");
+        NSString *assertionError = @"You haven't set valid credentials in CMHTest-Secrets.h";
+        NSAssert(CMHTestsAppId.length > 0, assertionError);
+        NSAssert(![CMHTestsAppId isEqualToString:@"REPLACE_WITH_AN_APP_ID_TO_USE_FOR_TESTING"], assertionError);
+        NSAssert(CMHTestsAPIKey.length > 0, assertionError);
+        NSAssert(![CMHTestsAPIKey isEqualToString:@"REPLACE_WITH_API_KEY"], assertionError);
+        NSAssert(CMHTestsAsyncTimeout >= 1.0, @"An async timeout of less than 1 second is not advised; tests will run as fast as your connection allows regardless of the timeout value; lowering the value will not speed up test time and can lead to false failures.");
 
-        expect(CMHTestsAPIKey.length).to.beGreaterThan(0);
-        expect(CMHTestsAPIKey).notTo.equal(@"REPLACE_WITH_API_KEY");
 
         [CMHealth setAppIdentifier:CMHTestsAppId appSecret:CMHTestsAPIKey];
-
-        [Expecta setAsynchronousTestTimeout:5];
-        setAsyncSpecTimeout(5);
+        setAsyncSpecTimeout(CMHTestsAsyncTimeout);
 
         waitUntil(^(DoneCallback done) {
             if([CMHUser currentUser].isLoggedIn) {
@@ -32,7 +32,7 @@ describe(@"CMHealthIntegration", ^{
             }
         });
 
-        expect([CMHUser currentUser].isLoggedIn).to.equal(NO);
+        NSAssert(![CMHUser currentUser].isLoggedIn, @"Failed to log user out before beginning test");
     });
 
     it(@"should create a user and sign them up", ^{
