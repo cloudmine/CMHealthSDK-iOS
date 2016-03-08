@@ -2,6 +2,9 @@
 #import "CMHTest-Secrets.h"
 
 static NSString *const TestDescriptor = @"CMHTestDescriptor";
+static NSString *const TestPassword   = @"test-paSsword1!";
+static NSString *const TestGivenName  = @"John";
+static NSString *const TestFamilyName = @"Doe";
 
 SpecBegin(CMHealth)
 
@@ -37,7 +40,7 @@ describe(@"CMHealthIntegration", ^{
         NSString *emailAddress = [NSString stringWithFormat:@"cmhealth+%@@cloudmineinc.com", unixTime];
 
         waitUntil(^(DoneCallback done) {
-            [[CMHUser currentUser] signUpWithEmail:emailAddress password:@"test-password1" andCompletion:^(NSError *error) {
+            [[CMHUser currentUser] signUpWithEmail:emailAddress password:TestPassword andCompletion:^(NSError *error) {
                 done();
             }];
         });
@@ -53,8 +56,8 @@ describe(@"CMHealthIntegration", ^{
         signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
                                                                     dateFormatString:nil
                                                                     identifier:@"CMHTestIdentifier"
-                                                                           givenName:@"John"
-                                                                          familyName:@"Doe"
+                                                                           givenName:TestGivenName
+                                                                          familyName:TestFamilyName
                                                                       signatureImage:[UIImage imageNamed:@"Test-Signature-Image.png"]
                                                                           dateString:nil];
         consentResult.results = @[signatureResult];
@@ -68,8 +71,8 @@ describe(@"CMHealthIntegration", ^{
         });
 
         expect(uploadError).to.beNil();
-        expect([CMHUser currentUser].userData.familyName).to.equal(@"Doe");
-        expect([CMHUser currentUser].userData.givenName).to.equal(@"John");
+        expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
+        expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
     });
 
     it(@"should fetch a user's consent and signature image", ^{
@@ -253,6 +256,37 @@ describe(@"CMHealthIntegration", ^{
         ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)fetchResults.firstObject).firstResult;
 
         expect(questionResult.textAnswer).to.equal(@"StepOne");
+    });
+
+    it(@"should log the user out and back in", ^{
+        NSString *email = [CMHUser currentUser].userData.email;
+        __block NSError *logoutError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] logoutWithCompletion:^(NSError *error) {
+                logoutError = error;
+                done();
+            }];
+        });
+
+        expect(logoutError).to.beNil();
+        expect([CMHUser currentUser].userData).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.equal(NO);
+
+        __block NSError *loginError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] loginWithEmail:email password:TestPassword andCompletion:^(NSError *error) {
+                loginError = error;
+                done();
+            }];
+        });
+
+        expect(loginError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        expect([CMHUser currentUser].userData.email).to.equal(email);
+        expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
+        expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
     });
 
     it(@"should pass", ^{
