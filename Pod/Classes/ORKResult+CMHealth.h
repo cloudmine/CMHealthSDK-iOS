@@ -1,6 +1,5 @@
-#import <Foundation/Foundation.h>
+#import <CloudMine/CMCoding.h>
 #import <ResearchKit/ResearchKit.h>
-#import <CloudMine/CloudMine.h>
 
 typedef void(^CMHSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nullable error);
 typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable error);

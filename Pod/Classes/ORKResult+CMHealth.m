@@ -1,4 +1,5 @@
 #import "ORKResult+CMHealth.h"
+#import <CloudMine/CloudMine.h>
 #import "CMHResult.h"
 #import "Cocoa+CMHealth.h"
 #import "ORKConsentSignature+CMHealth.h"

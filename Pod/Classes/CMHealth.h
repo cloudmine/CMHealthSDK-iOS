@@ -1,6 +1,4 @@
-#import <Foundation/Foundation.h>
 #import <ResearchKit/ResearchKit.h>
-#import <CloudMine/CloudMine.h>
 
 #import "CMHErrors.h"
 #import "CMHUserData.h"
