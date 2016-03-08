@@ -24,5 +24,8 @@ DerivedData
 
 Carthage
 Pods/
+
 CMHealthSDK-iOS-*.tar.gz.asc
 CMHealthSDK-iOS-*.zip.asc
+
+CMHTest-Secrets.h
