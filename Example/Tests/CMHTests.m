@@ -155,6 +155,31 @@ describe(@"CMHealthIntegration", ^{
         expect(uploadStatus).to.equal(@"created");
     });
 
+    it(@"should fetch a result", ^{
+        __block NSArray *fetchResults = nil;
+        __block NSError *fetchError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor withCompletion:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                fetchError = error;
+                done();
+            }];
+        });
+
+        expect(fetchError).to.beNil();
+        expect(fetchResults.count).to.equal(1);
+        expect([fetchResults.firstObject class]).to.equal([ORKTaskResult class]);
+
+        ORKTaskResult *task = (ORKTaskResult *)fetchResults.firstObject;
+
+        expect([task.results[0] class]).to.equal([ORKScaleQuestionResult class]);
+        expect(((ORKScaleQuestionResult *)task.results[0]).scaleAnswer.doubleValue).to.equal(1.16);
+
+        expect([task.results[1] class]).to.equal([ORKBooleanQuestionResult class]);
+        expect(((ORKBooleanQuestionResult *)task.results[1]).booleanAnswer.boolValue).to.equal(YES);
+    });
+
     it(@"should pass", ^{
         expect(YES).to.beTruthy();
     });
