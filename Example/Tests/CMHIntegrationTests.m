@@ -6,7 +6,7 @@ static NSString *const TestPassword   = @"test-paSsword1!";
 static NSString *const TestGivenName  = @"John";
 static NSString *const TestFamilyName = @"Doe";
 
-SpecBegin(CMHealth)
+SpecBegin(CMHealthIntegration)
 
 describe(@"CMHealthIntegration", ^{
 
