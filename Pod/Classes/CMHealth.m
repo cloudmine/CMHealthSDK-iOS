@@ -1,4 +1,5 @@
 #import "CMHealth.h"
+#import <CloudMine/CloudMine.h>
 
 @implementation CMHealth
 

@@ -1,4 +1,5 @@
 #import "CMHConsent_internal.h"
+#import <CloudMine/CloudMine.h>
 #import "Cocoa+CMHealth.h"
 #import "CMHConstants_internal.h"
 #import "CMHErrorUtilities.h"

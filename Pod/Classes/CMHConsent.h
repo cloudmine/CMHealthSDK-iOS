@@ -1,4 +1,4 @@
-#import <CloudMine/CloudMine.h>
+#import <CloudMine/CMObject.h>
 #import <ResearchKit/ResearchKit.h>
 
 typedef void(^CMHFetchSignatureCompletion)(UIImage *_Nullable signature, NSError *_Nullable error);
