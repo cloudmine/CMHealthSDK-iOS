@@ -47,7 +47,7 @@ describe(@"CMHealthIntegration", ^{
     });
 
     it(@"should upload a user consent", ^{
-        ORKTaskResult *consentResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"" taskRunUUID:[NSUUID new] outputDirectory:nil];
+        ORKTaskResult *consentResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
         ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
         signatureResult.consented = YES;
         signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
@@ -127,7 +127,7 @@ describe(@"CMHealthIntegration", ^{
         expect(fetchedConsent).to.beNil();
     });
 
-    it(@"should upload a result", ^{
+    it(@"should upload a task result", ^{
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier"
                                                                       taskRunUUID:[NSUUID new]
                                                                   outputDirectory:nil];
@@ -178,6 +178,61 @@ describe(@"CMHealthIntegration", ^{
 
         expect([task.results[1] class]).to.equal([ORKBooleanQuestionResult class]);
         expect(((ORKBooleanQuestionResult *)task.results[1]).booleanAnswer.boolValue).to.equal(YES);
+    });
+
+    it(@"should return emptry results for an unused descriptor", ^{
+        __block NSArray *fetchResults = nil;
+        __block NSError *fetchError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:@"IncorrectDescriptor" withCompletion:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                fetchError = error;
+                done();
+            }];
+        });
+
+        expect(fetchError).to.beNil();
+        expect(fetchResults).notTo.beNil();
+        expect(fetchResults.count).to.equal(0);
+    });
+
+    it(@"should upload two step results", ^{
+        ORKTextQuestionResult *stepOneQuestionResult = [ORKTextQuestionResult new];
+        stepOneQuestionResult.textAnswer = @"StepOne";
+        ORKStepResult *resultOne = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestOne" results:@[stepOneQuestionResult]];
+
+        ORKTextQuestionResult *stepTwoQuestionResult = [ORKTextQuestionResult new];
+        stepTwoQuestionResult.textAnswer = @"StepTwo";
+        ORKStepResult *resultTwo = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwo" results:@[stepTwoQuestionResult]];
+
+        __block NSString *statusOne = nil;
+        __block NSError *errorOne = nil;
+
+        __block NSString *statusTwo = nil;
+        __block NSError *errorTwo = nil;
+
+        waitUntil(^(DoneCallback done){
+            [resultOne cmh_saveToStudyWithDescriptor:@"StepOneDescriptor" withCompletion:^(NSString *status, NSError *error) {
+                statusOne = status;
+                errorOne = error;
+                done();
+            }];
+        });
+
+        waitUntil(^(DoneCallback done){
+            [resultTwo cmh_saveToStudyWithDescriptor:@"StepTwoDescriptor" withCompletion:^(NSString *status, NSError *error) {
+                statusTwo = status;
+                errorTwo = error;
+                done();
+            }];
+        });
+
+        expect(errorOne).to.beNil();
+        expect(statusOne).to.equal(@"created");
+
+        expect(errorTwo).to.beNil();
+        expect(statusTwo).to.equal(@"created");
     });
 
     it(@"should pass", ^{
