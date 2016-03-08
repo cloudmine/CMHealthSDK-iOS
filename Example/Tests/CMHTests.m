@@ -200,11 +200,11 @@ describe(@"CMHealthIntegration", ^{
     it(@"should upload two step results", ^{
         ORKTextQuestionResult *stepOneQuestionResult = [ORKTextQuestionResult new];
         stepOneQuestionResult.textAnswer = @"StepOne";
-        ORKStepResult *resultOne = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestOne" results:@[stepOneQuestionResult]];
+        ORKStepResult *resultOne = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestOneIdentifier" results:@[stepOneQuestionResult]];
 
         ORKTextQuestionResult *stepTwoQuestionResult = [ORKTextQuestionResult new];
         stepTwoQuestionResult.textAnswer = @"StepTwo";
-        ORKStepResult *resultTwo = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwo" results:@[stepTwoQuestionResult]];
+        ORKStepResult *resultTwo = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwoIdentifier" results:@[stepTwoQuestionResult]];
 
         __block NSString *statusOne = nil;
         __block NSError *errorOne = nil;
@@ -213,7 +213,7 @@ describe(@"CMHealthIntegration", ^{
         __block NSError *errorTwo = nil;
 
         waitUntil(^(DoneCallback done){
-            [resultOne cmh_saveToStudyWithDescriptor:@"StepOneDescriptor" withCompletion:^(NSString *status, NSError *error) {
+            [resultOne cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
                 statusOne = status;
                 errorOne = error;
                 done();
@@ -221,7 +221,7 @@ describe(@"CMHealthIntegration", ^{
         });
 
         waitUntil(^(DoneCallback done){
-            [resultTwo cmh_saveToStudyWithDescriptor:@"StepTwoDescriptor" withCompletion:^(NSString *status, NSError *error) {
+            [resultTwo cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
                 statusTwo = status;
                 errorTwo = error;
                 done();
@@ -233,6 +233,26 @@ describe(@"CMHealthIntegration", ^{
 
         expect(errorTwo).to.beNil();
         expect(statusTwo).to.equal(@"created");
+    });
+
+    it(@"should properly query uploaded results", ^{
+        __block NSArray *fetchResults = nil;
+        __block NSError *fetchError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [ORKStepResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andQuery:@"[identifier = \"StepTestOneIdentifier\"]" withCompletion:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                fetchError = error;
+                done();
+            }];
+        });
+
+        expect(fetchError).to.beNil();
+        expect(fetchResults.count).to.equal(1);
+
+        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)fetchResults.firstObject).firstResult;
+
+        expect(questionResult.textAnswer).to.equal(@"StepOne");
     });
 
     it(@"should pass", ^{
