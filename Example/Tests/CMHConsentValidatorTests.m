@@ -2,6 +2,25 @@
 #import <CMHealth/CMHealth.h>
 #import <CMHealth/CMHConsentValidator.h>
 
+@interface CMHConsentValidatorTestFactory : NSObject
++ (ORKConsentSignature *)validSignature;
+@end
+
+@implementation CMHConsentValidatorTestFactory
+
++ (ORKConsentSignature *)validSignature
+{
+    return [ORKConsentSignature signatureForPersonWithTitle:nil
+                                           dateFormatString:nil
+                                                 identifier:@"CMHTestIdentifier"
+                                                  givenName:@"John"
+                                                 familyName:@"Doe"
+                                             signatureImage:[UIImage imageNamed:@"Test-Signature-Image.png"]
+                                                 dateString:nil];
+}
+
+@end
+
 SpecBegin(CMHealthConsentValidator)
 
 describe(@"CMHConsentValidator", ^{
@@ -34,13 +53,8 @@ describe(@"CMHConsentValidator", ^{
 
         ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
         signatureResult.consented = NO;
-        signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
-                                                                    dateFormatString:nil
-                                                                          identifier:@"CMHTestIdentifier"
-                                                                           givenName:@"John"
-                                                                          familyName:@"Doe"
-                                                                      signatureImage:[UIImage imageNamed:@"Test-Signature-Image.png"]
-                                                                          dateString:nil];
+        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+
         taskResult.results = @[signatureResult];
 
         ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
@@ -57,13 +71,11 @@ describe(@"CMHConsentValidator", ^{
 
         ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
         signatureResult.consented = YES;
-        signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
-                                                                    dateFormatString:nil
-                                                                          identifier:@"CMHTestIdentifier"
-                                                                           givenName:nil
-                                                                          familyName:nil
-                                                                      signatureImage:[UIImage imageNamed:@"Test-Signature-Image.png"]
-                                                                          dateString:nil];
+
+        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+        signatureResult.signature.familyName = nil;
+        signatureResult.signature.givenName = nil;
+
         taskResult.results = @[signatureResult];
 
         ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
@@ -80,13 +92,10 @@ describe(@"CMHConsentValidator", ^{
 
         ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
         signatureResult.consented = YES;
-        signatureResult.signature = [ORKConsentSignature signatureForPersonWithTitle:nil
-                                                                    dateFormatString:nil
-                                                                          identifier:@"CMHTestIdentifier"
-                                                                           givenName:@"John"
-                                                                          familyName:@"Doe"
-                                                                      signatureImage:nil
-                                                                          dateString:nil];
+
+        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+        signatureResult.signature.signatureImage = nil;
+
         taskResult.results = @[signatureResult];
 
         ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
