@@ -19,8 +19,18 @@ describe(@"CMHInputValidators", ^{
         expect(errorMessage).notTo.beNil();
     });
 
-    pending(@"should return an error message for an email that has two @'s'", ^{
+    it(@"should return an error message for an email that has two @'s", ^{
         NSString *errorMessage = [CMHInputValidators localizedValidationErrorMessageForEmail:@"t@est@test.com"];
+        expect(errorMessage).notTo.beNil();
+    });
+
+    it(@"should return an error message for an email with two @'s and one at the beginning", ^{
+        NSString *errorMessage = [CMHInputValidators localizedValidationErrorMessageForEmail:@"@est@test.com"];
+        expect(errorMessage).notTo.beNil();
+    });
+
+    it(@"should return an error message for an email with two @'s and one at the end", ^{
+        NSString *errorMessage = [CMHInputValidators localizedValidationErrorMessageForEmail:@"test@test.com@"];
         expect(errorMessage).notTo.beNil();
     });
 
