@@ -3,10 +3,20 @@
 #import <CMHealth/CMHConsentValidator.h>
 
 @interface CMHConsentValidatorTestFactory : NSObject
++ (ORKConsentSignatureResult *)validSignatureResult;
 + (ORKConsentSignature *)validSignature;
 @end
 
 @implementation CMHConsentValidatorTestFactory
+
++ (ORKConsentSignatureResult *)validSignatureResult
+{
+    ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
+    signatureResult.consented = YES;
+    signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+
+    return signatureResult;
+}
 
 + (ORKConsentSignature *)validSignature
 {
@@ -51,9 +61,8 @@ describe(@"CMHConsentValidator", ^{
 
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
 
-        ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
+        ORKConsentSignatureResult *signatureResult = CMHConsentValidatorTestFactory.validSignatureResult;
         signatureResult.consented = NO;
-        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
 
         taskResult.results = @[signatureResult];
 
@@ -69,10 +78,7 @@ describe(@"CMHConsentValidator", ^{
 
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
 
-        ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
-        signatureResult.consented = YES;
-
-        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+        ORKConsentSignatureResult *signatureResult = CMHConsentValidatorTestFactory.validSignatureResult;
         signatureResult.signature.familyName = nil;
         signatureResult.signature.givenName = nil;
 
@@ -90,10 +96,7 @@ describe(@"CMHConsentValidator", ^{
 
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
 
-        ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
-        signatureResult.consented = YES;
-
-        signatureResult.signature = CMHConsentValidatorTestFactory.validSignature;
+        ORKConsentSignatureResult *signatureResult = CMHConsentValidatorTestFactory.validSignatureResult;
         signatureResult.signature.signatureImage = nil;
 
         taskResult.results = @[signatureResult];
