@@ -61,5 +61,20 @@ describe(@"NSUUID", ^{
     });
 });
 
+describe(@"UIImage", ^{
+    it(@"should encode and decode properly with NSCoder", ^{
+        // Bug in Cocoa? See: http://stackoverflow.com/questions/26213575/unarchive-uiimage-object-returns-cgsizezero-image-using-nskeyedunarchiver-on-ios
+        UIImage *assetImage = [UIImage imageNamed:@"Test-Signature-Image.png"];
+
+        UIImage *origImage = [UIImage imageWithCGImage:assetImage.CGImage scale:assetImage.scale orientation:assetImage.imageOrientation];
+        NSData *imageData = [NSKeyedArchiver archivedDataWithRootObject:origImage];
+        UIImage *codedImage = [NSKeyedUnarchiver unarchiveObjectWithData:imageData];
+
+        expect(origImage == codedImage).to.beFalsy();
+        expect(codedImage.size.width).to.equal(origImage.size.width);
+        expect(codedImage.size.height).to.equal(origImage.size.height);
+    });
+});
+
 
 SpecEnd
