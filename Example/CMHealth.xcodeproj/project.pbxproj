@@ -27,6 +27,7 @@
 		B447ED5B1C91EB3D00DC6208 /* CMHInputValidatorsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED5A1C91EB3D00DC6208 /* CMHInputValidatorsTests.m */; };
 		B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */; };
 		B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */; };
+		B447ED611C9220E200DC6208 /* CMHResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED601C9220E200DC6208 /* CMHResultTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		B447ED5A1C91EB3D00DC6208 /* CMHInputValidatorsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHInputValidatorsTests.m; sourceTree = "<group>"; };
 		B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHErrorUtilitiesTests.m; sourceTree = "<group>"; };
 		B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHCocoaCategoryTests.m; sourceTree = "<group>"; };
+		B447ED601C9220E200DC6208 /* CMHResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHResultTests.m; sourceTree = "<group>"; };
 		F0A86E2796A10F23CD8FFB5E /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEB06221139C06DAA962E0A6 /* Pods-CMHealth_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Tests/Pods-CMHealth_Tests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -170,6 +172,7 @@
 				B447ED5A1C91EB3D00DC6208 /* CMHInputValidatorsTests.m */,
 				B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */,
 				B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */,
+				B447ED601C9220E200DC6208 /* CMHResultTests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
 			path = Tests;
@@ -417,6 +420,7 @@
 				B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */,
 				B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */,
 				B447ED591C8F772800DC6208 /* CMHConsentValidatorTests.m in Sources */,
+				B447ED611C9220E200DC6208 /* CMHResultTests.m in Sources */,
 				6003F5BC195388D20070C39A /* CMHIntegrationTests.m in Sources */,
 				B447ED5B1C91EB3D00DC6208 /* CMHInputValidatorsTests.m in Sources */,
 			);
