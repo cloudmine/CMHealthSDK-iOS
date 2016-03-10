@@ -58,6 +58,16 @@ describe(@"CMHResult", ^{
         expect([CMHResultTestFactory isEquivalent:(ORKTaskResult *)codedResult.rkResult]).to.beTruthy();
         expect(codedResult.studyDescriptor).to.equal(TestDescriptor);
     });
+
+    it(@"should encode and decode properly with CMCoder", ^{
+        CMHResult *origResult = [[CMHResult alloc] initWithResearchKitResult:CMHResultTestFactory.taskResult andStudyDescriptor:TestDescriptor];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origResult]];
+        CMHResult *codedResult = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(codedResult == origResult).to.beFalsy();
+        expect([CMHResultTestFactory isEquivalent:(ORKTaskResult *)codedResult.rkResult]).to.beTruthy();
+        expect(codedResult.studyDescriptor).to.equal(TestDescriptor);
+    });
 });
 
 SpecEnd
