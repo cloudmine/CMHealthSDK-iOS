@@ -2,12 +2,13 @@
 #import <CMHealth/Cocoa+CMHealth.h>
 #import <CloudMine/CloudMine.h>
 
-@interface CMHTestUUIDWrapper : CMObject
+@interface CMHTestCodingWrapper : CMObject
 - (instancetype)initWithUUID:(NSUUID *)uuid;
 @property (nonatomic) NSUUID *uuid;
+@property (nonatomic) UIImage *image;
 @end
 
-@implementation CMHTestUUIDWrapper
+@implementation CMHTestCodingWrapper
 
 - (instancetype)initWithUUID:(NSUUID *)uuid
 {
@@ -19,12 +20,23 @@
     return self;
 }
 
+- (instancetype)initWithImage:(UIImage *)image
+{
+    self = [super init];
+    if (nil == self) return nil;
+
+    self.image = image;
+
+    return self;
+}
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
     self.uuid = [aDecoder decodeObjectForKey:@"uuid"];
+    self.image = [aDecoder decodeObjectForKey:@"image"];
 
     return self;
 }
@@ -33,6 +45,7 @@
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.uuid forKey:@"uuid"];
+    [aCoder encodeObject:self.image forKey:@"image"];
 }
 
 @end
@@ -50,9 +63,9 @@ describe(@"NSUUID", ^{
     });
 
     it(@"should encode and decode properly with CMCoder", ^{
-        CMHTestUUIDWrapper *origWrapper = [[CMHTestUUIDWrapper alloc] initWithUUID:[NSUUID new]];
+        CMHTestCodingWrapper *origWrapper = [[CMHTestCodingWrapper alloc] initWithUUID:[NSUUID new]];
         NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
-        CMHTestUUIDWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
 
         expect(origWrapper == codedWrapper).to.beFalsy();
         expect(origWrapper.uuid == codedWrapper.uuid).to.beFalsy();
@@ -73,6 +86,16 @@ describe(@"UIImage", ^{
         expect(origImage == codedImage).to.beFalsy();
         expect(codedImage.size.width).to.equal(origImage.size.width);
         expect(codedImage.size.height).to.equal(origImage.size.height);
+    });
+
+    it(@"should intentionally drop the image data with CMCoder", ^{
+        CMHTestCodingWrapper *origWrapper = [[CMHTestCodingWrapper alloc] initWithImage:[UIImage imageNamed:@"Test-Signature-Image.png"]];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(origWrapper == codedWrapper).to.beFalsy();
+        expect(encodedObjects[origWrapper.objectId][@"image"][CMInternalClassStorageKey]).to.equal(@"UIImage");
+        expect(codedWrapper.image).to.beNil();
     });
 });
 
