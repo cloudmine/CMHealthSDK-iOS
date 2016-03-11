@@ -23,9 +23,13 @@
         return NO;
     }
 
-    NSString *domainString = [possibleEmail componentsSeparatedByString:@"@"].lastObject;
-    NSRange dotRange = [domainString rangeOfString:@"."];
+    NSArray *atSplit = [possibleEmail componentsSeparatedByString:@"@"];
+    if (atSplit.count != 2) {
+        return NO;
+    }
 
+    NSString *domainString = atSplit.lastObject;
+    NSRange dotRange = [domainString rangeOfString:@"."];
     if (dotRange.location == NSNotFound || dotRange.location == 0 || dotRange.location == domainString.length - 1) {
         return NO;
     }
