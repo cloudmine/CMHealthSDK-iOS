@@ -29,6 +29,7 @@
 		B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */; };
 		B447ED611C9220E200DC6208 /* CMHResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED601C9220E200DC6208 /* CMHResultTests.m */; };
 		B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */; };
+		B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED651C92710400DC6208 /* CMHConsentTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		B447ED601C9220E200DC6208 /* CMHResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHResultTests.m; sourceTree = "<group>"; };
 		B447ED621C926FC100DC6208 /* CMHWrapperTestFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHWrapperTestFactory.h; sourceTree = "<group>"; };
 		B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHWrapperTestFactory.m; sourceTree = "<group>"; };
+		B447ED651C92710400DC6208 /* CMHConsentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHConsentTests.m; sourceTree = "<group>"; };
 		F0A86E2796A10F23CD8FFB5E /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEB06221139C06DAA962E0A6 /* Pods-CMHealth_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Tests/Pods-CMHealth_Tests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -176,8 +178,7 @@
 				B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */,
 				B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */,
 				B447ED601C9220E200DC6208 /* CMHResultTests.m */,
-				B447ED621C926FC100DC6208 /* CMHWrapperTestFactory.h */,
-				B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */,
+				B447ED651C92710400DC6208 /* CMHConsentTests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
 			path = Tests;
@@ -186,6 +187,8 @@
 		6003F5B6195388D20070C39A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B447ED621C926FC100DC6208 /* CMHWrapperTestFactory.h */,
+				B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */,
 				B447ED4E1C8DED1500DC6208 /* CMHTest-Secrets.h */,
 				6003F5B7195388D20070C39A /* Tests-Info.plist */,
 				6003F5B8195388D20070C39A /* InfoPlist.strings */,
@@ -423,6 +426,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */,
+				B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */,
 				B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */,
 				B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */,
 				B447ED591C8F772800DC6208 /* CMHConsentValidatorTests.m in Sources */,
