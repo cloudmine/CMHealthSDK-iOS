@@ -1,29 +1,16 @@
 #import <CloudMine/CMObject.h>
 #import <ResearchKit/ResearchKit.h>
 
-/** The function type of the completion block executed after signature image is fetched.
- */
 typedef void(^CMHFetchSignatureCompletion)(UIImage *_Nullable signature, NSError *_Nullable error);
 
 /**
- * `CMHConsent` is a subclass of `CMObject`. It provides access to the participant consent result 
- *  for any given study that has previously been uploaded.
+ *  `CMHConsent` is a subclass of `CMObject`. It provides access to the participant consent
+ *  result for any given study that has previously been uploaded.
+ *  Developers should never instantiate CMHConsent directly. Developers should never 
+ *  subclass `CMHConsent`.
  *
  *  @see CMHUser class -uploadUserConsent:forStudyWithDescriptor:andCompletion:
  *  @see CMHUser class -fetchUserConsentForStudyWithDescriptor:andCompletion:
- *  
- *  ///--------------------------
- *  /// @name Instantiation
- *  ///--------------------------
- *
- *  Developers should never instantiate CMHConsent directly.
- * 
- *  ///--------------------------
- *  /// @name Subclassing
- *  ///--------------------------
- * 
- *  Developers should never subclass CMHConsent.
- *
  *
  */
 @interface CMHConsent : CMObject
