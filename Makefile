@@ -1,20 +1,34 @@
-bump-patch:
-	@perl -i.bak -pe 's/(\d+)(")$$/($$1+1).$$2/e if m/version\s+=\s+"\d+\.\d+\.\d+"$$/;' CMHealth.podspec 
+set-version: get-version
+	@$(MAKE) set-agv-version
+	@$(MAKE) set-podspec-version
+
+set-agv-version:
+	@cd Example; agvtool -noscm new-version -all ${VERSION}
+
+set-podspec-version: get-version
+	@perl -i.bak -pe 's/(s\.version\s+=\s+")\d+\.\d+\.\d+"/$${1}${VERSION}"/;' CMHealth.podspec 
 	@rm -f CMHealth.podspec.bak
+
+bump-patch:
+	$(eval VERSION := $(shell cd Example; agvtool what-version -terse | perl -pe 's/(\d+)$$/($$1+1).$$2/e'))
+	@$(MAKE) set-agv-version
+	@$(MAKE) set-podspec-version
 	@$(MAKE) get-version
 
 bump-minor:
-	@perl -i.bak -pe 's/(\d+)(\.\d+")$$/($$1+1).$$2/e if m/version\s+=\s+"\d+\.\d+\.\d+"$$/;' CMHealth.podspec 
-	@rm -f CMHealth.podspec.bak
+	$(eval VERSION := $(shell cd Example; agvtool what-version -terse | perl -pe 's/(\d+)(\.\d+)$$/($$1+1).$$2/e'))
+	@$(MAKE) set-agv-version
+	@$(MAKE) set-podspec-version
 	@$(MAKE) get-version
 
 bump-major:
-	@perl -i.bak -pe 's/(\d+)(\.\d+\.\d+")$$/($$1+1).$$2/e if m/version\s+=\s+"\d+\.\d+\.\d+"$$/;' CMHealth.podspec 
-	@rm -f CMHealth.podspec.bak
+	$(eval VERSION := $(shell cd Example; agvtool what-version -terse | perl -pe 's/(\d+)(\.\d+\.\d+)$$/($$1+1).$$2/e'))
+	@$(MAKE) set-agv-version
+	@$(MAKE) set-podspec-version
 	@$(MAKE) get-version
 
 get-version:
-	$(eval VERSION := $(shell perl -lne 'print $$1 if m/^\s+s.version.*"(.*)"$$/' CMHealth.podspec))
+	$(eval VERSION := $(shell cd Example; agvtool what-version -terse))
 	@echo ${VERSION}
 
 tag-version: get-version
@@ -70,3 +84,4 @@ create-signatures: get-version
 # only for the brave...
 release: get-version tag-version verify-tag push-tag-to-origin cocoapods-push create-signatures stage-next-release
 
+export VERSION
