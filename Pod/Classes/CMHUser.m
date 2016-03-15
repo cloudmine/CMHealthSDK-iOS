@@ -102,7 +102,7 @@
         NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
         [[CMStore defaultStore] saveUserFileWithData:signatureData additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
-            NSError *fileUploadError = [CMHUser errorForSignatureUploadResponse:fileResponse];
+            NSError *fileUploadError = [CMHErrorUtilities errorForFileKind:NSLocalizedString(@"signature", nil) uploadResponse:fileResponse];
             if (nil != fileUploadError) {
                 if (nil != block) {
                     block(nil, fileUploadError);
@@ -312,33 +312,6 @@
     }
 
     return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
-}
-
-+ (NSError *_Nullable)errorForSignatureUploadResponse:(CMFileUploadResponse *)response
-{
-    if (nil != response.error) {
-        NSString *fileUploadMessage = [NSString localizedStringWithFormat:@"Failed to upload signature; %@", response.error.localizedDescription];
-        NSError *fileUploadError = [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                                                   localizedDescription:fileUploadMessage];
-        return fileUploadError;
-    }
-
-    return [self errorForSignatureUploadResult:response.result];
-}
-
-+ (NSError * _Nullable)errorForSignatureUploadResult:(CMFileUploadResult)result
-{
-    switch (result) {
-        case CMFileCreated:
-            return nil;
-        case CMFileUpdated:
-            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                               localizedDescription:NSLocalizedString(@"Overwrote an existing signature while saving", nil)];
-        case CMFileUploadFailed:
-        default:
-            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                               localizedDescription:NSLocalizedString(@"Failed to upload signature", nil)];
-    }
 }
 
 + (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
