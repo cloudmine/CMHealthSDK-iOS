@@ -4,6 +4,7 @@
 #import "CMHConstants_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHErrors.h"
+#import "CMHInternalUser.h"
 
 @implementation CMHConsent
 
@@ -29,18 +30,31 @@
 {
     NSAssert(nil != pdfData, @"Attempted to upload nil PDF data for user consent");
 
-    [CMStore.defaultStore saveUserFileWithData:pdfData additionalOptions:nil callback:^(CMFileUploadResponse *response) {
-        NSError *error = [CMHErrorUtilities errorForFileKind:@"consent pdf" uploadResponse:response];
-        if (nil == block) {
+    [CMStore.defaultStore saveUserFileWithData:pdfData additionalOptions:nil callback:^(CMFileUploadResponse *uploadResponse) {
+        NSError *uploadError = [CMHErrorUtilities errorForFileKind:@"consent pdf" uploadResponse:uploadResponse];
+
+        if (nil != uploadError) {
+            if (nil != block) {
+                block(uploadError);
+            }
             return;
         }
 
-        if (nil != error) {
-            block(error);
-            return;
-        }
+        self.pdfFileName = uploadResponse.key;
 
-        block(nil);
+        [self saveWithUser:[CMHInternalUser currentUser] callback:^(CMObjectUploadResponse *saveResponse) {
+            if (nil == block) {
+                return;
+            }
+
+            NSError *saveError = [CMHErrorUtilities errorForConsentWithObjectId:self.objectId uploadResponse:saveResponse];
+            if (nil != saveError) {
+                block(saveError);
+                return;
+            }
+
+            block(nil);
+        }];
     }];
 }
 
@@ -95,6 +109,7 @@
 
     self.consentResult = [aDecoder decodeObjectForKey:@"consentResult"];
     self.signatureImageFilename = [aDecoder decodeObjectForKey:@"signatureImageFilename"];
+    self.pdfFileName = [aDecoder decodeObjectForKey:@"pdfFileName"];
     self.studyDescriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];
 
     if ([@"" isEqualToString:self.studyDescriptor]) {
@@ -109,6 +124,7 @@
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.consentResult forKey:@"consentResult"];
     [aCoder encodeObject:self.signatureImageFilename forKey:@"signatureImageFilename"];
+    [aCoder encodeObject:self.pdfFileName forKey:@"pdfFileName"];
 
     if (nil == self.studyDescriptor) {
         [aCoder encodeObject:@"" forKey:CMHStudyDescriptorKey];
