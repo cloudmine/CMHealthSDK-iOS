@@ -94,7 +94,7 @@ describe(@"CMHealthIntegration", ^{
         expect(pdfUploadError).to.beNil();
     });
 
-    it(@"should fetch a user's consent and signature image", ^{
+    it(@"should fetch a user's consent, signature image, and PDF", ^{
         __block CMHConsent *fetchedConsent = nil;
         __block NSError *consentError = nil;
 
@@ -131,6 +131,25 @@ describe(@"CMHealthIntegration", ^{
         expect(signatureImage).toNot.beNil();
         expect(signatureImage.size.width).to.equal(1.0f);
         expect(signatureImage.size.height).to.equal(1.0f);
+
+        __block NSData *pdfData = nil;
+        __block NSError *pdfError = nil;
+
+
+        waitUntil(^(DoneCallback done) {
+            [fetchedConsent fetchConsentPDFWithCompletion:^(NSData *data, NSError *error) {
+                pdfData = data;
+                pdfError = error;
+                done();
+            }];
+        });
+
+        NSString *localPDFPath = [NSBundle.mainBundle pathForResource:@"Test-Consent-PDF" ofType:@"pdf"];
+        NSURL *localPDFURL = [NSURL fileURLWithPath:localPDFPath];
+        NSData *localPDFData = [[NSData alloc] initWithContentsOfURL:localPDFURL];
+
+        expect(pdfError).to.beNil();
+        expect(pdfData).to.equal(localPDFData);
     });
 
     it(@"should return nothing for a consent that is not on file", ^{
