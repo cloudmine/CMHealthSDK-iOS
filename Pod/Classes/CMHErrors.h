@@ -5,6 +5,9 @@
 
 static NSString *const CMHErrorDomain = @"me.cloudmine.CMHealth.ErrorDomain";
 
+/** These constants represent the possible error codes that will be returned by 
+ *  CMHealth networking calls within the `CMHErrorDomain`.
+ */
 typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorUserMissingConsent      = 700,
     CMHErrorUserMissingSignature    = 701,

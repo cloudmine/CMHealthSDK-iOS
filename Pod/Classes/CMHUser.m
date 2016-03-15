@@ -137,7 +137,7 @@
 }
 
 - (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
-                                 andCompletion:(_Nonnull CMHFetchConsentCompletion)block
+                                 andCompletion:(_Nullable CMHFetchConsentCompletion)block
 {
     if (nil == descriptor) {
         descriptor = @"";
