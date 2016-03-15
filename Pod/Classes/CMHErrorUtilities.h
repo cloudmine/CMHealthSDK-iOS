@@ -7,4 +7,7 @@
 + (NSError *_Nullable)errorForFileKind:(NSString *_Nullable)fileKind uploadResponse:(CMFileUploadResponse *_Nullable)response;
 + (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response;
 
++ (CMHError)localCodeForCloudMineCode:(CMErrorCode)code;
++ (NSString *_Nonnull)messageForCode:(CMHError)errorCode;
+
 @end

@@ -43,6 +43,50 @@
     return nil;
 }
 
++ (CMHError)localCodeForCloudMineCode:(CMErrorCode)code
+{
+    switch (code) {
+        case CMErrorUnknown:
+            return CMHErrorUnknown;
+        case CMErrorServerConnectionFailed:
+            return CMHErrorServerConnectionFailed;
+        case CMErrorServerError:
+            return CMHErrorServerError;
+        case CMErrorNotFound:
+            return CMHErrorNotFound;
+        case CMErrorInvalidRequest:
+            return CMHErrorInvalidRequest;
+        case CMErrorInvalidResponse:
+            return CMHErrorInvalidResponse;
+        case CMErrorUnauthorized:
+            return CMHErrorUnauthorized;
+        default:
+            return CMHErrorUnknown;
+    }
+}
+
++ (NSString *_Nonnull)messageForCode:(CMHError)errorCode
+{
+    switch (errorCode) {
+        case CMHErrorServerConnectionFailed:
+            return NSLocalizedString(@"Connection to the server failed", nil);
+        case CMHErrorServerError:
+            return NSLocalizedString(@"A server error occurred", nil);
+        case CMHErrorNotFound:
+            return NSLocalizedString(@"Requested object was not found", nil);
+        case CMHErrorInvalidRequest:
+            return NSLocalizedString(@"The request was invalid", nil);
+        case CMHErrorInvalidResponse:
+            return NSLocalizedString(@"The response was invalid", nil);
+        case CMHErrorUnauthorized:
+            return NSLocalizedString(@"The request was unauthorized", nil);
+        case CMHErrorUnknown:
+        default:
+            return NSLocalizedString(@"An unknown error occurred", nil);
+            break;
+    }
+}
+
 #pragma mark Private
 
 + (NSError * _Nullable)errorForFileUploadResult:(CMFileUploadResult)result
