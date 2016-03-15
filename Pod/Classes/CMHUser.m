@@ -119,7 +119,7 @@
                     return;
                 }
 
-                NSError *consentUploadError = [CMHUser errorForConsentWithObjectId:consent.objectId uploadResponse:response];
+                NSError *consentUploadError = [CMHErrorUtilities errorForConsentWithObjectId:consent.objectId uploadResponse:response];
                 if (nil != consentUploadError) {
                     block(nil, consentUploadError);
                     return;
@@ -312,28 +312,6 @@
     }
 
     return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
-}
-
-+ (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
-{
-    if (nil != response.error) {
-        NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; %@", response.error.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:responseErrorMessage];
-    }
-
-    if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent
-                           localizedDescription:NSLocalizedString(@"Failed to upload user consent; no response received", nil)];
-    }
-
-    NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
-
-    if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:invalidStatusMessage];
-    }
-
-    return nil;
 }
 
 + (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response
