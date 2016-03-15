@@ -49,7 +49,7 @@ describe(@"CMHealthIntegration", ^{
         expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
     });
 
-    it(@"should upload a user consent", ^{
+    it(@"should upload a user consent and consent PDF", ^{
         ORKTaskResult *consentResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
         ORKConsentSignatureResult *signatureResult = [ORKConsentSignatureResult new];
         signatureResult.consented = YES;
@@ -77,6 +77,21 @@ describe(@"CMHealthIntegration", ^{
         expect(returnConsent.consentResult).to.equal(consentResult);
         expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
         expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
+
+        __block NSError *pdfUploadError = nil;
+
+        NSString *pdfPath = [NSBundle.mainBundle pathForResource:@"Test-Consent-PDF" ofType:@"pdf"];
+        NSURL *pdfURL = [NSURL fileURLWithPath:pdfPath];
+        NSData *pdfData = [[NSData alloc] initWithContentsOfURL:pdfURL];
+
+        waitUntil(^(DoneCallback done) {
+            [returnConsent uploadConsentPDF:pdfData withCompletion:^(NSError *error) {
+                pdfUploadError = error;
+                done();
+            }];
+        });
+
+        expect(pdfUploadError).to.beNil();
     });
 
     it(@"should fetch a user's consent and signature image", ^{

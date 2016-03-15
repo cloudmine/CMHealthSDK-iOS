@@ -25,6 +25,25 @@
 
 #pragma mark Public
 
+- (void)uploadConsentPDF:(NSData *_Nonnull)pdfData withCompletion:(_Nullable CMHUploadPDFCompletion)block
+{
+    NSAssert(nil != pdfData, @"Attempted to upload nil PDF data for user consent");
+
+    [CMStore.defaultStore saveUserFileWithData:pdfData additionalOptions:nil callback:^(CMFileUploadResponse *response) {
+        NSError *error = [CMHErrorUtilities errorForFileKind:@"consent pdf" uploadResponse:response];
+        if (nil == block) {
+            return;
+        }
+
+        if (nil != error) {
+            block(error);
+            return;
+        }
+
+        block(nil);
+    }];
+}
+
 - (void)fetchSignatureImageWithCompletion:(CMHFetchSignatureCompletion)block
 {
     /* Return the memoized image in memory rather than re-fetching
