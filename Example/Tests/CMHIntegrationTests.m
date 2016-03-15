@@ -63,14 +63,18 @@ describe(@"CMHealthIntegration", ^{
         consentResult.results = @[signatureResult];
 
         __block NSError *uploadError = nil;
+        __block CMHConsent *returnConsent = nil;
+
         waitUntil(^(DoneCallback done) {
-            [[CMHUser currentUser] uploadUserConsent:consentResult forStudyWithDescriptor:TestDescriptor andCompletion:^(NSError *error) {
+            [[CMHUser currentUser] uploadUserConsent:consentResult forStudyWithDescriptor:TestDescriptor andCompletion:^(CMHConsent *consent, NSError *error) {
                 uploadError = error;
+                returnConsent = consent;
                 done();
             }];
         });
 
         expect(uploadError).to.beNil();
+        expect(returnConsent.consentResult).to.equal(consentResult);
         expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
         expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
     });

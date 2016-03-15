@@ -77,7 +77,7 @@
 
     if (nil != consentError) {
         if (nil != block) {
-            block(consentError);
+            block(nil, consentError);
         }
         return;
     }
@@ -85,7 +85,7 @@
     if (![[CMHInternalUser currentUser] isLoggedIn]) {
         if (nil != block) {
             NSError *loggedOutError = [CMHErrorUtilities errorWithCode:CMHErrorUserNotLoggedIn localizedDescription:@"Must be logged in to upload consent"];
-            block(loggedOutError);
+            block(nil, loggedOutError);
         }
 
         return;
@@ -94,7 +94,7 @@
     [self conditionallySaveNameFromSignature:signature withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
-                block(error);
+                block(nil, error);
             }
             return;
         }
@@ -105,7 +105,7 @@
             NSError *fileUploadError = [CMHUser errorForSignatureUploadResponse:fileResponse];
             if (nil != fileUploadError) {
                 if (nil != block) {
-                    block(fileUploadError);
+                    block(nil, fileUploadError);
                 }
                 return;
             }
@@ -121,11 +121,11 @@
 
                 NSError *consentUploadError = [CMHUser errorForConsentWithObjectId:consent.objectId uploadResponse:response];
                 if (nil != consentUploadError) {
-                    block(consentUploadError);
+                    block(nil, consentUploadError);
                     return;
                 }
 
-                block(nil);
+                block(consent, nil);
             }];
         }];
     }];
@@ -240,7 +240,7 @@
 
 # pragma mark Private
 
-- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(_Nonnull CMHUploadConsentCompletion)block
+- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(void (^)(NSError *error))block
 {
     CMHInternalUser *user = [CMHInternalUser currentUser];
     if (user.hasName) {

@@ -6,8 +6,8 @@
 
 typedef void(^CMHUserAuthCompletion)(NSError * _Nullable error);
 typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
-typedef void(^CMHUploadConsentCompletion)(NSError *_Nullable error);
 typedef void(^CMHResetPasswordCompletion)(NSError *_Nullable error);
+typedef void(^CMHUploadConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 
 /**
