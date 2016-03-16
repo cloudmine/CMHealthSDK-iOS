@@ -4,6 +4,7 @@
 @interface CMHInternalUser : CMUser
 
 - (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block;
+- (void)updateFamilyName:(NSString *)familyName givenName:(NSString *)givenName withCompletion:(CMHUserAuthCompletion)block;
 
 @property (nonatomic) NSString *givenName;
 @property (nonatomic) NSString *familyName;

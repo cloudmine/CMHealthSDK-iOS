@@ -224,16 +224,8 @@
 - (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(void (^)(NSError *error))block
 {
     CMHInternalUser *user = [CMHInternalUser currentUser];
-    if (user.hasName) {
-        block(nil);
-        return;
-    }
 
-    user.familyName = signature.familyName;
-    user.givenName = signature.givenName;
-
-    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
+    [user updateFamilyName:signature.familyName givenName:signature.givenName withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -241,9 +233,31 @@
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
-        block(nil);
+        if (nil != block) {
+            block(nil);
+        }
     }];
+
+//    if (user.hasName) {
+//        block(nil);
+//        return;
+//    }
+//
+//    user.familyName = signature.familyName;
+//    user.givenName = signature.givenName;
+//
+//    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
+//        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
+//        if (nil != error) {
+//            if (nil != block) {
+//                block(error);
+//            }
+//            return;
+//        }
+//
+//        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
+//        block(nil);
+//    }];
 }
 
 #pragma mark Error Generators

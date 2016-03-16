@@ -63,6 +63,30 @@
     }];
 }
 
+- (void)updateFamilyName:(NSString *)familyName givenName:(NSString *)givenName withCompletion:(CMHUserAuthCompletion)block
+{
+    // TODO: conditionally fetch profile
+
+    self.profile.familyName = familyName;
+    self.profile.givenName = givenName;
+
+    [self.profile save:^(CMObjectUploadResponse *response) {
+        NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:self.profile.objectId uploadResponse:response];
+        if (nil != saveError) {
+            if (nil != block) {
+                block(saveError);
+            }
+            return;
+        }
+
+        //TODO: User data?
+
+        if (nil != block) {
+            block(nil);
+        }
+    }];
+}
+
 - (BOOL)hasName
 {
     return !(nil == self.familyName || [@"" isEqualToString:self.familyName] || nil == self.givenName || [@"" isEqualToString:self.givenName]);
