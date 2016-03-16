@@ -3,7 +3,7 @@
 #import "CMHErrorUtilities.h"
 
 @interface CMHInternalUser ()
-@property (nonatomic, nonnull) CMHInternalProfile *profile;
+@property (nonatomic, nullable) CMHInternalProfile *profile;
 @end
 
 @implementation CMHInternalUser
@@ -47,7 +47,13 @@
             }
 
             [CMStore.defaultStore saveUserObject:self.profile callback:^(CMObjectUploadResponse *response) {
-                //TODO: Errors
+                NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:self.profile.objectId uploadResponse:response];
+                if (nil != saveError) {
+                    if (nil != block) {
+                        block(saveError);
+                    }
+                    return;
+                }
 
                 if (nil != block) {
                     block(nil);

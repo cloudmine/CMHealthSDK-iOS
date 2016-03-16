@@ -100,7 +100,7 @@
                     return;
                 }
 
-                NSError *consentUploadError = [CMHErrorUtilities errorForConsentWithObjectId:consent.objectId uploadResponse:response];
+                NSError *consentUploadError = [CMHErrorUtilities errorForKind:@"user consent" objectId:consent.objectId uploadResponse:response];
                 if (nil != consentUploadError) {
                     block(nil, consentUploadError);
                     return;
