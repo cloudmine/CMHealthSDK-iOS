@@ -43,6 +43,53 @@
     return nil;
 }
 
++ (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
+{
+    if (CMUserAccountOperationSuccessful(resultCode)) {
+        return nil;
+    }
+
+    NSString *errorMessage = nil;
+    CMHError code = -1;
+
+    switch (resultCode) {
+        case CMUserAccountCreateFailedInvalidRequest:
+            code = CMHErrorInvalidUserRequest;
+            errorMessage = NSLocalizedString(@"Request was invalid", nil);
+            break;
+        case CMUserAccountProfileUpdateFailed:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = NSLocalizedString(@"Failed to update profile", nil);
+            break;
+        case CMUserAccountCreateFailedDuplicateAccount:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account email", nil);
+            break;
+        case CMUserAccountCredentialChangeFailedDuplicateEmail:
+        case CMUserAccountCredentialChangeFailedDuplicateUsername:
+        case CMUserAccountCredentialChangeFailedDuplicateInfo:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account data", nil);
+            break;
+        case CMUserAccountLoginFailedIncorrectCredentials:
+        case CMUserAccountCredentialChangeFailedInvalidCredentials:
+        case CMUserAccountPasswordChangeFailedInvalidCredentials:
+            code = CMHErrorInvalidCredentials;
+            errorMessage = NSLocalizedString(@"Invalid username or password", nil);
+            break;
+        case CMUserAccountOperationFailedUnknownAccount:
+            code = CMHErrorInvalidAccount;
+            errorMessage = NSLocalizedString(@"Account does not exist", nil);
+            break;
+        default:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = [NSString localizedStringWithFormat:@"Unknown account error with code: %li", (long)resultCode];
+            break;
+    }
+
+    return [self errorWithCode:code localizedDescription:errorMessage];
+}
+
 + (CMHError)localCodeForCloudMineCode:(CMErrorCode)code
 {
     switch (code) {

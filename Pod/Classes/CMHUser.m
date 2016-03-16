@@ -8,6 +8,7 @@
 #import "CMHConsent_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHConstants_internal.h"
+#import "CMHInternalProfile.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -39,29 +40,9 @@
     CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
     [CMStore defaultStore].user = newUser;
 
-    [newUser createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
-        NSError *createError = [CMHUser errorForAccountResult:createResultCode];
-        if (nil != createError) {
-            if (nil != block) {
-                block(createError);
-            }
-            return;
-        }
-
-        [newUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-            NSError *loginError = [CMHUser errorForAccountResult:resultCode];
-            if (nil != loginError) {
-                if (nil != block) {
-                    block(loginError);
-                }
-                return;
-            }
-
-            self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
-            if (nil != block) {
-                block(nil);
-            }
-        }];
+    [newUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+        self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
+        block(error);
     }];
 }
 
@@ -182,7 +163,7 @@
     [CMStore defaultStore].user = user;
 
     [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -209,7 +190,7 @@
             return;
         }
 
-        NSError *resetError = [CMHUser errorForAccountResult:resultCode];
+        NSError *resetError = [CMHErrorUtilities errorForAccountResult:resultCode];
         block(resetError);
     }];
 }
@@ -217,7 +198,7 @@
 - (void)logoutWithCompletion:(_Nullable CMHUserLogoutCompletion)block
 {
     [[CMHInternalUser currentUser] logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -252,7 +233,7 @@
     user.givenName = signature.givenName;
 
     [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -266,53 +247,6 @@
 }
 
 #pragma mark Error Generators
-
-+ (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
-{
-    if (CMUserAccountOperationSuccessful(resultCode)) {
-        return nil;
-    }
-
-    NSString *errorMessage = nil;
-    CMHError code = -1;
-
-    switch (resultCode) {
-        case CMUserAccountCreateFailedInvalidRequest:
-            code = CMHErrorInvalidUserRequest;
-            errorMessage = NSLocalizedString(@"Request was invalid", nil);
-            break;
-        case CMUserAccountProfileUpdateFailed:
-            code = CMHErrorUnknownAccountError;
-            errorMessage = NSLocalizedString(@"Failed to update profile", nil);
-            break;
-        case CMUserAccountCreateFailedDuplicateAccount:
-            code = CMHErrorDuplicateAccount;
-            errorMessage = NSLocalizedString(@"Duplicate account email", nil);
-            break;
-        case CMUserAccountCredentialChangeFailedDuplicateEmail:
-        case CMUserAccountCredentialChangeFailedDuplicateUsername:
-        case CMUserAccountCredentialChangeFailedDuplicateInfo:
-            code = CMHErrorDuplicateAccount;
-            errorMessage = NSLocalizedString(@"Duplicate account data", nil);
-            break;
-        case CMUserAccountLoginFailedIncorrectCredentials:
-        case CMUserAccountCredentialChangeFailedInvalidCredentials:
-        case CMUserAccountPasswordChangeFailedInvalidCredentials:
-            code = CMHErrorInvalidCredentials;
-            errorMessage = NSLocalizedString(@"Invalid username or password", nil);
-            break;
-        case CMUserAccountOperationFailedUnknownAccount:
-            code = CMHErrorInvalidAccount;
-            errorMessage = NSLocalizedString(@"Account does not exist", nil);
-            break;
-        default:
-            code = CMHErrorUnknownAccountError;
-            errorMessage = [NSString localizedStringWithFormat:@"Unknown account error with code: %li", (long)resultCode];
-            break;
-    }
-
-    return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
-}
 
 + (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response
 {
