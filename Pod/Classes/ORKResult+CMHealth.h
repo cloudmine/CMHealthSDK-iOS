@@ -50,6 +50,13 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                     withCompletion:(_Nullable CMHFetchCompletion)block;
 
++ (void)cmh_fetchUserResultsForStudyWithIdentifier:(NSString *_Nullable)identifier
+                                    withCompletion:(_Nullable CMHFetchCompletion)block;
+
++ (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
+                                     andIdentifier:(NSString *_Nullable)identifier
+                                    withCompletion:(_Nullable CMHFetchCompletion)block;
+
 /**
  *  Convenience method for querying results with an empty study descriptor.
  *
