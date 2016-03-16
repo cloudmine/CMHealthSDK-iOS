@@ -1,11 +1,14 @@
 #import "CMHTestCleaner.h"
 #import <CMHealth/CMHResult.h>
 #import <CMHealth/CMHConstants_internal.h>
+#import <CMHealth/CMHConsent_internal.h>
 
 @interface CMHTestCleaner ()
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *objects;
 @property (nonatomic, nonnull) NSMutableArray<NSString *> *filenames;
+
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *failedObjects;
+@property (nonatomic, nonnull) NSMutableArray<NSString *> *failedFilenames;
 @end
 
 @implementation CMHTestCleaner
@@ -24,6 +27,8 @@
 - (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(void (^)())block
 {
     [self.objects addObject:consent];
+    [self.filenames addObject:consent.signatureImageFilename];
+    [self.filenames addObject:consent.pdfFileName];
 
     NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
 
@@ -40,7 +45,9 @@
 - (void)deleteAllObjectsAndFilesWithCompletion:(void (^)())block
 {
     [self deleteAllObjectsWithCompletion:^{
-        block();
+        [self deleteAllFilesWithCompletion:^{
+            block();
+        }];
     }];
 }
 
@@ -62,6 +69,27 @@
 
         [self.objects removeObject:object];
         [self deleteAllObjectsWithCompletion:block];
+    }];
+}
+
+- (void)deleteAllFilesWithCompletion:(void (^)())block
+{
+    if (self.filenames.count <= 0) {
+        block();
+        return;
+    }
+
+    NSString *filename = self.filenames.firstObject;
+
+    [CMStore.defaultStore deleteUserFileNamed:filename additionalOptions:nil callback:^(CMDeleteResponse *response) {
+        if (nil != response.error) {
+            [self.failedFilenames addObject:filename];
+        } else if (response.objectErrors.allValues.count > 0) {
+            [self.failedFilenames addObject:filename];
+        }
+
+        [self.filenames removeObject:filename];
+        [self deleteAllObjectsAndFilesWithCompletion:block];
     }];
 }
 
