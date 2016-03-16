@@ -4,6 +4,7 @@
 #import "CMHConstants_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHErrors.h"
+#import "CMHInternalUser.h"
 
 @implementation CMHConsent
 
@@ -25,6 +26,63 @@
 
 #pragma mark Public
 
+- (void)uploadConsentPDF:(NSData *_Nonnull)pdfData withCompletion:(_Nullable CMHUploadPDFCompletion)block
+{
+    NSAssert(nil != pdfData, @"Attempted to upload nil PDF data for user consent");
+
+    [CMStore.defaultStore saveUserFileWithData:pdfData additionalOptions:nil callback:^(CMFileUploadResponse *uploadResponse) {
+        NSError *uploadError = [CMHErrorUtilities errorForFileKind:@"consent pdf" uploadResponse:uploadResponse];
+
+        if (nil != uploadError) {
+            if (nil != block) {
+                block(uploadError);
+            }
+            return;
+        }
+
+        self.pdfFileName = uploadResponse.key;
+
+        [self saveWithUser:[CMHInternalUser currentUser] callback:^(CMObjectUploadResponse *saveResponse) {
+            if (nil == block) {
+                return;
+            }
+
+            NSError *saveError = [CMHErrorUtilities errorForConsentWithObjectId:self.objectId uploadResponse:saveResponse];
+            if (nil != saveError) {
+                block(saveError);
+                return;
+            }
+
+            block(nil);
+        }];
+    }];
+}
+
+- (void)fetchConsentPDFWithCompletion:(_Nullable CMHFetchConsentPDFCompletion)block
+{
+    if (nil != self.pdfData) {
+        if (nil != block) {
+            block(self.pdfData, nil);
+        }
+
+        return;
+    }
+
+    [CMStore.defaultStore userFileWithName:self.pdfFileName additionalOptions:nil callback:^(CMFileFetchResponse *response) {
+        if (nil == block) {
+            return;
+        }
+
+        NSError *error = [CMHConsent errorForFileFetchResponse:response];
+        if (nil != error) {
+            block(nil, error);
+            return;
+        }
+
+        block(response.file.fileData, nil);
+    }];
+}
+
 - (void)fetchSignatureImageWithCompletion:(CMHFetchSignatureCompletion)block
 {
     /* Return the memoized image in memory rather than re-fetching
@@ -44,21 +102,16 @@
             return;
         }
 
-        if (nil != response.error) {
-            block(nil, response.error);
-            return;
-        }
-
-        if (nil == response.file.fileData) {
-            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
-                        localizedDescription:NSLocalizedString(@"No signature image data returned", nil)];
+        NSError *error = [CMHConsent errorForFileFetchResponse:response];
+        if (nil != error) {
+            block(nil, error);
             return;
         }
 
         UIImage *image = [UIImage imageWithData:response.file.fileData];
         if (nil == image) {
-            [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchSignature
-                        localizedDescription:NSLocalizedString(@"Signature image data was invalid or corrupted", nil)];
+            [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse
+                        localizedDescription:NSLocalizedString(@"Signature image data was empty, invalid or corrupt", nil)];
             return;
         }
 
@@ -76,6 +129,7 @@
 
     self.consentResult = [aDecoder decodeObjectForKey:@"consentResult"];
     self.signatureImageFilename = [aDecoder decodeObjectForKey:@"signatureImageFilename"];
+    self.pdfFileName = [aDecoder decodeObjectForKey:@"pdfFileName"];
     self.studyDescriptor = [aDecoder decodeObjectForKey:CMHStudyDescriptorKey];
 
     if ([@"" isEqualToString:self.studyDescriptor]) {
@@ -90,12 +144,30 @@
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.consentResult forKey:@"consentResult"];
     [aCoder encodeObject:self.signatureImageFilename forKey:@"signatureImageFilename"];
+    [aCoder encodeObject:self.pdfFileName forKey:@"pdfFileName"];
 
     if (nil == self.studyDescriptor) {
         [aCoder encodeObject:@"" forKey:CMHStudyDescriptorKey];
     } else {
         [aCoder encodeObject:self.studyDescriptor forKey:CMHStudyDescriptorKey];
     }
+}
+
+#pragma mark Error Generation
++ (NSError *_Nullable)errorForFileFetchResponse:(CMFileFetchResponse *)response
+{
+    if (nil == response) {
+        return [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse
+                           localizedDescription:NSLocalizedString(@"No response for file request", nil)];
+    }
+
+    if (nil != response.error) {
+        CMHError localCode = [CMHErrorUtilities localCodeForCloudMineCode:response.error.code];
+        NSString *description = [CMHErrorUtilities messageForCode:localCode];
+        return [CMHErrorUtilities errorWithCode:localCode localizedDescription:description];
+    }
+
+    return nil;
 }
 
 @end

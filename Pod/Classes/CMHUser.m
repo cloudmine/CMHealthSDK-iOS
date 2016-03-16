@@ -77,7 +77,7 @@
 
     if (nil != consentError) {
         if (nil != block) {
-            block(consentError);
+            block(nil, consentError);
         }
         return;
     }
@@ -85,7 +85,7 @@
     if (![[CMHInternalUser currentUser] isLoggedIn]) {
         if (nil != block) {
             NSError *loggedOutError = [CMHErrorUtilities errorWithCode:CMHErrorUserNotLoggedIn localizedDescription:@"Must be logged in to upload consent"];
-            block(loggedOutError);
+            block(nil, loggedOutError);
         }
 
         return;
@@ -94,7 +94,7 @@
     [self conditionallySaveNameFromSignature:signature withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
-                block(error);
+                block(nil, error);
             }
             return;
         }
@@ -102,10 +102,10 @@
         NSData *signatureData = UIImageJPEGRepresentation(signature.signatureImage, 1.0);
 
         [[CMStore defaultStore] saveUserFileWithData:signatureData additionalOptions:nil callback:^(CMFileUploadResponse *fileResponse) {
-            NSError *fileUploadError = [CMHUser errorForSignatureUploadResponse:fileResponse];
+            NSError *fileUploadError = [CMHErrorUtilities errorForFileKind:NSLocalizedString(@"signature", nil) uploadResponse:fileResponse];
             if (nil != fileUploadError) {
                 if (nil != block) {
-                    block(fileUploadError);
+                    block(nil, fileUploadError);
                 }
                 return;
             }
@@ -119,13 +119,13 @@
                     return;
                 }
 
-                NSError *consentUploadError = [CMHUser errorForConsentWithObjectId:consent.objectId uploadResponse:response];
+                NSError *consentUploadError = [CMHErrorUtilities errorForConsentWithObjectId:consent.objectId uploadResponse:response];
                 if (nil != consentUploadError) {
-                    block(consentUploadError);
+                    block(nil, consentUploadError);
                     return;
                 }
 
-                block(nil);
+                block(consent, nil);
             }];
         }];
     }];
@@ -240,7 +240,7 @@
 
 # pragma mark Private
 
-- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(_Nonnull CMHUploadConsentCompletion)block
+- (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(void (^)(NSError *error))block
 {
     CMHInternalUser *user = [CMHInternalUser currentUser];
     if (user.hasName) {
@@ -312,55 +312,6 @@
     }
 
     return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
-}
-
-+ (NSError *_Nullable)errorForSignatureUploadResponse:(CMFileUploadResponse *)response
-{
-    if (nil != response.error) {
-        NSString *fileUploadMessage = [NSString localizedStringWithFormat:@"Failed to upload signature; %@", response.error.localizedDescription];
-        NSError *fileUploadError = [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                                                   localizedDescription:fileUploadMessage];
-        return fileUploadError;
-    }
-
-    return [self errorForSignatureUploadResult:response.result];
-}
-
-+ (NSError * _Nullable)errorForSignatureUploadResult:(CMFileUploadResult)result
-{
-    switch (result) {
-        case CMFileCreated:
-            return nil;
-        case CMFileUpdated:
-            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                               localizedDescription:NSLocalizedString(@"Overwrote an existing signature while saving", nil)];
-        case CMFileUploadFailed:
-        default:
-            return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadSignature
-                               localizedDescription:NSLocalizedString(@"Failed to upload signature", nil)];
-    }
-}
-
-+ (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
-{
-    if (nil != response.error) {
-        NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; %@", response.error.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:responseErrorMessage];
-    }
-
-    if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent
-                           localizedDescription:NSLocalizedString(@"Failed to upload user consent; no response received", nil)];
-    }
-
-    NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
-
-    if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:invalidStatusMessage];
-    }
-
-    return nil;
 }
 
 + (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response

@@ -12,7 +12,9 @@
 @property (nonatomic, nullable, readwrite) NSString *studyDescriptor;
 
 @property (nonatomic, nullable) NSString *signatureImageFilename;
+@property (nonatomic, nullable) NSString *pdfFileName;
 @property (nonatomic, nullable) UIImage *signatureImage;
+@property (nonatomic, nullable) NSData *pdfData;
 
 @end
 
