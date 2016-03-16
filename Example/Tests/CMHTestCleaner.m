@@ -1,4 +1,6 @@
 #import "CMHTestCleaner.h"
+#import <CMHealth/CMHResult.h>
+#import <CMHealth/CMHConstants_internal.h>
 
 @interface CMHTestCleaner ()
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *objects;
@@ -22,10 +24,20 @@
     return self;
 }
 
--(void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(CMHCleanupCompletion)block
+- (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(CMHCleanupCompletion)block
 {
     [self.objects addObject:consent];
-    [self deleteAllObjectsAndFilesWithCompletion:block];
+
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
+
+    [CMStore.defaultStore searchUserObjects:query additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
+
+        for (CMHResult *wrappedResult in response.objects) {
+            [self.objects addObject:wrappedResult];
+        }
+
+        [self deleteAllObjectsAndFilesWithCompletion:block];
+    }];
 }
 
 - (void)pushObject:(CMObject *)object
