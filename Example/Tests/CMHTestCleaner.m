@@ -5,9 +5,7 @@
 @interface CMHTestCleaner ()
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *objects;
 @property (nonatomic, nonnull) NSMutableArray<NSString *> *filenames;
-
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *failedObjects;
-@property (nonatomic, nonnull) NSMutableArray<NSError *> *errors;
 @end
 
 @implementation CMHTestCleaner
@@ -19,12 +17,11 @@
 
     self.objects = [NSMutableArray new];
     self.filenames = [NSMutableArray new];
-    self.errors = [NSMutableArray new];
 
     return self;
 }
 
-- (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(CMHCleanupCompletion)block
+- (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(void (^)())block
 {
     [self.objects addObject:consent];
 
@@ -40,28 +37,10 @@
     }];
 }
 
-- (void)pushObject:(CMObject *)object
-{
-    if (nil == object) {
-        return;
-    }
-
-    [self.objects addObject:object];
-}
-
-- (void)pushFileNamed:(NSString *)filename
-{
-    if (nil == filename) {
-        return;
-    }
-
-    [self.filenames addObject:filename];
-}
-
-- (void)deleteAllObjectsAndFilesWithCompletion:(_Nonnull CMHCleanupCompletion)block
+- (void)deleteAllObjectsAndFilesWithCompletion:(void (^)())block
 {
     [self deleteAllObjectsWithCompletion:^{
-        block([self.errors copy]);
+        block();
     }];
 }
 
@@ -76,10 +55,8 @@
 
     [[CMStore defaultStore] deleteUserObject:object additionalOptions:nil callback:^(CMDeleteResponse *response) {
         if (nil != response.error) {
-            [self.errors addObject:response.error];
             [self.failedObjects addObject:object];
         } else if (nil != response.objectErrors[object.objectId]) {
-            [self.errors addObject:response.objectErrors[object.objectId]];
             [self.failedObjects addObject:object];
         }
 

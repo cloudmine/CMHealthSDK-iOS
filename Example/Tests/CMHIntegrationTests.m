@@ -338,7 +338,7 @@ describe(@"CMHealthIntegration", ^{
     afterAll(^{
          waitUntil(^(DoneCallback done) {
              CMHTestCleaner *cleaner = [CMHTestCleaner new];
-             [cleaner deleteConsent:consentToClean andResultsWithDescriptor:TestDescriptor withCompletion:^(NSArray *errors) {
+             [cleaner deleteConsent:consentToClean andResultsWithDescriptor:TestDescriptor withCompletion:^ {
                  done();
              }];
          });
