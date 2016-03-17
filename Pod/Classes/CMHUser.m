@@ -37,12 +37,20 @@
 - (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
 {
     self.userData = nil;
-    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
-    [CMStore defaultStore].user = newUser;
 
-    [newUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+    [CMHInternalUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
+            if (nil != block) {
+                block(error);
+            }
+            return;
+        }
+
         self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
-        block(error);
+
+        if (nil != block) {
+            block(nil);
+        }
     }];
 }
 

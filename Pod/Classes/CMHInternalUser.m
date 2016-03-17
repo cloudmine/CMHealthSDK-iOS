@@ -16,13 +16,15 @@
 
 #pragma mark Public
 
-- (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
++ (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
 {
-    self.profile = [CMHInternalProfile new];
-    self.profile.email = email;
-    self.profileId = self.profile.objectId;
+    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
+    newUser.profile = [CMHInternalProfile new];
+    newUser.profile.email = email;
+    newUser.profileId = newUser.profile.objectId;
+    [CMStore defaultStore].user = newUser;
 
-    [self createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
+    [newUser createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
         NSError *createError = [CMHErrorUtilities errorForAccountResult:createResultCode];
         if (nil != createError) {
             if (nil != block) {
@@ -31,7 +33,7 @@
             return;
         }
 
-        [self loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+        [newUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
             NSError *loginError = [CMHErrorUtilities errorForAccountResult:resultCode];
             if (nil != loginError) {
                 if (nil != block) {
@@ -40,8 +42,8 @@
                 return;
             }
 
-            [CMStore.defaultStore saveUserObject:self.profile callback:^(CMObjectUploadResponse *response) {
-                NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:self.profile.objectId uploadResponse:response];
+            [CMStore.defaultStore saveUserObject:newUser.profile callback:^(CMObjectUploadResponse *response) {
+                NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:newUser.profile.objectId uploadResponse:response];
                 if (nil != saveError) {
                     if (nil != block) {
                         block(saveError);
@@ -126,8 +128,6 @@
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
-    self.givenName = [aDecoder decodeObjectForKey:@"givenName"];
-    self.familyName = [aDecoder decodeObjectForKey:@"familyName"];
     self.profileId = [aDecoder decodeObjectForKey:@"profileId"];
 
     return self;
@@ -136,14 +136,6 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [super encodeWithCoder:aCoder];
-
-    if (nil != self.givenName) {
-        [aCoder encodeObject:self.givenName forKey:@"givenName"];
-    }
-
-    if (nil != self.familyName) {
-        [aCoder encodeObject:self.familyName forKey:@"familyName"];
-    }
 
     if (nil != self.profileId) {
         [aCoder encodeObject:self.profileId forKey:@"profileId"];
