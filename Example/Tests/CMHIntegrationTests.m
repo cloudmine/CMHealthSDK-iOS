@@ -1,5 +1,6 @@
 #import <CMHealth/CMHealth.h>
 #import "CMHTest-Secrets.h"
+#import "CMHTestCleaner.h"
 
 static NSString *const TestDescriptor = @"CMHTestDescriptor";
 static NSString *const TestPassword   = @"test-paSsword1!";
@@ -9,6 +10,7 @@ static NSString *const TestFamilyName = @"Doe";
 SpecBegin(CMHealthIntegration)
 
 describe(@"CMHealthIntegration", ^{
+    __block CMHConsent *consentToClean = nil;
 
     beforeAll(^{
         NSString *assertionError = @"You haven't set valid credentials in CMHTest-Secrets.h";
@@ -72,6 +74,8 @@ describe(@"CMHealthIntegration", ^{
                 done();
             }];
         });
+
+        consentToClean = returnConsent;
 
         expect(uploadError).to.beNil();
         expect(returnConsent.consentResult).to.equal(consentResult);
@@ -329,6 +333,15 @@ describe(@"CMHealthIntegration", ^{
 
     it(@"should pass", ^{
         expect(YES).to.beTruthy();
+    });
+
+    afterAll(^{
+         waitUntil(^(DoneCallback done) {
+             CMHTestCleaner *cleaner = [CMHTestCleaner new];
+             [cleaner deleteConsent:consentToClean andResultsWithDescriptor:TestDescriptor withCompletion:^ {
+                 done();
+             }];
+         });
     });
 });
 
