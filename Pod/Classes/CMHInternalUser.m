@@ -96,7 +96,7 @@
 
 - (BOOL)hasName
 {
-    return !(nil == self.familyName || [@"" isEqualToString:self.familyName] || nil == self.givenName || [@"" isEqualToString:self.givenName]);
+    return !(nil == self.profile.familyName || [@"" isEqualToString:self.profile.familyName] || nil == self.profile.givenName || [@"" isEqualToString:self.profile.givenName]);
 }
 
 # pragma mark NSCoding
