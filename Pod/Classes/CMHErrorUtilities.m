@@ -21,26 +21,97 @@
     return [self errorForFileUploadResult:response.result];
 }
 
-+ (NSError *_Nullable)errorForConsentWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
++ (NSError *_Nullable)errorForKind:(NSString *_Nullable)kind objectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response
 {
+    if (nil == kind) {
+        kind = @"object";
+    }
+
     if (nil != response.error) {
-        NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; %@", response.error.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:responseErrorMessage];
+        NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload %@; %@", kind, response.error.localizedDescription];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:responseErrorMessage];
     }
 
     if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent
-                           localizedDescription:NSLocalizedString(@"Failed to upload user consent; no response received", nil)];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject
+                           localizedDescription:[NSString localizedStringWithFormat:@"Failed to upload %@; no response received", kind]];
     }
 
     NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
 
     if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload user consent; invalid upload status returned: %@", resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:invalidStatusMessage];
+        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload %@kind; invalid upload status returned: %@", kind, resultUploadStatus];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:invalidStatusMessage];
     }
 
     return nil;
+}
+
++ (NSError *_Nullable)errorForKind:(NSString *_Nullable)kind fetchResponse:(CMObjectFetchResponse *_Nullable)response
+{
+    if (nil == kind) {
+        kind = @"file";
+    }
+
+    NSError *responseError = response.error;
+
+    if (nil == responseError) {
+        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
+    }
+
+    if (nil != responseError) {
+        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch %@; %@", kind,  responseError.localizedDescription];
+        return [self errorWithCode:CMHErrorFailedToFetchObject localizedDescription:message];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
+{
+    if (CMUserAccountOperationSuccessful(resultCode)) {
+        return nil;
+    }
+
+    NSString *errorMessage = nil;
+    CMHError code = -1;
+
+    switch (resultCode) {
+        case CMUserAccountCreateFailedInvalidRequest:
+            code = CMHErrorInvalidUserRequest;
+            errorMessage = NSLocalizedString(@"Request was invalid", nil);
+            break;
+        case CMUserAccountProfileUpdateFailed:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = NSLocalizedString(@"Failed to update profile", nil);
+            break;
+        case CMUserAccountCreateFailedDuplicateAccount:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account email", nil);
+            break;
+        case CMUserAccountCredentialChangeFailedDuplicateEmail:
+        case CMUserAccountCredentialChangeFailedDuplicateUsername:
+        case CMUserAccountCredentialChangeFailedDuplicateInfo:
+            code = CMHErrorDuplicateAccount;
+            errorMessage = NSLocalizedString(@"Duplicate account data", nil);
+            break;
+        case CMUserAccountLoginFailedIncorrectCredentials:
+        case CMUserAccountCredentialChangeFailedInvalidCredentials:
+        case CMUserAccountPasswordChangeFailedInvalidCredentials:
+            code = CMHErrorInvalidCredentials;
+            errorMessage = NSLocalizedString(@"Invalid username or password", nil);
+            break;
+        case CMUserAccountOperationFailedUnknownAccount:
+            code = CMHErrorInvalidAccount;
+            errorMessage = NSLocalizedString(@"Account does not exist", nil);
+            break;
+        default:
+            code = CMHErrorUnknownAccountError;
+            errorMessage = [NSString localizedStringWithFormat:@"Unknown account error with code: %li", (long)resultCode];
+            break;
+    }
+
+    return [self errorWithCode:code localizedDescription:errorMessage];
 }
 
 + (CMHError)localCodeForCloudMineCode:(CMErrorCode)code

@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <ResearchKit/ResearchKit.h>
 
 @class CMHUserData;

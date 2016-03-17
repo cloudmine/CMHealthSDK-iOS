@@ -1,16 +1,17 @@
 #import "CMHUserData.h"
 #import "CMHUserData_internal.h"
+#import "CMHInternalProfile.h"
 
 @implementation CMHUserData
 
-- (instancetype)initWithInternalUser:(CMHInternalUser *)user
+- (_Nullable instancetype)initWithInternalProfile:(CMHInternalProfile *_Nullable)profile
 {
     self = [super init];
-    if (nil == self || nil == user) return nil;
+    if (nil == self || nil == profile) return nil;
 
-    self.email = user.email;
-    self.familyName = user.familyName;
-    self.givenName = user.givenName;
+    self.email = profile.email;
+    self.givenName = profile.givenName;
+    self.familyName = profile.familyName;
 
     return self;
 }

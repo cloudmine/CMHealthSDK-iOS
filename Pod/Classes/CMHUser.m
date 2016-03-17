@@ -8,6 +8,7 @@
 #import "CMHConsent_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHConstants_internal.h"
+#import "CMHInternalProfile.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -22,7 +23,7 @@
 
     dispatch_once(&oncePredicate, ^{
         _sharedInstance = [CMHUser new];
-        _sharedInstance.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+        _sharedInstance.userData = [CMHInternalUser.currentUser generateCurrentUserData];
 
         // Need to think more carefully about this. It probably doesn't belong here, but I think
         // a goal should be to hide the sense of a "store" from the SDK consumer. We need to perform
@@ -36,32 +37,20 @@
 - (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
 {
     self.userData = nil;
-    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
-    [CMStore defaultStore].user = newUser;
 
-    [newUser createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
-        NSError *createError = [CMHUser errorForAccountResult:createResultCode];
-        if (nil != createError) {
+    [CMHInternalUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
             if (nil != block) {
-                block(createError);
+                block(error);
             }
             return;
         }
 
-        [newUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-            NSError *loginError = [CMHUser errorForAccountResult:resultCode];
-            if (nil != loginError) {
-                if (nil != block) {
-                    block(loginError);
-                }
-                return;
-            }
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
 
-            self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
-            if (nil != block) {
-                block(nil);
-            }
-        }];
+        if (nil != block) {
+            block(nil);
+        }
     }];
 }
 
@@ -119,7 +108,7 @@
                     return;
                 }
 
-                NSError *consentUploadError = [CMHErrorUtilities errorForConsentWithObjectId:consent.objectId uploadResponse:response];
+                NSError *consentUploadError = [CMHErrorUtilities errorForKind:@"user consent" objectId:consent.objectId uploadResponse:response];
                 if (nil != consentUploadError) {
                     block(nil, consentUploadError);
                     return;
@@ -153,7 +142,7 @@
             return;
         }
 
-        NSError *error = [CMHUser errorForConsentWithFetchResponse:response];
+        NSError *error = [CMHErrorUtilities errorForKind:@"consent" fetchResponse:response];
 
         if (nil != error) {
             block(nil, error);
@@ -178,11 +167,8 @@
     NSAssert(nil != password, @"CMHUser: Attempted to login with nil password");
 
     self.userData = nil;
-    CMHInternalUser *user = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
-    [CMStore defaultStore].user = user;
 
-    [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+    [CMHInternalUser loginAndLoadProfileWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -190,7 +176,7 @@
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
 
         if (nil != block) {
             block(nil);
@@ -209,7 +195,7 @@
             return;
         }
 
-        NSError *resetError = [CMHUser errorForAccountResult:resultCode];
+        NSError *resetError = [CMHErrorUtilities errorForAccountResult:resultCode];
         block(resetError);
     }];
 }
@@ -217,7 +203,7 @@
 - (void)logoutWithCompletion:(_Nullable CMHUserLogoutCompletion)block
 {
     [[CMHInternalUser currentUser] logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -243,16 +229,13 @@
 - (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(void (^)(NSError *error))block
 {
     CMHInternalUser *user = [CMHInternalUser currentUser];
+
     if (user.hasName) {
         block(nil);
         return;
     }
 
-    user.familyName = signature.familyName;
-    user.givenName = signature.givenName;
-
-    [user save:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHUser errorForAccountResult:resultCode];
+    [user updateFamilyName:signature.familyName givenName:signature.givenName withCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -260,74 +243,12 @@
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:user];
-        block(nil);
+        self.userData = [user generateCurrentUserData];
+
+        if (nil != block) {
+            block(nil);
+        }
     }];
-}
-
-#pragma mark Error Generators
-
-+ (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode
-{
-    if (CMUserAccountOperationSuccessful(resultCode)) {
-        return nil;
-    }
-
-    NSString *errorMessage = nil;
-    CMHError code = -1;
-
-    switch (resultCode) {
-        case CMUserAccountCreateFailedInvalidRequest:
-            code = CMHErrorInvalidUserRequest;
-            errorMessage = NSLocalizedString(@"Request was invalid", nil);
-            break;
-        case CMUserAccountProfileUpdateFailed:
-            code = CMHErrorUnknownAccountError;
-            errorMessage = NSLocalizedString(@"Failed to update profile", nil);
-            break;
-        case CMUserAccountCreateFailedDuplicateAccount:
-            code = CMHErrorDuplicateAccount;
-            errorMessage = NSLocalizedString(@"Duplicate account email", nil);
-            break;
-        case CMUserAccountCredentialChangeFailedDuplicateEmail:
-        case CMUserAccountCredentialChangeFailedDuplicateUsername:
-        case CMUserAccountCredentialChangeFailedDuplicateInfo:
-            code = CMHErrorDuplicateAccount;
-            errorMessage = NSLocalizedString(@"Duplicate account data", nil);
-            break;
-        case CMUserAccountLoginFailedIncorrectCredentials:
-        case CMUserAccountCredentialChangeFailedInvalidCredentials:
-        case CMUserAccountPasswordChangeFailedInvalidCredentials:
-            code = CMHErrorInvalidCredentials;
-            errorMessage = NSLocalizedString(@"Invalid username or password", nil);
-            break;
-        case CMUserAccountOperationFailedUnknownAccount:
-            code = CMHErrorInvalidAccount;
-            errorMessage = NSLocalizedString(@"Account does not exist", nil);
-            break;
-        default:
-            code = CMHErrorUnknownAccountError;
-            errorMessage = [NSString localizedStringWithFormat:@"Unknown account error with code: %li", (long)resultCode];
-            break;
-    }
-
-    return [CMHErrorUtilities errorWithCode:code localizedDescription:errorMessage];
-}
-
-+ (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response
-{
-    NSError *responseError = response.error;
-
-    if (nil == responseError) {
-        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
-    }
-
-    if (nil != responseError) {
-        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch consent; %@", responseError.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchConsent localizedDescription:message];
-    }
-
-    return nil;
 }
 
 @end

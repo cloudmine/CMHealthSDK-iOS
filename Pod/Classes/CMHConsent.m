@@ -47,7 +47,7 @@
                 return;
             }
 
-            NSError *saveError = [CMHErrorUtilities errorForConsentWithObjectId:self.objectId uploadResponse:saveResponse];
+            NSError *saveError = [CMHErrorUtilities errorForKind:@"user consent" objectId:self.objectId uploadResponse:saveResponse];
             if (nil != saveError) {
                 block(saveError);
                 return;
