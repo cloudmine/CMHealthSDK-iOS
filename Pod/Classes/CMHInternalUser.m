@@ -111,7 +111,7 @@
 
 - (CMHUserData *)generateCurrentUserData
 {
-    return [[CMHUserData alloc] initWIthInternalProfile:self.profile];
+    return [[CMHUserData alloc] initWithInternalProfile:self.profile];
 }
 
 - (BOOL)hasName

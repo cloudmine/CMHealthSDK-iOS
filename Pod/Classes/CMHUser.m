@@ -23,7 +23,7 @@
 
     dispatch_once(&oncePredicate, ^{
         _sharedInstance = [CMHUser new];
-        _sharedInstance.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+        _sharedInstance.userData = [CMHInternalUser.currentUser generateCurrentUserData];
 
         // Need to think more carefully about this. It probably doesn't belong here, but I think
         // a goal should be to hide the sense of a "store" from the SDK consumer. We need to perform
@@ -41,7 +41,7 @@
     [CMStore defaultStore].user = newUser;
 
     [newUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
-        self.userData = [[CMHUserData alloc] initWithInternalUser:newUser];
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
         block(error);
     }];
 }
