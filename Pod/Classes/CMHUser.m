@@ -159,11 +159,8 @@
     NSAssert(nil != password, @"CMHUser: Attempted to login with nil password");
 
     self.userData = nil;
-    CMHInternalUser *user = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
-    [CMStore defaultStore].user = user;
 
-    [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
+    [CMHInternalUser loginAndLoadProfileWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -171,7 +168,7 @@
             return;
         }
 
-        self.userData = [[CMHUserData alloc] initWithInternalUser:[CMHInternalUser currentUser]];
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
 
         if (nil != block) {
             block(nil);

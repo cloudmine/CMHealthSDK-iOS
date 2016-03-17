@@ -14,22 +14,14 @@
     return [super currentUser];
 }
 
-- (instancetype)initWithEmail:(NSString *)theEmail andPassword:(NSString *)thePassword
-{
-    self = [super initWithEmail:theEmail andPassword:thePassword];
-    if (nil == self) return nil;
-
-    self.profile = [CMHInternalProfile new];
-    self.profile.email = theEmail;
-    self.profileId = self.profile.objectId;
-
-    return self;
-}
-
 #pragma mark Public
 
 - (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
 {
+    self.profile = [CMHInternalProfile new];
+    self.profile.email = email;
+    self.profileId = self.profile.objectId;
+
     [self createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {
         NSError *createError = [CMHErrorUtilities errorForAccountResult:createResultCode];
         if (nil != createError) {
@@ -65,10 +57,34 @@
     }];
 }
 
++ (void)loginAndLoadProfileWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
+{
+    CMHInternalUser *user = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
+    [CMStore defaultStore].user = user;
+
+    [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
+        if (nil != error) {
+            if (nil != block) {
+                block(error);
+            }
+            return;
+        }
+
+        [CMStore.defaultStore userObjectsWithKeys:@[user.profileId] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
+            // TODO: handle errors
+
+            user.profile = response.objects.firstObject;
+
+            if (nil != block) {
+                block(nil);
+            }
+        }];
+    }];
+}
+
 - (void)updateFamilyName:(NSString *)familyName givenName:(NSString *)givenName withCompletion:(CMHUserAuthCompletion)block
 {
-    // TODO: conditionally fetch profile
-
     self.profile.familyName = familyName;
     self.profile.givenName = givenName;
 
@@ -80,8 +96,6 @@
             }
             return;
         }
-
-        //TODO: User data?
 
         if (nil != block) {
             block(nil);
