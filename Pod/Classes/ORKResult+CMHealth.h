@@ -51,6 +51,29 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
                                     withCompletion:(_Nullable CMHFetchCompletion)block;
 
 /**
+ *  Convenience method for fetching results by ResearchKit identifier with an empty
+ *  study descriptor.
+ *
+ *  @see + cmh_fetchUserResultsForStudyWithDescriptor:andIdentifier:withCompletion:
+ */
++ (void)cmh_fetchUserResultsForStudyWithIdentifier:(NSString *_Nullable)identifier
+                                    withCompletion:(_Nullable CMHFetchCompletion)block;
+
+/**
+ *  Fetch all results of the calling class, for the study with a given descriptor,
+ *  where the top level object has the given identifier.
+ *
+ *  @warning Calling this method includes an implicit filter for the class of the caller.
+ *
+ *  @param descriptor The descriptor of the study for which results are desired.
+ *  @param identifier The ResearchKit identifier property of the top level result desired.
+ *  @param block Executes when the request succeeds or fails with an error.
+ */
++ (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
+                                     andIdentifier:(NSString *_Nullable)identifier
+                                    withCompletion:(_Nullable CMHFetchCompletion)block;
+
+/**
  *  Convenience method for querying results with an empty study descriptor.
  *
  *  @see +cmh_fetchUserResultsForStudyWithQuery:withCompletion:

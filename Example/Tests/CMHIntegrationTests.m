@@ -280,6 +280,26 @@ describe(@"CMHealthIntegration", ^{
         expect(statusTwo).to.equal(@"created");
     });
 
+    it(@"should properly fetch uploaded results by their research kit identifier property", ^{
+        __block NSArray *fetchResults = nil;
+        __block NSError *fetchError = nil;
+
+        waitUntil(^(DoneCallback done) {
+            [ORKStepResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andIdentifier:@"StepTestOneIdentifier" withCompletion:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                fetchError = error;
+                done();
+            }];
+        });
+
+        expect(fetchError).to.beNil();
+        expect(fetchResults.count).to.equal(1);
+
+        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)fetchResults.firstObject).firstResult;
+
+        expect(questionResult.textAnswer).to.equal(@"StepOne");
+    });
+
     it(@"should properly query uploaded results", ^{
         __block NSArray *fetchResults = nil;
         __block NSError *fetchError = nil;

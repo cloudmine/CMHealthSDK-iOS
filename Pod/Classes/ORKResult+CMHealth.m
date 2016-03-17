@@ -45,6 +45,21 @@
     [self cmh_fetchUserResultsForStudyWithDescriptor:descriptor andQuery:nil withCompletion:block];
 }
 
++ (void)cmh_fetchUserResultsForStudyWithIdentifier:(NSString *_Nullable)identifier withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    [self cmh_fetchUserResultsForStudyWithDescriptor:nil andIdentifier:identifier withCompletion:block];
+}
+
++ (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor andIdentifier:(NSString *_Nullable)identifier withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    NSString *query = nil;
+    if (nil != identifier) {
+        query = [NSString stringWithFormat:@"[identifier = \"%@\"]", identifier];
+    }
+
+    [self cmh_fetchUserResultsForStudyWithDescriptor:descriptor andQuery:query withCompletion:block];
+}
+
 + (void)cmh_fetchUserResultsForStudyWithQuery:(NSString *_Nullable)query
                                withCompletion:(_Nullable CMHFetchCompletion)block
 {
