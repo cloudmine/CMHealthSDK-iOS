@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <CMHealth/CMHealth.h>
 #import <CMHealth/CMHConsent_internal.h>
 #import <CloudMine/CloudMine.h>

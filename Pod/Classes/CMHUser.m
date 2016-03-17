@@ -233,6 +233,8 @@
             return;
         }
 
+        self.userData = [user generateCurrentUserData];
+
         if (nil != block) {
             block(nil);
         }

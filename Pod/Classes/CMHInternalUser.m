@@ -1,6 +1,7 @@
 #import "CMHInternalUser.h"
 #import "CMHInternalProfile.h"
 #import "CMHErrorUtilities.h"
+#import "CMHUserData_internal.h"
 
 @interface CMHInternalUser ()
 @property (nonatomic, nullable) CMHInternalProfile *profile;
@@ -19,6 +20,7 @@
     if (nil == self) return nil;
 
     self.profile = [CMHInternalProfile new];
+    self.profile.email = theEmail;
     self.profileId = self.profile.objectId;
 
     return self;
@@ -85,6 +87,11 @@
             block(nil);
         }
     }];
+}
+
+- (CMHUserData *)generateCurrentUserData
+{
+    return [[CMHUserData alloc] initWIthInternalProfile:self.profile];
 }
 
 - (BOOL)hasName

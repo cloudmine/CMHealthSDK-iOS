@@ -2,7 +2,8 @@
 
 @interface CMHInternalProfile : CMObject
 
-@property (nonatomic) NSString *givenName;
-@property (nonatomic) NSString *familyName;
+@property (nonatomic, nullable) NSString *email;
+@property (nonatomic, nullable) NSString *givenName;
+@property (nonatomic, nullable) NSString *familyName;
 
 @end
