@@ -63,16 +63,22 @@
     [CMStore defaultStore].user = user;
 
     [user loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-        NSError *error = [CMHErrorUtilities errorForAccountResult:resultCode];
-        if (nil != error) {
+        NSError *loginError = [CMHErrorUtilities errorForAccountResult:resultCode];
+        if (nil != loginError) {
             if (nil != block) {
-                block(error);
+                block(loginError);
             }
             return;
         }
 
         [CMStore.defaultStore userObjectsWithKeys:@[user.profileId] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
-            // TODO: handle errors
+            NSError *profileError = [CMHErrorUtilities errorForKind:@"profile" fetchResponse:response];
+            if (nil != profileError) {
+                if (nil != block) {
+                    block(profileError);
+                }
+                return;
+            }
 
             user.profile = response.objects.firstObject;
 

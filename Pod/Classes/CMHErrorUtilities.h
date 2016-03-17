@@ -9,6 +9,8 @@
 
 + (NSError *_Nullable)errorForKind:(NSString *_Nullable)kind objectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nullable)response;
 
++ (NSError *_Nullable)errorForKind:(NSString *_Nullable)kind fetchResponse:(CMObjectFetchResponse *_Nullable)response;
+
 + (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode;
 
 + (CMHError)localCodeForCloudMineCode:(CMErrorCode)code;

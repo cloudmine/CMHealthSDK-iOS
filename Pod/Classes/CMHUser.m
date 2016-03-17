@@ -134,7 +134,7 @@
             return;
         }
 
-        NSError *error = [CMHUser errorForConsentWithFetchResponse:response];
+        NSError *error = [CMHErrorUtilities errorForKind:@"consent" fetchResponse:response];
 
         if (nil != error) {
             block(nil, error);
@@ -241,24 +241,6 @@
             block(nil);
         }
     }];
-}
-
-#pragma mark Error Generators
-
-+ (NSError *_Nullable)errorForConsentWithFetchResponse:(CMObjectFetchResponse *_Nullable)response
-{
-    NSError *responseError = response.error;
-
-    if (nil == responseError) {
-        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
-    }
-
-    if (nil != responseError) {
-        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch consent; %@", responseError.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToFetchConsent localizedDescription:message];
-    }
-
-    return nil;
 }
 
 @end

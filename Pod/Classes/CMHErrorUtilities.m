@@ -29,11 +29,11 @@
 
     if (nil != response.error) {
         NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload %@; %@", kind, response.error.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:responseErrorMessage];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:responseErrorMessage];
     }
 
     if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject
                            localizedDescription:[NSString localizedStringWithFormat:@"Failed to upload %@; no response received", kind]];
     }
 
@@ -41,7 +41,27 @@
 
     if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
         NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload %@kind; invalid upload status returned: %@", kind, resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadConsent localizedDescription:invalidStatusMessage];
+        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:invalidStatusMessage];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForKind:(NSString *_Nullable)kind fetchResponse:(CMObjectFetchResponse *_Nullable)response
+{
+    if (nil == kind) {
+        kind = @"file";
+    }
+
+    NSError *responseError = response.error;
+
+    if (nil == responseError) {
+        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
+    }
+
+    if (nil != responseError) {
+        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch %@; %@", kind,  responseError.localizedDescription];
+        return [self errorWithCode:CMHErrorFailedToFetchObject localizedDescription:message];
     }
 
     return nil;
