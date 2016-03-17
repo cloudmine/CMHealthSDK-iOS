@@ -2,8 +2,14 @@
 #import <CMHealth/CMHResult.h>
 #import <CMHealth/CMHConstants_internal.h>
 #import <CMHealth/CMHConsent_internal.h>
+#import <CMHealth/CMHInternalUser.h>
+#import <CMHealth/CMHInternalProfile.h>
 
 static const NSInteger MaxRetryCount = 1;
+
+@interface CMHInternalUser (TestCleaner)
+@property (nonatomic, nullable) CMHInternalProfile *profile;
+@end
 
 @interface CMHTestCleaner ()
 @property (nonatomic, nonnull) NSMutableArray<CMObject *> *objects;
@@ -29,6 +35,7 @@ static const NSInteger MaxRetryCount = 1;
 - (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(void (^)())block
 {
     [self.objects addObject:consent];
+    [self.objects addObject:CMHInternalUser.currentUser.profile];
     [self.filenames addObject:consent.signatureImageFilename];
     [self.filenames addObject:consent.pdfFileName];
 
