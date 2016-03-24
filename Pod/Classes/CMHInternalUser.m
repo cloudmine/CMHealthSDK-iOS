@@ -73,21 +73,31 @@
             return;
         }
 
-        [CMStore.defaultStore userObjectsWithKeys:@[user.profileId] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
-            NSError *profileError = [CMHErrorUtilities errorForKind:@"profile" fetchResponse:response];
-            if (nil != profileError) {
-                if (nil != block) {
-                    block(profileError);
-                }
-                return;
-            }
+        [user loadProfileWithCompletion:block];
+    }];
+}
 
-            user.profile = response.objects.firstObject;
+- (void)loadProfileWithCompletion:(CMHUserAuthCompletion)block
+{
+    NSAssert(self.isLoggedIn, @"Cannot load profile of logged out user");
 
+    [CMStore.defaultStore userObjectsWithKeys:@[self.profileId] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
+        NSError *profileError = [CMHErrorUtilities errorForKind:@"profile" fetchResponse:response];
+        if (nil != profileError) {
             if (nil != block) {
-                block(nil);
+                block(profileError);
             }
-        }];
+            return;
+        }
+
+        // State of the user may have changed request was initiated
+        if (self.isLoggedIn) {
+            self.profile = response.objects.firstObject;
+        }
+
+        if (nil != block) {
+            block(nil);
+        }
     }];
 }
 

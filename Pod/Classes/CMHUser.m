@@ -31,6 +31,14 @@
         [CMStore defaultStore].user = [CMHInternalUser currentUser];
     });
 
+    if (nil == _sharedInstance.userData && _sharedInstance.isLoggedIn) {
+        [CMHInternalUser.currentUser loadProfileWithCompletion:nil];
+    }
+
+    //if (_sharedInstance.isLoggedIn && nil == _sharedInstance.userData) {
+        //[CMHInternalUser.currentUser loadProfileWithCompletion:nil];
+    //}
+
     return _sharedInstance;
 }
 
