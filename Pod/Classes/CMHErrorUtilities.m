@@ -53,14 +53,15 @@
         kind = @"file";
     }
 
-    NSError *responseError = response.error;
+    NSString *responseErrorMessage = response.error.localizedDescription;
 
-    if (nil == responseError) {
-        responseError = response.objectErrors[response.objectErrors.allKeys.firstObject];
+    if (nil == responseErrorMessage) {
+        // objectErrors is a dictionary of dictionarys with keys: @"code" and @"message"
+        responseErrorMessage = response.objectErrors[response.objectErrors.allKeys.firstObject][@"message"];
     }
 
-    if (nil != responseError) {
-        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch %@; %@", kind,  responseError.localizedDescription];
+    if (nil != responseErrorMessage) {
+        NSString *message = [NSString localizedStringWithFormat:@"Failed to fetch %@; %@", kind,  responseErrorMessage];
         return [self errorWithCode:CMHErrorFailedToFetchObject localizedDescription:message];
     }
 
