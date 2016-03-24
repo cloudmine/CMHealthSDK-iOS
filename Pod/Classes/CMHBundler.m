@@ -21,7 +21,7 @@
 
 + (NSBundle *_Nonnull)cmhBundle
 {
-    NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"CMHealth" ofType:@"bundle"]];
+    NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"CMHealth" ofType:@"bundle"]];
     NSAssert(nil != bundle, @"Failed to instansiate CMHealth Bundle");
     return bundle;
 }
