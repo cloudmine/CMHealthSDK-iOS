@@ -24,20 +24,18 @@
     dispatch_once(&oncePredicate, ^{
         _sharedInstance = [CMHUser new];
         _sharedInstance.userData = [CMHInternalUser.currentUser generateCurrentUserData];
-
-        // Need to think more carefully about this. It probably doesn't belong here, but I think
-        // a goal should be to hide the sense of a "store" from the SDK consumer. We need to perform
-        // this side effect somewhere, but where?
         [CMStore defaultStore].user = [CMHInternalUser currentUser];
     });
 
     if (nil == _sharedInstance.userData && _sharedInstance.isLoggedIn) {
-        [CMHInternalUser.currentUser loadProfileWithCompletion:nil];
-    }
+        [CMHInternalUser.currentUser loadProfileWithCompletion:^(NSError * _Nullable error) {
+            if (nil != error) {
+                return;
+            }
 
-    //if (_sharedInstance.isLoggedIn && nil == _sharedInstance.userData) {
-        //[CMHInternalUser.currentUser loadProfileWithCompletion:nil];
-    //}
+            _sharedInstance.userData = [CMHInternalUser.currentUser generateCurrentUserData];
+        }];
+    }
 
     return _sharedInstance;
 }
