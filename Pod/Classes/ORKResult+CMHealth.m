@@ -120,10 +120,12 @@
     // Note: an error with any result will cause an error for the whole fetch.
     // This decision keeps the API simple, but is there a compelling reason why
     // we wouldn't want this?
-    NSError *objectInternalError = response.objectErrors[response.objectErrors.allKeys.firstObject];
-    if(nil != objectInternalError) {
-        NSString *objectErrorPrefix = [NSString localizedStringWithFormat:@"%@; there was an error with at least one object (key: %@)", errorPrefix, response.objectErrors.allKeys.firstObject];
-        return [self errorForInternalError:objectInternalError withPrefix:objectErrorPrefix];
+    NSString *objectInternalErrorMessage = response.objectErrors[response.objectErrors.allKeys.firstObject][@"message"];
+    NSString *errorKey = response.objectErrors.allKeys.firstObject;
+
+    if(nil != objectInternalErrorMessage) {
+        NSString *objectErrorMessage = [NSString localizedStringWithFormat:@"%@; there was an error with at least one object: %@ (key: %@)", errorPrefix, objectInternalErrorMessage, errorKey];
+        return [CMHErrorUtilities errorWithCode:CMHErrorUnknown localizedDescription:objectErrorMessage];
     }
 
     return nil;
