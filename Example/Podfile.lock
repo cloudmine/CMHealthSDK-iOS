@@ -20,10 +20,10 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - CloudMine (1.7.10):
+  - CloudMine (1.7.11):
     - AFNetworking (~> 2.6.3)
-    - CloudMine/no-arc (= 1.7.10)
-  - CloudMine/no-arc (1.7.10):
+    - CloudMine/no-arc (= 1.7.11)
+  - CloudMine/no-arc (1.7.11):
     - AFNetworking (~> 2.6.3)
   - CMHealth (0.2.2):
     - CloudMine (~> 1.7)
@@ -45,7 +45,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
-  CloudMine: fbe400214143095f10b357025101dd6153ec6fd4
+  CloudMine: ee5b3643fb1a2f4603de6428aea1252ac928d98d
   CMHealth: 0ec5c10193f85644400408260e872f831d1644ab
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: 934a1efefed1a3a9150002a1e4b123d0c86c3f2e
