@@ -183,7 +183,12 @@ describe(@"CMHealthIntegration", ^{
         ORKBooleanQuestionResult *booleanResult = [ORKBooleanQuestionResult new];
         booleanResult.booleanAnswer = [NSNumber numberWithBool:YES];
 
-        taskResult.results = @[scaleResult, booleanResult];
+        ORKDateQuestionResult *dateResult = [ORKDateQuestionResult new];
+        dateResult.dateAnswer = [NSDate dateWithTimeIntervalSince1970:127.0];
+        dateResult.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
+        dateResult.timeZone = [NSTimeZone timeZoneWithName:@"Pacific/Honolulu"];
+
+        taskResult.results = @[scaleResult, booleanResult, dateResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -223,6 +228,12 @@ describe(@"CMHealthIntegration", ^{
 
         expect([task.results[1] class]).to.equal([ORKBooleanQuestionResult class]);
         expect(((ORKBooleanQuestionResult *)task.results[1]).booleanAnswer.boolValue).to.equal(YES);
+
+        expect([task.results[2] class]).to.equal([ORKDateQuestionResult class]);
+        ORKDateQuestionResult *dateResult = (ORKDateQuestionResult *)task.results[2];
+        expect(dateResult.dateAnswer.timeIntervalSince1970).to.equal(127.0);
+        expect(dateResult.calendar).to.equal([NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese]);
+        expect(dateResult.timeZone).to.equal([NSTimeZone timeZoneWithName:@"Pacific/Honolulu"]);
     });
 
     it(@"should return emptry results for an unused descriptor", ^{
