@@ -32,7 +32,7 @@ PODS:
   - Expecta (1.0.5)
   - ResearchKit (1.3.0)
   - Specta (1.0.5)
-  - TPKeyboardAvoiding (1.2.11)
+  - TPKeyboardAvoiding (1.3)
 
 DEPENDENCIES:
   - CMHealth (from `../`)
@@ -50,6 +50,6 @@ SPEC CHECKSUMS:
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: 934a1efefed1a3a9150002a1e4b123d0c86c3f2e
   Specta: ac94d110b865115fe60ff2c6d7281053c6f8e8a2
-  TPKeyboardAvoiding: e5ce146b313de063957bfa75a13f1e9b0ff18ab7
+  TPKeyboardAvoiding: a5138f318c06fb3e151f886e18ce4a72695d9cbe
 
 COCOAPODS: 0.39.0
