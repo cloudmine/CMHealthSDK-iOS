@@ -10,6 +10,7 @@
 @property (nonatomic) NSCalendar *calendar;
 @property (nonatomic) NSTimeZone *timeZone;
 @property (nonatomic) NSLocale *locale;
+@property (nonatomic) NSDateComponents *comps;
 @end
 
 @implementation CMHTestCodingWrapper
@@ -44,6 +45,7 @@
     self.calendar = [aDecoder decodeObjectForKey:@"calendar"];
     self.timeZone = [aDecoder decodeObjectForKey:@"timeZone"];
     self.locale = [aDecoder decodeObjectForKey:@"locale"];
+    self.comps = [aDecoder decodeObjectForKey:@"comps"];
 
     return self;
 }
@@ -56,11 +58,66 @@
     [aCoder encodeObject:self.calendar forKey:@"calendar"];
     [aCoder encodeObject:self.timeZone forKey:@"timeZone"];
     [aCoder encodeObject:self.locale forKey:@"locale"];
+    [aCoder encodeObject:self.comps forKey:@"comps"];
+}
+
+#pragma mark Factory Convenience Methods
+
++ (NSDateComponents *)testDateComponents
+{
+    NSDateComponents *comps = [NSDateComponents new];
+    comps.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierHebrew];
+    comps.timeZone = [NSTimeZone timeZoneWithName:@"Pacific/Honolulu"];
+    comps.era = 1;
+    comps.year = 5000;
+    comps.month = 10;
+    comps.day = 12;
+    comps.hour = 7;
+    comps.minute = 16;
+    comps.second = 6;
+    comps.nanosecond = 4;
+    comps.weekday = 3;
+    comps.weekdayOrdinal = 2;
+    comps.quarter = 2;
+    comps.weekOfMonth = 1;
+    comps.weekOfYear = 40;
+    comps.yearForWeekOfYear = 8;
+    comps.leapMonth = NO;
+
+    return comps;
+}
+
++ (BOOL)isEquivalentToTest:(NSDateComponents *)comps
+{
+    NSDateComponents *testComps = [self testDateComponents];
+
+    BOOL isEqual = YES;
+    isEqual = isEqual && [comps.calendar.calendarIdentifier isEqualToString:testComps.calendar.calendarIdentifier];
+    isEqual = isEqual && [comps.timeZone.name isEqualToString:testComps.timeZone.name];
+    isEqual = isEqual && comps.era == testComps.era;
+    isEqual = isEqual && comps.year == testComps.year;
+    isEqual = isEqual && comps.month == testComps.month;
+    isEqual = isEqual && comps.day == testComps.day;
+    isEqual = isEqual && comps.hour == testComps.hour;
+    isEqual = isEqual && comps.minute == testComps.minute;
+    isEqual = isEqual && comps.second == testComps.second;
+    isEqual = isEqual && comps.nanosecond == testComps.nanosecond;
+    isEqual = isEqual && comps.weekday == testComps.weekday;
+    isEqual = isEqual && comps.weekdayOrdinal == testComps.weekdayOrdinal;
+    isEqual = isEqual && comps.quarter == testComps.quarter;
+    isEqual = isEqual && comps.weekOfMonth == testComps.weekOfMonth;
+    isEqual = isEqual && comps.weekOfYear == testComps.weekOfYear;
+    isEqual = isEqual && comps.yearForWeekOfYear == testComps.yearForWeekOfYear;
+    isEqual = isEqual && comps.leapMonth == testComps.leapMonth;
+
+    return isEqual;
 }
 
 @end
 
 SpecBegin(CMHCocoaCategoryTests)
+
+#pragma mark NSUUID
 
 describe(@"NSUUID", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -83,6 +140,8 @@ describe(@"NSUUID", ^{
         expect(encodedObjects[origWrapper.objectId][@"uuid"][@"UUIDString"]).to.equal(origWrapper.uuid.UUIDString);
     });
 });
+
+#pragma mark UIImage
 
 describe(@"UIImage", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -109,6 +168,8 @@ describe(@"UIImage", ^{
     });
 });
 
+#pragma mark NSCalendar
+
 describe(@"NSCalendar", ^{
     it(@"should encode and decode properly with NSCoder", ^{
         NSCalendar *origCalendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
@@ -132,6 +193,8 @@ describe(@"NSCalendar", ^{
         expect(origWrapper.calendar).to.equal(codedWrapper.calendar);
     });
 });
+
+#pragma mark NSTimeZone
 
 describe(@"NSTimeZone", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -157,6 +220,8 @@ describe(@"NSTimeZone", ^{
     });
 });
 
+#pragma mark NSLocale
+
 describe(@"NSLocale", ^{
     it(@"should encode and decode properly with NSCoder", ^{
         NSLocale *origLocale = [NSLocale localeWithLocaleIdentifier:[NSLocale canonicalLocaleIdentifierFromString:@"it_IT"]];
@@ -174,8 +239,33 @@ describe(@"NSLocale", ^{
         NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
         CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
 
+        expect(codedWrapper).notTo.beNil();
         expect(origWrapper == codedWrapper).to.beFalsy();
         expect([origWrapper.locale.localeIdentifier isEqualToString:codedWrapper.locale.localeIdentifier]).to.beTruthy();
+    });
+});
+
+#pragma mark NSDateComponents
+
+describe(@"NSDateComponents", ^{
+    it(@"should encode and decode properly with NSCoder", ^{
+        NSDateComponents *origComps = [CMHTestCodingWrapper testDateComponents];
+        NSData *compsData = [NSKeyedArchiver archivedDataWithRootObject:origComps];
+        NSDateComponents *codedComps = [NSKeyedUnarchiver unarchiveObjectWithData:compsData];
+
+        expect(origComps == codedComps).to.beFalsy();
+        expect([CMHTestCodingWrapper isEquivalentToTest:codedComps]).to.beTruthy();
+    });
+
+    it(@"should encode and decode properly with CMCoder", ^{
+        CMHTestCodingWrapper *origWrapper = [CMHTestCodingWrapper new];
+        origWrapper.comps = [CMHTestCodingWrapper testDateComponents];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(codedWrapper).notTo.beNil();
+        expect(origWrapper == codedWrapper).to.beFalsy();
+        expect([CMHTestCodingWrapper isEquivalentToTest:codedWrapper.comps]).to.beTruthy();
     });
 });
 
