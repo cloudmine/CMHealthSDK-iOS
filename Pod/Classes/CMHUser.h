@@ -56,7 +56,7 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  *  `ORKConsentSignature` must include a `familyName` and `givenName` as well as
  *  a `signatureImage`.
  *
- *  @warning Common sense suggests each participant would have one consent for each
+ *  @warning The expected use is that each participant would have one consent for each
  *  study, but this is not enforced by the SDK. Uploading multiple user consents
  *  for the same study will result in undefined behavior.
  *
@@ -84,8 +84,14 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  *  Fails with an error if the current user is not logged in. Calback returns `nil`
  *  if no consent exists for the given user and study descriptor.
  *
- *  @warning The behavior of this method if the current user is logged in should
- *  be considered undefined. Log the current user out before calling this method.
+ *  @warning The expected use is that each participant would have one consent for each
+ *  study, but this is not enforced by the SDK. Uploading multiple user consents
+ *  for the same study will result in undefined behavior when fetching
+ *
+ *  @warning The signature image will be removed from the consent hiearchy when uploaded
+ *  and stored on the remote filesystem instead.
+ *
+ *  @see CMHUser -fetchSignatureImageWithCompletion:
  *
  *  @param descriptor The descriptor of the study consent desired.
  *  @param block Executes when fetch completes successfully or fails with an error.
@@ -96,6 +102,9 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
 /**
  *  Logs into an existing account. Fails with an error if it doesn't exist or
  *  credentials are incorrect.
+ *
+ *  @warning The behavior of this method if the current user is logged in should
+ *  be considered undefined. Log the current user out before calling this method.
  *
  *  @param email Email of an exisiting account.
  *  @param password Password for the given account.
