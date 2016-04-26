@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <CMHealth/Cocoa+CMHealth.h>
 #import <CloudMine/CloudMine.h>
+#import "CMHWrapperTestFactory.h"
 
 @interface CMHTestCodingWrapper : CMObject
 - (instancetype)initWithUUID:(NSUUID *)uuid;
@@ -59,58 +60,6 @@
     [aCoder encodeObject:self.timeZone forKey:@"timeZone"];
     [aCoder encodeObject:self.locale forKey:@"locale"];
     [aCoder encodeObject:self.comps forKey:@"comps"];
-}
-
-#pragma mark Factory Convenience Methods
-
-+ (NSDateComponents *)testDateComponents
-{
-    NSDateComponents *comps = [NSDateComponents new];
-    comps.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierHebrew];
-    comps.timeZone = [NSTimeZone timeZoneWithName:@"Pacific/Honolulu"];
-    comps.era = 1;
-    comps.year = 5000;
-    comps.month = 10;
-    comps.day = 12;
-    comps.hour = 7;
-    comps.minute = 16;
-    comps.second = 6;
-    comps.nanosecond = 4;
-    comps.weekday = 3;
-    comps.weekdayOrdinal = 2;
-    comps.quarter = 2;
-    comps.weekOfMonth = 1;
-    comps.weekOfYear = 40;
-    comps.yearForWeekOfYear = 8;
-    comps.leapMonth = NO;
-
-    return comps;
-}
-
-+ (BOOL)isEquivalentToTest:(NSDateComponents *)comps
-{
-    NSDateComponents *testComps = [self testDateComponents];
-
-    BOOL isEqual = YES;
-    isEqual = isEqual && [comps.calendar.calendarIdentifier isEqualToString:testComps.calendar.calendarIdentifier];
-    isEqual = isEqual && [comps.timeZone.name isEqualToString:testComps.timeZone.name];
-    isEqual = isEqual && comps.era == testComps.era;
-    isEqual = isEqual && comps.year == testComps.year;
-    isEqual = isEqual && comps.month == testComps.month;
-    isEqual = isEqual && comps.day == testComps.day;
-    isEqual = isEqual && comps.hour == testComps.hour;
-    isEqual = isEqual && comps.minute == testComps.minute;
-    isEqual = isEqual && comps.second == testComps.second;
-    isEqual = isEqual && comps.nanosecond == testComps.nanosecond;
-    isEqual = isEqual && comps.weekday == testComps.weekday;
-    isEqual = isEqual && comps.weekdayOrdinal == testComps.weekdayOrdinal;
-    isEqual = isEqual && comps.quarter == testComps.quarter;
-    isEqual = isEqual && comps.weekOfMonth == testComps.weekOfMonth;
-    isEqual = isEqual && comps.weekOfYear == testComps.weekOfYear;
-    isEqual = isEqual && comps.yearForWeekOfYear == testComps.yearForWeekOfYear;
-    isEqual = isEqual && comps.leapMonth == testComps.leapMonth;
-
-    return isEqual;
 }
 
 @end
@@ -249,23 +198,23 @@ describe(@"NSLocale", ^{
 
 describe(@"NSDateComponents", ^{
     it(@"should encode and decode properly with NSCoder", ^{
-        NSDateComponents *origComps = [CMHTestCodingWrapper testDateComponents];
+        NSDateComponents *origComps = [CMHWrapperTestFactory testDateComponents];
         NSData *compsData = [NSKeyedArchiver archivedDataWithRootObject:origComps];
         NSDateComponents *codedComps = [NSKeyedUnarchiver unarchiveObjectWithData:compsData];
 
         expect(origComps == codedComps).to.beFalsy();
-        expect([CMHTestCodingWrapper isEquivalentToTest:codedComps]).to.beTruthy();
+        expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:codedComps]).to.beTruthy();
     });
 
     it(@"should encode and decode properly with CMCoder", ^{
         CMHTestCodingWrapper *origWrapper = [CMHTestCodingWrapper new];
-        origWrapper.comps = [CMHTestCodingWrapper testDateComponents];
+        origWrapper.comps = [CMHWrapperTestFactory testDateComponents];
         NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
         CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
 
         expect(codedWrapper).notTo.beNil();
         expect(origWrapper == codedWrapper).to.beFalsy();
-        expect([CMHTestCodingWrapper isEquivalentToTest:codedWrapper.comps]).to.beTruthy();
+        expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:codedWrapper.comps]).to.beTruthy();
     });
 });
 

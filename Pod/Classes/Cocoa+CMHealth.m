@@ -146,7 +146,8 @@ void cmh_swizzle(Class class, SEL originalSelector, SEL swizzledSelector)
 
 @end
 
-@implementation NSDateComponents (CMHealth)
-@end
 @implementation NSLocale (CMHealth)
+@end
+
+@implementation NSDateComponents (CMHealth)
 @end
