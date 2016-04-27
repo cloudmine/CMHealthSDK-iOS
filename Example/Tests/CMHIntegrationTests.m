@@ -1,6 +1,7 @@
 #import <CMHealth/CMHealth.h>
 #import "CMHTest-Secrets.h"
 #import "CMHTestCleaner.h"
+#import "CMHWrapperTestFactory.h"
 
 static NSString *const TestDescriptor = @"CMHTestDescriptor";
 static NSString *const TestPassword   = @"test-paSsword1!";
@@ -188,7 +189,10 @@ describe(@"CMHealthIntegration", ^{
         dateResult.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
         dateResult.timeZone = [NSTimeZone timeZoneWithName:@"Pacific/Honolulu"];
 
-        taskResult.results = @[scaleResult, booleanResult, dateResult];
+        ORKTimeOfDayQuestionResult *timeResult = [ORKTimeOfDayQuestionResult new];
+        timeResult.dateComponentsAnswer = [CMHWrapperTestFactory testDateComponents];
+
+        taskResult.results = @[scaleResult, booleanResult, dateResult, timeResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -234,6 +238,10 @@ describe(@"CMHealthIntegration", ^{
         expect(dateResult.dateAnswer.timeIntervalSince1970).to.equal(127.0);
         expect(dateResult.calendar).to.equal([NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese]);
         expect(dateResult.timeZone).to.equal([NSTimeZone timeZoneWithName:@"Pacific/Honolulu"]);
+
+        expect([task.results[3] class]).to.equal([ORKTimeOfDayQuestionResult class]);
+        ORKTimeOfDayQuestionResult *timeResult = (ORKTimeOfDayQuestionResult *)task.results[3];
+        expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:timeResult.dateComponentsAnswer]).to.beTruthy();
     });
 
     it(@"should return emptry results for an unused descriptor", ^{

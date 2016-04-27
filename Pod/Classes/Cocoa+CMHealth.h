@@ -15,3 +15,6 @@
 
 @interface NSLocale (CMHealth)<CMCoding>
 @end
+
+@interface NSDateComponents (CMHealth)<CMCoding>
+@end

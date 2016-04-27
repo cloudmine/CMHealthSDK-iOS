@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <CMHealth/Cocoa+CMHealth.h>
 #import <CloudMine/CloudMine.h>
+#import "CMHWrapperTestFactory.h"
 
 @interface CMHTestCodingWrapper : CMObject
 - (instancetype)initWithUUID:(NSUUID *)uuid;
@@ -10,6 +11,7 @@
 @property (nonatomic) NSCalendar *calendar;
 @property (nonatomic) NSTimeZone *timeZone;
 @property (nonatomic) NSLocale *locale;
+@property (nonatomic) NSDateComponents *comps;
 @end
 
 @implementation CMHTestCodingWrapper
@@ -44,6 +46,7 @@
     self.calendar = [aDecoder decodeObjectForKey:@"calendar"];
     self.timeZone = [aDecoder decodeObjectForKey:@"timeZone"];
     self.locale = [aDecoder decodeObjectForKey:@"locale"];
+    self.comps = [aDecoder decodeObjectForKey:@"comps"];
 
     return self;
 }
@@ -56,11 +59,14 @@
     [aCoder encodeObject:self.calendar forKey:@"calendar"];
     [aCoder encodeObject:self.timeZone forKey:@"timeZone"];
     [aCoder encodeObject:self.locale forKey:@"locale"];
+    [aCoder encodeObject:self.comps forKey:@"comps"];
 }
 
 @end
 
 SpecBegin(CMHCocoaCategoryTests)
+
+#pragma mark NSUUID
 
 describe(@"NSUUID", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -83,6 +89,8 @@ describe(@"NSUUID", ^{
         expect(encodedObjects[origWrapper.objectId][@"uuid"][@"UUIDString"]).to.equal(origWrapper.uuid.UUIDString);
     });
 });
+
+#pragma mark UIImage
 
 describe(@"UIImage", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -109,6 +117,8 @@ describe(@"UIImage", ^{
     });
 });
 
+#pragma mark NSCalendar
+
 describe(@"NSCalendar", ^{
     it(@"should encode and decode properly with NSCoder", ^{
         NSCalendar *origCalendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
@@ -132,6 +142,8 @@ describe(@"NSCalendar", ^{
         expect(origWrapper.calendar).to.equal(codedWrapper.calendar);
     });
 });
+
+#pragma mark NSTimeZone
 
 describe(@"NSTimeZone", ^{
     it(@"should encode and decode properly with NSCoder", ^{
@@ -157,6 +169,8 @@ describe(@"NSTimeZone", ^{
     });
 });
 
+#pragma mark NSLocale
+
 describe(@"NSLocale", ^{
     it(@"should encode and decode properly with NSCoder", ^{
         NSLocale *origLocale = [NSLocale localeWithLocaleIdentifier:[NSLocale canonicalLocaleIdentifierFromString:@"it_IT"]];
@@ -174,8 +188,33 @@ describe(@"NSLocale", ^{
         NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
         CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
 
+        expect(codedWrapper).notTo.beNil();
         expect(origWrapper == codedWrapper).to.beFalsy();
         expect([origWrapper.locale.localeIdentifier isEqualToString:codedWrapper.locale.localeIdentifier]).to.beTruthy();
+    });
+});
+
+#pragma mark NSDateComponents
+
+describe(@"NSDateComponents", ^{
+    it(@"should encode and decode properly with NSCoder", ^{
+        NSDateComponents *origComps = [CMHWrapperTestFactory testDateComponents];
+        NSData *compsData = [NSKeyedArchiver archivedDataWithRootObject:origComps];
+        NSDateComponents *codedComps = [NSKeyedUnarchiver unarchiveObjectWithData:compsData];
+
+        expect(origComps == codedComps).to.beFalsy();
+        expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:codedComps]).to.beTruthy();
+    });
+
+    it(@"should encode and decode properly with CMCoder", ^{
+        CMHTestCodingWrapper *origWrapper = [CMHTestCodingWrapper new];
+        origWrapper.comps = [CMHWrapperTestFactory testDateComponents];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(codedWrapper).notTo.beNil();
+        expect(origWrapper == codedWrapper).to.beFalsy();
+        expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:codedWrapper.comps]).to.beTruthy();
     });
 });
 
