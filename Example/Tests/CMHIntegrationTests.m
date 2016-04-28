@@ -205,11 +205,16 @@ describe(@"CMHealthIntegration", ^{
         choiceResult.choiceAnswers = @[@"Hello", @"Wide", @"World"];
 
         // ORKTextQuestionResult
+
+        ORKTextQuestionResult *textResult = [ORKTextQuestionResult new];
+        textResult.textAnswer = @"The quick brown fox jumped over the lazy dog.";
+
         // ORKNumericQuestionResult
         // ORKTimeIntervalQuestionResult
         // ORKLocationQuestionResult
 
-        taskResult.results = @[scaleResult, booleanResult, dateResult, timeResult, choiceResult];
+        taskResult.results = @[scaleResult, booleanResult, dateResult,
+                               timeResult, choiceResult, textResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -277,6 +282,11 @@ describe(@"CMHealthIntegration", ^{
         expect(answers[2]).to.equal(@"World");
 
         // ORKTextQuestionResult
+
+        expect([task.results[5] class]).to.equal([ORKTextQuestionResult class]);
+        ORKTextQuestionResult *textResult = (ORKTextQuestionResult *)task.results[5];
+        expect(textResult.textAnswer).to.equal(@"The quick brown fox jumped over the lazy dog.");
+
         // ORKNumericQuestionResult
         // ORKTimeIntervalQuestionResult
         // ORKLocationQuestionResult
