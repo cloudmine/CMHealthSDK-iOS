@@ -177,20 +177,33 @@ describe(@"CMHealthIntegration", ^{
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier"
                                                                       taskRunUUID:[NSUUID new]
                                                                   outputDirectory:nil];
+        // ORKScaleQuestionResult
 
         ORKScaleQuestionResult *scaleResult = [ORKScaleQuestionResult new];
         scaleResult.scaleAnswer = [NSNumber numberWithDouble:1.16];
 
+        // ORKBooleanQuestionResult
+
         ORKBooleanQuestionResult *booleanResult = [ORKBooleanQuestionResult new];
         booleanResult.booleanAnswer = [NSNumber numberWithBool:YES];
+
+        // ORKDateQuestionResult
 
         ORKDateQuestionResult *dateResult = [ORKDateQuestionResult new];
         dateResult.dateAnswer = [NSDate dateWithTimeIntervalSince1970:127.0];
         dateResult.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
         dateResult.timeZone = [NSTimeZone timeZoneWithName:@"Pacific/Honolulu"];
 
+        // ORKTimeOfDayQuestionResult
+
         ORKTimeOfDayQuestionResult *timeResult = [ORKTimeOfDayQuestionResult new];
         timeResult.dateComponentsAnswer = [CMHWrapperTestFactory testDateComponents];
+
+        // ORKChoiceQuestionResult
+        // ORKTextQuestionResult
+        // ORKNumericQuestionResult
+        // ORKTimeIntervalQuestionResult
+        // ORKLocationQuestionResult
 
         taskResult.results = @[scaleResult, booleanResult, dateResult, timeResult];
 
@@ -227,11 +240,17 @@ describe(@"CMHealthIntegration", ^{
 
         ORKTaskResult *task = (ORKTaskResult *)fetchResults.firstObject;
 
+        // ORKScaleQuestionResult
+
         expect([task.results[0] class]).to.equal([ORKScaleQuestionResult class]);
         expect(((ORKScaleQuestionResult *)task.results[0]).scaleAnswer.doubleValue).to.equal(1.16);
 
+        // ORKBooleanQuestionResult
+
         expect([task.results[1] class]).to.equal([ORKBooleanQuestionResult class]);
         expect(((ORKBooleanQuestionResult *)task.results[1]).booleanAnswer.boolValue).to.equal(YES);
+
+        // ORKDateQuestionResult
 
         expect([task.results[2] class]).to.equal([ORKDateQuestionResult class]);
         ORKDateQuestionResult *dateResult = (ORKDateQuestionResult *)task.results[2];
@@ -239,9 +258,18 @@ describe(@"CMHealthIntegration", ^{
         expect(dateResult.calendar).to.equal([NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese]);
         expect(dateResult.timeZone).to.equal([NSTimeZone timeZoneWithName:@"Pacific/Honolulu"]);
 
+        // ORKTimeOfDateQuestionResult
+
         expect([task.results[3] class]).to.equal([ORKTimeOfDayQuestionResult class]);
         ORKTimeOfDayQuestionResult *timeResult = (ORKTimeOfDayQuestionResult *)task.results[3];
         expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:timeResult.dateComponentsAnswer]).to.beTruthy();
+
+        // ORKChoiceQuestionResult
+        // ORKTextQuestionResult
+        // ORKNumericQuestionResult
+        // ORKTimeIntervalQuestionResult
+        // ORKLocationQuestionResult
+
     });
 
     it(@"should return emptry results for an unused descriptor", ^{
