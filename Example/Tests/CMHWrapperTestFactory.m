@@ -101,5 +101,18 @@
     return location;
 }
 
+# pragma mark ORKConsentSignature
+
++ (ORKConsentSignature *)consentSignature
+{
+    return [ORKConsentSignature signatureForPersonWithTitle:@"Participant"
+                                           dateFormatString:@"%m/%d/%Y"
+                                                 identifier:@"SigId"
+                                                  givenName:@"Bruce"
+                                                 familyName:@"Wayne"
+                                             signatureImage:nil
+                                                 dateString:@"1/2/2003"];
+}
+
 
 @end

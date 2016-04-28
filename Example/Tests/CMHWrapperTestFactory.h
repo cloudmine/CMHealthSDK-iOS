@@ -24,4 +24,6 @@
 
 + (ORKLocation *)location;
 
++ (ORKConsentSignature *)consentSignature;
+
 @end
