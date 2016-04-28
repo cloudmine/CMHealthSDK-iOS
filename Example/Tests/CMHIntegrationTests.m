@@ -8,6 +8,36 @@ static NSString *const TestPassword   = @"test-paSsword1!";
 static NSString *const TestGivenName  = @"John";
 static NSString *const TestFamilyName = @"Doe";
 
+@interface ORKLocation (CMHTestable)
+- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate
+                            region:(nullable CLCircularRegion *)region
+                         userInput:(nullable NSString *)userInput
+                 addressDictionary:(NSDictionary *)addressDictionary;
+@end
+
+@interface CMHIntegrationData : NSObject
+@end
+
+@implementation CMHIntegrationData
+
++ (ORKLocation *)location
+{
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(39.95, -75.16);
+    CLCircularRegion *region = [[CLCircularRegion alloc] initWithCenter:coordinate radius:10.2 identifier:@"Philly-Ish"];
+    NSString *userInput = @"Somewhere near Philly";
+    NSDictionary *addressDictionary = @{ @"City"    : @"Philadelphia",
+                                         @"State"   : @"PA",
+                                         @"Country" : @"USA" };
+
+    ORKLocation *location = [[ORKLocation alloc] initWithCoordinate:coordinate
+                                                             region:region
+                                                          userInput:userInput
+                                                  addressDictionary:addressDictionary];
+    return location;
+}
+
+@end
+
 SpecBegin(CMHealthIntegration)
 
 describe(@"CMHealthIntegration", ^{
@@ -20,6 +50,7 @@ describe(@"CMHealthIntegration", ^{
         NSAssert(CMHTestsAPIKey.length > 0, assertionError);
         NSAssert(![CMHTestsAPIKey isEqualToString:@"REPLACE_WITH_API_KEY"], assertionError);
         NSAssert(CMHTestsAsyncTimeout >= 1.0, @"An async timeout of less than 1 second is not advised; tests will run as fast as your connection allows regardless of the timeout value; lowering the value will not speed up test time and can lead to false failures.");
+        NSAssert([[ORKLocation alloc] respondsToSelector:@selector(initWithCoordinate:region:userInput:addressDictionary:)], @"Private API of ORKLocation, exposed for testing, has changed");
 
 
         [CMHealth setAppIdentifier:CMHTestsAppId appSecret:CMHTestsAPIKey];
@@ -221,9 +252,12 @@ describe(@"CMHealthIntegration", ^{
 
         // ORKLocationQuestionResult
 
+        ORKLocationQuestionResult *locationResult = [ORKLocationQuestionResult new];
+        locationResult.locationAnswer = [CMHIntegrationData location];
+
         taskResult.results = @[scaleResult, booleanResult, dateResult,
                                timeResult, choiceResult, textResult,
-                               numericResult, intervalResult];
+                               numericResult, intervalResult, locationResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -310,6 +344,9 @@ describe(@"CMHealthIntegration", ^{
 
         // ORKLocationQuestionResult
 
+        expect([task.results[8] class]).to.equal([ORKLocationQuestionResult class]);
+        ORKLocationQuestionResult *locationResult = (ORKLocationQuestionResult *)task.results[8];
+        expect(locationResult.locationAnswer).to.equal([CMHIntegrationData location]);
     });
 
     it(@"should return emptry results for an unused descriptor", ^{
