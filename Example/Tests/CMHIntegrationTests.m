@@ -8,36 +8,6 @@ static NSString *const TestPassword   = @"test-paSsword1!";
 static NSString *const TestGivenName  = @"John";
 static NSString *const TestFamilyName = @"Doe";
 
-@interface ORKLocation (CMHTestable)
-- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate
-                            region:(nullable CLCircularRegion *)region
-                         userInput:(nullable NSString *)userInput
-                 addressDictionary:(NSDictionary *)addressDictionary;
-@end
-
-@interface CMHIntegrationData : NSObject
-@end
-
-@implementation CMHIntegrationData
-
-+ (ORKLocation *)location
-{
-    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(39.95, -75.16);
-    CLCircularRegion *region = [[CLCircularRegion alloc] initWithCenter:coordinate radius:10.2 identifier:@"Philly-Ish"];
-    NSString *userInput = @"Somewhere near Philly";
-    NSDictionary *addressDictionary = @{ @"City"    : @"Philadelphia",
-                                         @"State"   : @"PA",
-                                         @"Country" : @"USA" };
-
-    ORKLocation *location = [[ORKLocation alloc] initWithCoordinate:coordinate
-                                                             region:region
-                                                          userInput:userInput
-                                                  addressDictionary:addressDictionary];
-    return location;
-}
-
-@end
-
 SpecBegin(CMHealthIntegration)
 
 describe(@"CMHealthIntegration", ^{
@@ -253,7 +223,7 @@ describe(@"CMHealthIntegration", ^{
         // ORKLocationQuestionResult
 
         ORKLocationQuestionResult *locationResult = [ORKLocationQuestionResult new];
-        locationResult.locationAnswer = [CMHIntegrationData location];
+        locationResult.locationAnswer = [CMHWrapperTestFactory location];
 
         taskResult.results = @[scaleResult, booleanResult, dateResult,
                                timeResult, choiceResult, textResult,
@@ -346,7 +316,7 @@ describe(@"CMHealthIntegration", ^{
 
         expect([task.results[8] class]).to.equal([ORKLocationQuestionResult class]);
         ORKLocationQuestionResult *locationResult = (ORKLocationQuestionResult *)task.results[8];
-        expect(locationResult.locationAnswer).to.equal([CMHIntegrationData location]);
+        expect(locationResult.locationAnswer).to.equal([CMHWrapperTestFactory location]);
     });
 
     it(@"should return emptry results for an unused descriptor", ^{
