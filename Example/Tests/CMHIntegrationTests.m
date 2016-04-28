@@ -200,12 +200,16 @@ describe(@"CMHealthIntegration", ^{
         timeResult.dateComponentsAnswer = [CMHWrapperTestFactory testDateComponents];
 
         // ORKChoiceQuestionResult
+
+        ORKChoiceQuestionResult *choiceResult = [ORKChoiceQuestionResult new];
+        choiceResult.choiceAnswers = @[@"Hello", @"Wide", @"World"];
+
         // ORKTextQuestionResult
         // ORKNumericQuestionResult
         // ORKTimeIntervalQuestionResult
         // ORKLocationQuestionResult
 
-        taskResult.results = @[scaleResult, booleanResult, dateResult, timeResult];
+        taskResult.results = @[scaleResult, booleanResult, dateResult, timeResult, choiceResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -265,6 +269,13 @@ describe(@"CMHealthIntegration", ^{
         expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:timeResult.dateComponentsAnswer]).to.beTruthy();
 
         // ORKChoiceQuestionResult
+
+        expect([task.results[4] class]).to.equal([ORKChoiceQuestionResult class]);
+        NSArray<NSString *> *answers = ((ORKChoiceQuestionResult *)task.results[4]).choiceAnswers;
+        expect(answers[0]).to.equal(@"Hello");
+        expect(answers[1]).to.equal(@"Wide");
+        expect(answers[2]).to.equal(@"World");
+
         // ORKTextQuestionResult
         // ORKNumericQuestionResult
         // ORKTimeIntervalQuestionResult
