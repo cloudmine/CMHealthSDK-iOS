@@ -215,10 +215,15 @@ describe(@"CMHealthIntegration", ^{
         numericResult.numericAnswer = @11.6;
 
         // ORKTimeIntervalQuestionResult
+
+        ORKTimeIntervalQuestionResult *intervalResult = [ORKTimeIntervalQuestionResult new];
+        intervalResult.intervalAnswer = @8.27;
+
         // ORKLocationQuestionResult
 
         taskResult.results = @[scaleResult, booleanResult, dateResult,
-                               timeResult, choiceResult, textResult, numericResult];
+                               timeResult, choiceResult, textResult,
+                               numericResult, intervalResult];
 
         __block NSString *uploadStatus = nil;
         __block NSError *uploadError = nil;
@@ -298,6 +303,11 @@ describe(@"CMHealthIntegration", ^{
         expect(numericResult.numericAnswer).to.equal(@11.6);
 
         // ORKTimeIntervalQuestionResult
+
+        expect([task.results[7] class]).to.equal([ORKTimeIntervalQuestionResult class]);
+        ORKTimeIntervalQuestionResult *intervalResult = (ORKTimeIntervalQuestionResult *)task.results[7];
+        expect(intervalResult.intervalAnswer).to.equal(@8.27);
+
         // ORKLocationQuestionResult
 
     });
