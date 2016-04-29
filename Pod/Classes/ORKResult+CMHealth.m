@@ -83,7 +83,17 @@
         composedQuery = [NSString stringWithFormat:@"%@.rkResult%@", composedQuery, query];
     }
 
-    [[CMStore defaultStore] searchUserObjects:composedQuery
+    [self cmh_internalFetchUserResultsForTopLevelQuery:composedQuery withCompletion:block];
+}
+
+# pragma mark Private Helpers
+
++ (void)cmh_internalFetchUserResultsForTopLevelQuery:(NSString *_Nonnull)query
+                                      withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    NSAssert(nil != query, @"Internal query for CMHResult wrapper objects cannot be nil");
+
+    [[CMStore defaultStore] searchUserObjects:query
                             additionalOptions:nil
                                      callback:^(CMObjectFetchResponse *response)
      {
