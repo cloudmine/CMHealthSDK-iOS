@@ -4,13 +4,18 @@
 typedef void(^CMHSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nullable error);
 typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable error);
 
+/**
+ * This category conforms the `ORKResult` class and subclasses to the `CMCoding`
+ * protocol. This allows them to be serialized and stored in CloudMine's
+ * HIPAA compliant Connected Health Cloud.
+ */
 @interface ORKResult (CMHealth)<CMCoding>
 @end
 
 /**
- *  This category adds methods to the ResearchKit framework's `ORKResult` class and subclasses.
- *  The methods make storing and fetching ResearchKit data to and from CloudMine's 
- *  HIPAA compliant Connected Health Cloud completely seamless.
+ *  This category adds methods to the ResearchKit framework's `ORKTaskResult` class 
+ *  and subclasses. The methods make storing and fetching ResearchKit data to and
+ *  from CloudMine's HIPAA compliant Connected Health Cloud completely seamless.
  */
 @interface ORKTaskResult (CMHealth)<CMCoding>
 
@@ -22,7 +27,7 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
 - (void)cmh_saveWithCompletion:(_Nullable CMHSaveCompletion)block;
 
 /**
- *  Serialize the current `ORKResult` instance (or subclass), belonging to the
+ *  Serialize the current `ORKTaskResult` instance (or subclass), belonging to the
  *  study with descriptor, and push it to CloudMine.
  *
  *  @param descriptor The descriptor of the study to which this result belongs.
@@ -93,7 +98,7 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
  *  SDK, in favor of Lucene Elasticsearch.
  *
  *  @param descriptor The descriptor of the study for which results are desired.
- *  @param query The query to apply to the `ORKResult` object (or subclass).
+ *  @param query The query to apply to the `ORKTaskResult` object (or subclass).
  *  @param block Executes when the request succeeds of rails with an error.
  */
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
