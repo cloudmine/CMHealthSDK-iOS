@@ -86,6 +86,16 @@
     [self cmh_internalFetchUserResultsForTopLevelQuery:composedQuery withCompletion:block];
 }
 
++ (void)cmh_fetchUserResultsWithRunUUID:(NSUUID *_Nonnull)uuid
+                         withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    NSAssert(nil != uuid, @"You must supply a valid task run UUID when fetching a specific unique result");
+
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMInternalObjectIdKey, uuid.UUIDString];
+
+    [self cmh_internalFetchUserResultsForTopLevelQuery:query withCompletion:block];
+}
+
 # pragma mark Private Helpers
 
 + (void)cmh_internalFetchUserResultsForTopLevelQuery:(NSString *_Nonnull)query
@@ -121,6 +131,7 @@
 }
 
 # pragma mark Error Generators
+
 + (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response
 {
     NSString *errorPrefix = NSLocalizedString(@"Failed to fetch results", nil);

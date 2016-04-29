@@ -104,4 +104,7 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                           andQuery:(NSString *_Nullable)query
                                     withCompletion:(_Nullable CMHFetchCompletion)block;
+
++ (void)cmh_fetchUserResultsWithRunUUID:(NSUUID *_Nonnull)uuid
+                         withCompletion:(_Nullable CMHFetchCompletion)block;
 @end

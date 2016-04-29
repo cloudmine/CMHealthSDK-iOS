@@ -440,34 +440,37 @@ describe(@"CMHealthIntegration", ^{
     });
 
     it(@"should properly fetch and update an existing result", ^{
-        __block NSArray *fetchResults = nil;
-        __block NSError *fetchError = nil;
+        __block NSArray *firstFetchResults = nil;
+        __block NSError *firstFetchError = nil;
 
         __block NSString *updateStatus = nil;
         __block NSError *updateError = nil;
 
+        __block NSArray *secondFetchResults = nil;
+        __block NSError *secondFetchError = nil;
+
         waitUntil(^(DoneCallback done) {
             [ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andIdentifier:@"TaskTestTwoIdentifier" withCompletion:^(NSArray *results, NSError *error) {
-                fetchResults = results;
-                fetchError = error;
+                firstFetchResults = results;
+                firstFetchError = error;
                 done();
             }];
         });
 
-        ORKTaskResult *taskResult = (ORKTaskResult *)fetchResults.firstObject;
-        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)taskResult.firstResult).firstResult;
+        ORKTaskResult *firstTaskResult = (ORKTaskResult *)firstFetchResults.firstObject;
+        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)firstTaskResult.firstResult).firstResult;
 
-        expect(fetchError).to.beNil();
-        expect(fetchResults.count).to.equal(1);
+        expect(firstFetchError).to.beNil();
+        expect(firstFetchResults.count).to.equal(1);
         expect(questionResult.textAnswer).to.equal(@"StepTwoUpdated");
 
         ORKTextQuestionResult *updatedQuestionResult = [ORKTextQuestionResult new];
         updatedQuestionResult.textAnswer = @"UpdatedAgain";
         ORKStepResult *updatedStepResult = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwoIdentifier" results:@[updatedQuestionResult]];
-        taskResult.results = @[updatedStepResult];
+        firstTaskResult.results = @[updatedStepResult];
 
         waitUntil(^(DoneCallback done) {
-            [taskResult cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
+            [firstTaskResult cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
                 updateStatus = status;
                 updateError = error;
                 done();
@@ -476,6 +479,22 @@ describe(@"CMHealthIntegration", ^{
 
         expect(updateError).to.beNil();
         expect(updateStatus).to.equal(@"updated");
+
+        waitUntil(^(DoneCallback done) {
+            [ORKTaskResult cmh_fetchUserResultsWithRunUUID:firstTaskResult.taskRunUUID withCompletion:^(NSArray *results, NSError *error) {
+                secondFetchResults = results;
+                secondFetchError = error;
+                done();
+            }];
+        });
+
+        ORKTaskResult *secondTaskResult = (ORKTaskResult *)secondFetchResults.firstObject;
+
+        expect(secondFetchError).to.beNil();
+        expect(secondFetchResults.count).to.equal(1);
+        expect(firstTaskResult == secondTaskResult).to.beFalsy();
+        expect(secondTaskResult).to.equal(firstTaskResult);
+        // expect(firstTaskResult).to.equal(secondTaskResult); // This fails due to a bug in the base SDK https://github.com/cloudmine/CloudMineSDK-iOS/issues/70
     });
 
     it(@"should log the user out and back in", ^{
