@@ -3,9 +3,9 @@
 
 @interface CMHResult : CMObject
 
-@property (nonatomic, nullable, readonly) ORKResult *rkResult;
+@property (nonatomic, nullable, readonly) ORKTaskResult *rkResult;
 @property (nonatomic, nullable, readonly) NSString *studyDescriptor;
 
-- (_Nonnull instancetype)initWithResearchKitResult:(ORKResult *_Nullable)result andStudyDescriptor:(NSString *_Nullable)descriptor;
+- (_Nonnull instancetype)initWithResearchKitResult:(ORKTaskResult *_Nonnull)result andStudyDescriptor:(NSString *_Nullable)descriptor;
 
 @end

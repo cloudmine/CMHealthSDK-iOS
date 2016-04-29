@@ -8,10 +8,10 @@ SpecBegin(CMHResult)
 
 describe(@"CMHResult", ^{
     it(@"should retain the result and descriptor", ^{
-        ORKResult *orkResult = [[ORKResult alloc] initWithIdentifier:@"TestIdentifier"];
-        CMHResult *result = [[CMHResult alloc] initWithResearchKitResult:orkResult andStudyDescriptor:TestDescriptor];
+        ORKTaskResult *orkTaskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"TestIdentifier" taskRunUUID:[NSUUID UUID] outputDirectory:nil];
+        CMHResult *result = [[CMHResult alloc] initWithResearchKitResult:orkTaskResult andStudyDescriptor:TestDescriptor];
 
-        expect(result.rkResult).to.equal(orkResult);
+        expect(result.rkResult).to.equal(orkTaskResult);
         expect(result.studyDescriptor).to.equal(TestDescriptor);
     });
 

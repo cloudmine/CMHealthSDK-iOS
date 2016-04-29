@@ -2,15 +2,18 @@
 #import "CMHConstants_internal.h"
 
 @interface CMHResult()
-@property (nonatomic, nullable, readwrite) ORKResult *rkResult;
+@property (nonatomic, nullable, readwrite) ORKTaskResult *rkResult;
 @property (nonatomic, nullable, readwrite) NSString *studyDescriptor;
 @end
 
 @implementation CMHResult
 
-- (_Nonnull instancetype)initWithResearchKitResult:(ORKResult *_Nullable)result andStudyDescriptor:(NSString *_Nullable)descriptor;
+- (_Nonnull instancetype)initWithResearchKitResult:(ORKTaskResult *_Nonnull)result andStudyDescriptor:(NSString *_Nullable)descriptor;
 {
-    self = [super init];
+    NSAssert(nil != result, @"CMHResult wrapper cannot be instantiated without an ORKTaskResult to wrap");
+    NSAssert(nil != result.taskRunUUID, @"CMHealth can not process an ORKTaskResult without a unique taskRunUUID property; this one is nil");
+
+    self = [super initWithObjectId:result.taskRunUUID.UUIDString];
     if (nil == self) return nil;
 
     self.rkResult = result;

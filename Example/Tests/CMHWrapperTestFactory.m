@@ -14,7 +14,7 @@
 
     ORKStepResult *stepResult = [[ORKStepResult alloc] initWithStepIdentifier:@"CMHTestStepIdentifier" results:@[textQuestionResult, scaleQuestionResult]];
 
-    ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithIdentifier:@"CMHTestIdentifier"];
+    ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID UUID] outputDirectory:nil];
     taskResult.results = @[stepResult];
 
     return taskResult;
