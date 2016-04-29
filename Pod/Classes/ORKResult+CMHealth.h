@@ -4,12 +4,15 @@
 typedef void(^CMHSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nullable error);
 typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable error);
 
+@interface ORKResult (CMHealth)<CMCoding>
+@end
+
 /**
  *  This category adds methods to the ResearchKit framework's `ORKResult` class and subclasses.
  *  The methods make storing and fetching ResearchKit data to and from CloudMine's 
  *  HIPAA compliant Connected Health Cloud completely seamless.
  */
-@interface ORKResult (CMHealth)<CMCoding>
+@interface ORKTaskResult (CMHealth)<CMCoding>
 
 /**
  *  Convenience method for saving a given result with an empty study descriptor.

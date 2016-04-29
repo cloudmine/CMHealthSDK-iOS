@@ -336,14 +336,18 @@ describe(@"CMHealthIntegration", ^{
         expect(fetchResults.count).to.equal(0);
     });
 
-    it(@"should upload two step results", ^{
+    it(@"should upload two task results", ^{
         ORKTextQuestionResult *stepOneQuestionResult = [ORKTextQuestionResult new];
         stepOneQuestionResult.textAnswer = @"StepOne";
-        ORKStepResult *resultOne = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestOneIdentifier" results:@[stepOneQuestionResult]];
+        ORKStepResult *stepResultOne = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestOneIdentifier" results:@[stepOneQuestionResult]];
+        ORKTaskResult *taskResultOne = [[ORKTaskResult alloc] initWithIdentifier:@"TaskTestOneIdentifier"];
+        taskResultOne.results = @[stepResultOne];
 
         ORKTextQuestionResult *stepTwoQuestionResult = [ORKTextQuestionResult new];
         stepTwoQuestionResult.textAnswer = @"StepTwo";
-        ORKStepResult *resultTwo = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwoIdentifier" results:@[stepTwoQuestionResult]];
+        ORKStepResult *stepResultTwo = [[ORKStepResult alloc] initWithStepIdentifier:@"StepTestTwoIdentifier" results:@[stepTwoQuestionResult]];
+        ORKTaskResult *taskResultTwo = [[ORKTaskResult alloc] initWithIdentifier:@"TaskTestTwoIdentifier"];
+        taskResultTwo.results = @[stepResultTwo];
 
         __block NSString *statusOne = nil;
         __block NSError *errorOne = nil;
@@ -352,7 +356,7 @@ describe(@"CMHealthIntegration", ^{
         __block NSError *errorTwo = nil;
 
         waitUntil(^(DoneCallback done){
-            [resultOne cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
+            [taskResultOne cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
                 statusOne = status;
                 errorOne = error;
                 done();
@@ -360,7 +364,7 @@ describe(@"CMHealthIntegration", ^{
         });
 
         waitUntil(^(DoneCallback done){
-            [resultTwo cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
+            [taskResultTwo cmh_saveToStudyWithDescriptor:TestDescriptor withCompletion:^(NSString *status, NSError *error) {
                 statusTwo = status;
                 errorTwo = error;
                 done();
@@ -379,7 +383,7 @@ describe(@"CMHealthIntegration", ^{
         __block NSError *fetchError = nil;
 
         waitUntil(^(DoneCallback done) {
-            [ORKStepResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andIdentifier:@"StepTestOneIdentifier" withCompletion:^(NSArray *results, NSError *error) {
+            [ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andIdentifier:@"TaskTestOneIdentifier" withCompletion:^(NSArray *results, NSError *error) {
                 fetchResults = results;
                 fetchError = error;
                 done();
@@ -389,7 +393,8 @@ describe(@"CMHealthIntegration", ^{
         expect(fetchError).to.beNil();
         expect(fetchResults.count).to.equal(1);
 
-        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)fetchResults.firstObject).firstResult;
+        ORKTaskResult *taskResult = (ORKTaskResult *)fetchResults.firstObject;
+        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)taskResult.firstResult).firstResult;
 
         expect(questionResult.textAnswer).to.equal(@"StepOne");
     });
@@ -399,7 +404,7 @@ describe(@"CMHealthIntegration", ^{
         __block NSError *fetchError = nil;
 
         waitUntil(^(DoneCallback done) {
-            [ORKStepResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andQuery:@"[identifier = \"StepTestOneIdentifier\"]" withCompletion:^(NSArray *results, NSError *error) {
+            [ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:TestDescriptor andQuery:@"[identifier = \"TaskTestOneIdentifier\"]" withCompletion:^(NSArray *results, NSError *error) {
                 fetchResults = results;
                 fetchError = error;
                 done();
@@ -409,7 +414,8 @@ describe(@"CMHealthIntegration", ^{
         expect(fetchError).to.beNil();
         expect(fetchResults.count).to.equal(1);
 
-        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)fetchResults.firstObject).firstResult;
+        ORKTaskResult *taskResult = (ORKTaskResult *)fetchResults.firstObject;
+        ORKTextQuestionResult *questionResult = (ORKTextQuestionResult *)((ORKStepResult *)taskResult.firstResult).firstResult;
 
         expect(questionResult.textAnswer).to.equal(@"StepOne");
     });

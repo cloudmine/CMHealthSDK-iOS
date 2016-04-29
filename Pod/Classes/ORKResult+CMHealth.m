@@ -8,6 +8,9 @@
 #import "CMHErrorUtilities.h"
 
 @implementation ORKResult (CMHealth)
+@end
+
+@implementation ORKTaskResult (CMHealth)
 
 #pragma mark Public API
 
@@ -25,7 +28,7 @@
             return;
         }
 
-        NSError *error = [ORKResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
+        NSError *error = [ORKTaskResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
         if (nil != error) {
             block(nil, error);
             return;
@@ -88,7 +91,7 @@
              return;
          }
 
-         NSError *error = [ORKResult errorForFetchWithResponse:response];
+         NSError *error = [ORKTaskResult errorForFetchWithResponse:response];
          if (nil != error) {
              block(nil, error);
              return;
