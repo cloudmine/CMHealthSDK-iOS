@@ -28,7 +28,10 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
 
 /**
  *  Serialize the current `ORKTaskResult` instance (or subclass), belonging to the
- *  study with descriptor, and push it to CloudMine.
+ *  study with descriptor, and push it to CloudMine. If a result with the same
+ *  `taskRunUUID` value already exists, it will be updated. If not, a new result
+ *  object will be created. The callback will provide a string value of `created`
+ *  or `updated` if the operation was successful.
  *
  *  @param descriptor The descriptor of the study to which this result belongs.
  *  @param block Executes when the request completes successfully or fails with an error.
@@ -99,12 +102,22 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
  *
  *  @param descriptor The descriptor of the study for which results are desired.
  *  @param query The query to apply to the `ORKTaskResult` object (or subclass).
- *  @param block Executes when the request succeeds of rails with an error.
+ *  @param block Executes when the request succeeds of fails with an error.
  */
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                           andQuery:(NSString *_Nullable)query
                                     withCompletion:(_Nullable CMHFetchCompletion)block;
 
+/**
+ *  Fetch all the results of the calling class which have the UUID provided. In a
+ *  typical use case there would be 0 or 1 results.
+ *
+ *  A common use for the this feature would be fetching a partially completed task,
+ *  which was saved earlier, and which the participant will now complete.
+ *
+ *  @param uuid The universal unique identifier from the original ORKTask instance.
+ *  @param block Executes when the request succeeds of fails with an error.
+ */
 + (void)cmh_fetchUserResultsWithRunUUID:(NSUUID *_Nonnull)uuid
                          withCompletion:(_Nullable CMHFetchCompletion)block;
 @end
