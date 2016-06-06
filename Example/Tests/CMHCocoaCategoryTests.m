@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <CMHealth/Cocoa+CMHealth.h>
-#import <CloudMine/CloudMine.h>
+#import <CMHealth/ResearchKit+CMHealth.h>
 #import "CMHWrapperTestFactory.h"
 
 @interface CMHTestCodingWrapper : CMObject
@@ -12,6 +12,8 @@
 @property (nonatomic) NSTimeZone *timeZone;
 @property (nonatomic) NSLocale *locale;
 @property (nonatomic) NSDateComponents *comps;
+@property (nonatomic) ORKLocation *location;
+@property (nonatomic) ORKConsentSignature *consentSignature;
 @end
 
 @implementation CMHTestCodingWrapper
@@ -47,6 +49,8 @@
     self.timeZone = [aDecoder decodeObjectForKey:@"timeZone"];
     self.locale = [aDecoder decodeObjectForKey:@"locale"];
     self.comps = [aDecoder decodeObjectForKey:@"comps"];
+    self.location = [aDecoder decodeObjectForKey:@"location"];
+    self.consentSignature = [aDecoder decodeObjectForKey:@"consentSignature"];
 
     return self;
 }
@@ -60,6 +64,8 @@
     [aCoder encodeObject:self.timeZone forKey:@"timeZone"];
     [aCoder encodeObject:self.locale forKey:@"locale"];
     [aCoder encodeObject:self.comps forKey:@"comps"];
+    [aCoder encodeObject:self.location forKey:@"location"];
+    [aCoder encodeObject:self.consentSignature forKey:@"consentSignature"];
 }
 
 @end
@@ -215,6 +221,55 @@ describe(@"NSDateComponents", ^{
         expect(codedWrapper).notTo.beNil();
         expect(origWrapper == codedWrapper).to.beFalsy();
         expect([CMHWrapperTestFactory isEquivalentToTestDateComponents:codedWrapper.comps]).to.beTruthy();
+    });
+});
+
+#pragma mark ORKLocation
+
+describe(@"ORKLocation", ^{
+    it(@"should encode and decode properly with NSCoder", ^{
+        ORKLocation *origLocation = [CMHWrapperTestFactory location];
+        NSData *locationData = [NSKeyedArchiver archivedDataWithRootObject:origLocation];
+        ORKLocation *codedLocation = [NSKeyedUnarchiver unarchiveObjectWithData:locationData];
+
+        expect(origLocation == codedLocation).to.beFalsy();
+        expect(origLocation).to.equal(codedLocation);
+    });
+
+    it(@"should encode and decode properly with CMCoder", ^{
+        CMHTestCodingWrapper *origWrapper = [CMHTestCodingWrapper new];
+        origWrapper.location = [CMHWrapperTestFactory location];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(codedWrapper).notTo.beNil();
+        expect(origWrapper == codedWrapper).to.beFalsy();
+        expect(codedWrapper.location).to.equal(codedWrapper.location);
+    });
+});
+
+#pragma mark ORKConsentSignature
+
+describe(@"ORKConsentSignature", ^{
+    it(@"should encode and decode properly with NSCoder", ^{
+        ORKConsentSignature *origSignature = [CMHWrapperTestFactory consentSignature];
+        NSData *signatureData = [NSKeyedArchiver archivedDataWithRootObject:origSignature];
+        ORKConsentSignature *codedSignature = [NSKeyedUnarchiver unarchiveObjectWithData:signatureData];
+
+        expect(codedSignature).notTo.beNil();
+        expect(origSignature == codedSignature).to.beFalsy();
+        expect(origSignature).to.equal(codedSignature);
+    });
+
+    it(@"should encode and decode properly with CMCoder", ^{
+        CMHTestCodingWrapper *origWrapper = [CMHTestCodingWrapper new];
+        origWrapper.consentSignature = [CMHWrapperTestFactory consentSignature];
+        NSDictionary *encodedObjects = [CMObjectEncoder encodeObjects:@[origWrapper]];
+        CMHTestCodingWrapper *codedWrapper = [CMObjectDecoder decodeObjects:encodedObjects].firstObject;
+
+        expect(codedWrapper).notTo.beNil();
+        expect(origWrapper == codedWrapper).to.beFalsy();
+        expect(codedWrapper.consentSignature).to.equal(origWrapper.consentSignature);
     });
 });
 

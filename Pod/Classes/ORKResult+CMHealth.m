@@ -2,7 +2,7 @@
 #import <CloudMine/CloudMine.h>
 #import "CMHResult.h"
 #import "Cocoa+CMHealth.h"
-#import "ORKConsentSignature+CMHealth.h"
+#import "ResearchKit+CMHealth.h"
 #import "CMHConstants_internal.h"
 #import "CMHErrors.h"
 #import "CMHErrorUtilities.h"

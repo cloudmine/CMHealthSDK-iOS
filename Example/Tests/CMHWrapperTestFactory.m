@@ -83,5 +83,36 @@
     return isEqual;
 }
 
+# pragma mark ORKLocation
+
++ (ORKLocation *)location
+{
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(39.95, -75.16);
+    CLCircularRegion *region = [[CLCircularRegion alloc] initWithCenter:coordinate radius:10.2 identifier:@"Philly-Ish"];
+    NSString *userInput = @"Somewhere near Philly";
+    NSDictionary *addressDictionary = @{ @"City"    : @"Philadelphia",
+                                         @"State"   : @"PA",
+                                         @"Country" : @"USA" };
+
+    ORKLocation *location = [[ORKLocation alloc] initWithCoordinate:coordinate
+                                                             region:region
+                                                          userInput:userInput
+                                                  addressDictionary:addressDictionary];
+    return location;
+}
+
+# pragma mark ORKConsentSignature
+
++ (ORKConsentSignature *)consentSignature
+{
+    return [ORKConsentSignature signatureForPersonWithTitle:@"Participant"
+                                           dateFormatString:@"%m/%d/%Y"
+                                                 identifier:@"SigId"
+                                                  givenName:@"Bruce"
+                                                 familyName:@"Wayne"
+                                             signatureImage:nil
+                                                 dateString:@"1/2/2003"];
+}
+
 
 @end

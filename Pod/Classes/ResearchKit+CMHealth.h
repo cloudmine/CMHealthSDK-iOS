@@ -3,3 +3,6 @@
 
 @interface ORKConsentSignature (CMHealth)<CMCoding>
 @end
+
+@interface ORKLocation (CMHealth)<CMCoding>
+@end
