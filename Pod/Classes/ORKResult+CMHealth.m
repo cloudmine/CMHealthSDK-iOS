@@ -8,6 +8,9 @@
 #import "CMHErrorUtilities.h"
 
 @implementation ORKResult (CMHealth)
+@end
+
+@implementation ORKTaskResult (CMHealth)
 
 #pragma mark Public API
 
@@ -25,7 +28,7 @@
             return;
         }
 
-        NSError *error = [ORKResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
+        NSError *error = [ORKTaskResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
         if (nil != error) {
             block(nil, error);
             return;
@@ -80,7 +83,27 @@
         composedQuery = [NSString stringWithFormat:@"%@.rkResult%@", composedQuery, query];
     }
 
-    [[CMStore defaultStore] searchUserObjects:composedQuery
+    [self cmh_internalFetchUserResultsForTopLevelQuery:composedQuery withCompletion:block];
+}
+
++ (void)cmh_fetchUserResultsWithRunUUID:(NSUUID *_Nonnull)uuid
+                         withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    NSAssert(nil != uuid, @"You must supply a valid task run UUID when fetching a specific unique result");
+
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMInternalObjectIdKey, uuid.UUIDString];
+
+    [self cmh_internalFetchUserResultsForTopLevelQuery:query withCompletion:block];
+}
+
+# pragma mark Private Helpers
+
++ (void)cmh_internalFetchUserResultsForTopLevelQuery:(NSString *_Nonnull)query
+                                      withCompletion:(_Nullable CMHFetchCompletion)block
+{
+    NSAssert(nil != query, @"Internal query for CMHResult wrapper objects cannot be nil");
+
+    [[CMStore defaultStore] searchUserObjects:query
                             additionalOptions:nil
                                      callback:^(CMObjectFetchResponse *response)
      {
@@ -88,7 +111,7 @@
              return;
          }
 
-         NSError *error = [ORKResult errorForFetchWithResponse:response];
+         NSError *error = [ORKTaskResult errorForFetchWithResponse:response];
          if (nil != error) {
              block(nil, error);
              return;
@@ -108,6 +131,7 @@
 }
 
 # pragma mark Error Generators
+
 + (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response
 {
     NSString *errorPrefix = NSLocalizedString(@"Failed to fetch results", nil);

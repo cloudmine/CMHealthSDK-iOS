@@ -5,11 +5,19 @@ typedef void(^CMHSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nul
 typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable error);
 
 /**
- *  This category adds methods to the ResearchKit framework's `ORKResult` class and subclasses.
- *  The methods make storing and fetching ResearchKit data to and from CloudMine's 
- *  HIPAA compliant Connected Health Cloud completely seamless.
+ * This category conforms the `ORKResult` class and subclasses to the `CMCoding`
+ * protocol. This allows them to be serialized and stored in CloudMine's
+ * HIPAA compliant Connected Health Cloud.
  */
 @interface ORKResult (CMHealth)<CMCoding>
+@end
+
+/**
+ *  This category adds methods to the ResearchKit framework's `ORKTaskResult` class 
+ *  and subclasses. The methods make storing and fetching ResearchKit data to and
+ *  from CloudMine's HIPAA compliant Connected Health Cloud completely seamless.
+ */
+@interface ORKTaskResult (CMHealth)<CMCoding>
 
 /**
  *  Convenience method for saving a given result with an empty study descriptor.
@@ -19,8 +27,11 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
 - (void)cmh_saveWithCompletion:(_Nullable CMHSaveCompletion)block;
 
 /**
- *  Serialize the current `ORKResult` instance (or subclass), belonging to the
- *  study with descriptor, and push it to CloudMine.
+ *  Serialize the current `ORKTaskResult` instance (or subclass), belonging to the
+ *  study with descriptor, and push it to CloudMine. If a result with the same
+ *  `taskRunUUID` value already exists, it will be updated. If not, a new result
+ *  object will be created. The callback will provide a string value of `created`
+ *  or `updated` if the operation was successful.
  *
  *  @param descriptor The descriptor of the study to which this result belongs.
  *  @param block Executes when the request completes successfully or fails with an error.
@@ -90,10 +101,23 @@ typedef void(^CMHFetchCompletion)(NSArray *_Nullable results, NSError *_Nullable
  *  SDK, in favor of Lucene Elasticsearch.
  *
  *  @param descriptor The descriptor of the study for which results are desired.
- *  @param query The query to apply to the `ORKResult` object (or subclass).
- *  @param block Executes when the request succeeds of rails with an error.
+ *  @param query The query to apply to the `ORKTaskResult` object (or subclass).
+ *  @param block Executes when the request succeeds of fails with an error.
  */
 + (void)cmh_fetchUserResultsForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                           andQuery:(NSString *_Nullable)query
                                     withCompletion:(_Nullable CMHFetchCompletion)block;
+
+/**
+ *  Fetch all the results of the calling class which have the UUID provided. In a
+ *  typical use case there would be 0 or 1 results.
+ *
+ *  A common use for the this feature would be fetching a partially completed task,
+ *  which was saved earlier, and which the participant will now complete.
+ *
+ *  @param uuid The universal unique identifier from the original ORKTask instance.
+ *  @param block Executes when the request succeeds of fails with an error.
+ */
++ (void)cmh_fetchUserResultsWithRunUUID:(NSUUID *_Nonnull)uuid
+                         withCompletion:(_Nullable CMHFetchCompletion)block;
 @end
