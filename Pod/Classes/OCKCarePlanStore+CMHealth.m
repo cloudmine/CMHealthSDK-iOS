@@ -26,6 +26,15 @@
     }];
 }
 
+- (void)cmh_fetchActivitiesWithCompletion:(_Nullable CMHCarePlanActivityFetchCompletion)block
+{
+    [[CMStore defaultStore] allUserObjectsOfClass:[CMHActivityList class] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
+        // TODO: Error checking/handling
+        CMHActivityList *activityList = response.objects.firstObject;
+        block(activityList.activities, nil);
+    }];
+}
+
 - (NSArray<NSError *> *_Nonnull)cmh_clearLocalStoreSynchronously
 {
     __block NSArray *allActivities = nil;
