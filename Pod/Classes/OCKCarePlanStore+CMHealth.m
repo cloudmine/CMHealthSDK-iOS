@@ -1,6 +1,9 @@
 #import "OCKCarePlanStore+CMHealth.h"
+#import <CloudMine/CloudMine.h>
 #import "CMHDisptachUtils.h"
 #import "CMHActivityList.h"
+#import "CMHCareEvent.h"
+#import "CMHMutedEventUpdater.h"
 
 @implementation OCKCarePlanStore (CMHealth)
 
@@ -71,6 +74,57 @@
     }
 
     return [mutableErrors copy];
+}
+
+- (void)cmh_fetchAndLoadAllEventsWithCompletion:(_Nullable CMHCarePlanEventFetchCompletion)block
+{
+    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+
+    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareEvent class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+        // TODO: errors
+
+        NSArray <CMHCareEvent *> *wrappedEvents = response.objects;
+
+        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+        dispatch_async(updateQueue, ^{
+            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
+
+            for (CMHCareEvent *wrappedEvent in wrappedEvents) {
+                __block NSArray<OCKCarePlanEvent *> *storeEvents = nil;
+                __block NSError *storeError = nil;
+
+                cmh_wait_until(^(CMHDoneBlock _Nonnull done) {
+                    [self eventsForActivity:wrappedEvent.activity date:wrappedEvent.date completion:^(NSArray<OCKCarePlanEvent *> * _Nonnull events, NSError * _Nullable error) {
+                        storeEvents = events;
+                        storeError = error;
+                        done();
+                    }];
+                });
+
+                if (nil != storeError) {
+                    [updateErrors addObject:storeError];
+                    continue;
+                }
+
+                for (OCKCarePlanEvent *anEvent in storeEvents) {
+                    if (anEvent.occurrenceIndexOfDay != wrappedEvent.occurrenceIndexOfDay ||
+                        [wrappedEvent isDataEquivalentOf:anEvent]) {
+                        continue;
+                    }
+
+                    CMHMutedEventUpdater *updater = [[CMHMutedEventUpdater alloc] initWithCarePlanStore:self
+                                                                                                  event:anEvent
+                                                                                                 result:wrappedEvent.result
+                                                                                                  state:wrappedEvent.state];
+                    [updater performUpdate];
+                }
+            }
+
+            BOOL success = updateErrors.count < 1;
+            block(success, [updateErrors copy]);
+        });
+    }];
 }
 
 @end
