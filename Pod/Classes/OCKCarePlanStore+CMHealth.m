@@ -1,7 +1,30 @@
 #import "OCKCarePlanStore+CMHealth.h"
 #import "CMHDisptachUtils.h"
+#import "CMHActivityList.h"
 
 @implementation OCKCarePlanStore (CMHealth)
+
+- (void)cmh_saveActivtiesWithCompletion:(_Nullable CMHCarePlanSaveCompletion)block
+{
+    [self activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
+        if (!success) {
+            if (nil != block) {
+                block(error);
+            }
+            return;
+        }
+
+        CMHActivityList *activityList = [[CMHActivityList alloc] initWithActivities:activities];
+
+        [activityList saveWithUser:[CMUser currentUser] callback:^(CMObjectUploadResponse *response) {
+            // TODO: Error handling
+
+            if (nil != block) {
+                block(nil);
+            }
+        }];
+    }];
+}
 
 - (NSArray<NSError *> *_Nonnull)cmh_clearLocalStoreSynchronously
 {
