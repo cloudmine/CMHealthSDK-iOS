@@ -1,6 +1,7 @@
 #import "OCKCarePlanEvent+CMHealth.h"
 #import "CMHInternalUser.h"
 #import "CMHCareEvent.h"
+#import "CMHErrorUtilities.h"
 
 @implementation OCKCarePlanEvent (CMHealth)
 
@@ -19,7 +20,11 @@
             return;
         }
 
-        // TODO: errors
+        NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmEvent.objectId uploadResponse:response];
+        if (nil != saveError) {
+            block(nil, saveError);
+            return;
+        }
 
         block(response.uploadStatuses[cmEvent.objectId], nil);
     }];
