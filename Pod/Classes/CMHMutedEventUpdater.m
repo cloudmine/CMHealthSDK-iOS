@@ -33,24 +33,31 @@
     return self;
 }
 
-- (void)performUpdate
+- (NSError *_Nullable)performUpdate;
 {
     self.holdDelegate = self.store.delegate;
     self.store.delegate = self;
+    __block NSError *updateError = nil;
 
     dispatch_group_enter(self.updateGroup);
     [self.store updateEvent:self.event withResult:self.result state:self.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
-        // TODO: collect and return errors
-        NSLog(@"Updated Event");
+
+        updateError = error;
     }];
+
+    if (nil != updateError) {
+        dispatch_group_leave(self.updateGroup);
+        return updateError;
+    }
 
     dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
 
     if (self.store.delegate != self) {
-        return;
+        return nil;
     }
     
     self.store.delegate = self.holdDelegate;
+    return nil;
 }
 
 #pragma mark OCKCarePlanStoreDelegate

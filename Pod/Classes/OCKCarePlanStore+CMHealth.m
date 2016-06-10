@@ -117,7 +117,11 @@
                                                                                                   event:anEvent
                                                                                                  result:wrappedEvent.result
                                                                                                   state:wrappedEvent.state];
-                    [updater performUpdate];
+                    NSError *thisUpdateError = [updater performUpdate];
+
+                    if (nil != thisUpdateError) {
+                        [updateErrors addObject:thisUpdateError];
+                    }
                 }
             }
 

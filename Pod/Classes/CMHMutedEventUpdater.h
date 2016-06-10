@@ -6,6 +6,7 @@
                                 event:(OCKCarePlanEvent *)event
                                result:(OCKCarePlanEventResult *)result
                                 state:(OCKCarePlanEventState)state;
-- (void)performUpdate;
+
+- (NSError *_Nullable)performUpdate;
 
 @end
