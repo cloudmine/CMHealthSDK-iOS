@@ -2,10 +2,10 @@
 
 @interface CMHMutedEventUpdater : NSObject
 
-- (instancetype)initWithCarePlanStore:(OCKCarePlanStore *)store
-                                event:(OCKCarePlanEvent *)event
-                               result:(OCKCarePlanEventResult *)result
-                                state:(OCKCarePlanEventState)state;
+- (_Nonnull instancetype)initWithCarePlanStore:(OCKCarePlanStore *_Nonnull)store
+                                         event:(OCKCarePlanEvent *_Nonnull)event
+                                        result:(OCKCarePlanEventResult *_Nullable)result
+                                         state:(OCKCarePlanEventState)state;
 
 - (NSError *_Nullable)performUpdate;
 
