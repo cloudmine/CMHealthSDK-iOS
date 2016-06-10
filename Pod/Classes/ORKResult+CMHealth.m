@@ -28,7 +28,7 @@
             return;
         }
 
-        NSError *error = [ORKTaskResult errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
+        NSError *error = [CMHErrorUtilities errorForUploadWithObjectId:resultWrapper.objectId uploadResponse:response];
         if (nil != error) {
             block(nil, error);
             return;
@@ -128,33 +128,6 @@
 
          block([mutableResults copy], nil);
      }];
-}
-
-# pragma mark Error Generators
-
-+ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response
-{
-    NSString *errorPrefix = NSLocalizedString(@"Failed to save results", nil);
-
-    NSError *responseError = [CMHErrorUtilities errorForInternalError:response.error withPrefix:errorPrefix];
-    if (nil != responseError) {
-        return responseError;
-    }
-
-    if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        NSString *noStatusMessage = [NSString localizedStringWithFormat:@"%@. No response received", errorPrefix];
-        return [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse
-                           localizedDescription:noStatusMessage];
-    }
-
-    NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
-
-    if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
-        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"%@. Invalid upload status returned: %@", errorPrefix, resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorInvalidResponse localizedDescription:invalidStatusMessage];
-    }
-
-    return nil;
 }
 
 @end
