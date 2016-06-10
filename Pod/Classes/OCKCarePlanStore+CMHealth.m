@@ -33,8 +33,22 @@
 - (void)cmh_fetchActivitiesWithCompletion:(_Nullable CMHCarePlanActivityFetchCompletion)block
 {
     [[CMStore defaultStore] allUserObjectsOfClass:[CMHActivityList class] additionalOptions:nil callback:^(CMObjectFetchResponse *response) {
-        // TODO: Error checking/handling
+        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+        if (nil == block) {
+            return;
+        }
+
+        if (nil != fetchError) {
+            block(@[], fetchError);
+            return;
+        }
+
         CMHActivityList *activityList = response.objects.firstObject;
+        if (nil == activityList) {
+            block(@[], nil);
+            return;
+        }
+
         block(activityList.activities, nil);
     }];
 }
