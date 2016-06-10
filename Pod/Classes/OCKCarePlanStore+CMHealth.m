@@ -21,11 +21,17 @@
         CMHActivityList *activityList = [[CMHActivityList alloc] initWithActivities:activities];
 
         [activityList saveWithUser:[CMUser currentUser] callback:^(CMObjectUploadResponse *response) {
-            // TODO: Error handling
-
-            if (nil != block) {
-                block(nil);
+            if (nil == block) {
+                return;
             }
+
+            NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:activityList.objectId uploadResponse:response];
+            if (nil != saveError) {
+                block(saveError);
+                return;
+            }
+
+            block(nil);
         }];
     }];
 }
