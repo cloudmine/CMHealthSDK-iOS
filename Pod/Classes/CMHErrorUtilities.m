@@ -138,7 +138,7 @@
     return nil;
 }
 
-+ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response
++ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nonnull)response
 {
     NSString *errorPrefix = NSLocalizedString(@"Failed to save", nil);
 

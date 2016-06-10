@@ -13,7 +13,7 @@
 
 + (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode;
 
-+ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *)response;
++ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nonnull)response;
 
 + (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response;
 
