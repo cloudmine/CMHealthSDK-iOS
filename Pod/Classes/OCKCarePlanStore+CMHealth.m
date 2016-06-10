@@ -4,6 +4,7 @@
 #import "CMHActivityList.h"
 #import "CMHCareEvent.h"
 #import "CMHMutedEventUpdater.h"
+#import "CMHErrorUtilities.h"
 
 @implementation OCKCarePlanStore (CMHealth)
 
@@ -81,7 +82,13 @@
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
 
     [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareEvent class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
-        // TODO: errors
+        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+        if (nil != fetchError) {
+            if (nil != block) {
+                block(NO, @[fetchError]);
+            }
+            return;
+        }
 
         NSArray <CMHCareEvent *> *wrappedEvents = response.objects;
 
@@ -123,6 +130,10 @@
                         [updateErrors addObject:thisUpdateError];
                     }
                 }
+            }
+
+            if (nil == block) {
+                return;
             }
 
             BOOL success = updateErrors.count < 1;
