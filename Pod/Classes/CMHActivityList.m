@@ -1,5 +1,6 @@
 #import "CMHActivityList.h"
 #import "CareKit+CMHealth.h"
+#import "CMHInternalUser.h"
 
 @interface CMHActivityList ()
 @property (nonatomic, nonnull, readwrite) NSArray <OCKCarePlanActivity *> * activities;
@@ -9,29 +10,11 @@
 
 #pragma mark Initializer Overrides
 
-- (instancetype)init
-{
-    self = [super init];
-    if (nil == self) return nil;
-
-    self.activities = @[];
-
-    return self;
-}
-
-- (instancetype)initWithObjectId:(NSString *)theObjectId
-{
-    self = [super initWithObjectId:theObjectId];
-    if (nil == self) return nil;
-
-    self.activities = @[];
-
-    return self;
-}
-
 - (instancetype)initWithActivities:(NSArray<OCKCarePlanActivity *> *_Nonnull)activities
 {
-    self = [self init];
+    NSString *objectId = [NSString stringWithFormat:@"CMHActivityList-%@", [CMHInternalUser currentUser].objectId];
+    self = [super initWithObjectId:objectId];
+
     if (nil == self || nil == activities) return nil;
 
     self.activities = activities;
