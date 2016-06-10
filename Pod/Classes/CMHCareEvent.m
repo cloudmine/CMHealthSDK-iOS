@@ -69,7 +69,7 @@
     self.date = [aDecoder decodeObjectForKey:@"date"];
     self.activity = [aDecoder decodeObjectForKey:@"activity"];
     self.stateString = [aDecoder decodeObjectForKey:@"state"];
-    self.resultWrapper = [aDecoder decodeObjectForKey:@"resultWrapper"]; // TODO: Change to result?
+    self.resultWrapper = [aDecoder decodeObjectForKey:@"result"];
 
     return self;
 }
@@ -83,7 +83,7 @@
     [aCoder encodeObject:self.date forKey:@"date"];
     [aCoder encodeObject:self.activity forKey:@"activity"];
     [aCoder encodeObject:self.stateString forKey:@"state"];
-    [aCoder encodeObject:self.resultWrapper forKey:@"resultWrapper"];
+    [aCoder encodeObject:self.resultWrapper forKey:@"result"];
 }
 
 #pragma mark Getters-Setters
