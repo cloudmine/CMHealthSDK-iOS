@@ -13,7 +13,7 @@
     [self activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
         if (!success) {
             if (nil != block) {
-                block(error);
+                block(nil, error);
             }
             return;
         }
@@ -27,11 +27,11 @@
 
             NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:activityList.objectId uploadResponse:response];
             if (nil != saveError) {
-                block(saveError);
+                block(nil, saveError);
                 return;
             }
 
-            block(nil);
+            block(response.uploadStatuses[activityList.objectId], nil);
         }];
     }];
 }

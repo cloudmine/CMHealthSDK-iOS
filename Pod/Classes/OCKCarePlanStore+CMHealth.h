@@ -1,7 +1,7 @@
 #import <CareKit/CareKit.h>
 
 typedef void(^CMHCarePlanActivityFetchCompletion)(NSArray<OCKCarePlanActivity *> *_Nonnull activities, NSError *_Nullable error);
-typedef void(^CMHCarePlanSaveCompletion)(NSError *_Nullable error);
+typedef void(^CMHCarePlanSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nullable error);
 typedef void(^CMHCarePlanEventFetchCompletion)(BOOL success, NSArray<NSError *> *_Nonnull errors);
 
 @interface OCKCarePlanStore (CMHealth)
