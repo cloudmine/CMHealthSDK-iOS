@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name              = "CMHealth"
-  s.version           = "0.3.1"
+  s.version           = "0.4.0"
   s.summary           = "A HIPAA compliant data storage interface for ResearchKit, from CloudMine."
   s.description       = <<-DESC
                         CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage
-                        and user management to your ResearchKit clinical study iOS app.  Built and
+                        and user management to your ResearchKit or CareKit clinical iOS app.  Built and
                         backed by CloudMine and the CloudMine Connected Health Cloud.
                        DESC
 
