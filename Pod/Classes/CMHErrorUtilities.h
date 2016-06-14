@@ -13,6 +13,12 @@
 
 + (NSError *_Nullable)errorForAccountResult:(CMUserAccountResult)resultCode;
 
++ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nonnull)response;
+
++ (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response;
+
++ (NSError *_Nullable)errorForInternalError:(NSError *_Nullable)error withPrefix:(NSString *_Nonnull)prefix;
+
 + (CMHError)localCodeForCloudMineCode:(CMErrorCode)code;
 
 + (NSString *_Nonnull)messageForCode:(CMHError)errorCode;

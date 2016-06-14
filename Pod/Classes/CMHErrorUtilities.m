@@ -29,11 +29,11 @@
 
     if (nil != response.error) {
         NSString *responseErrorMessage = [NSString localizedStringWithFormat:@"Failed to upload %@; %@", kind, response.error.localizedDescription];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:responseErrorMessage];
+        return [self errorWithCode:CMHErrorFailedToUploadObject localizedDescription:responseErrorMessage];
     }
 
     if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject
+        return [self errorWithCode:CMHErrorFailedToUploadObject
                            localizedDescription:[NSString localizedStringWithFormat:@"Failed to upload %@; no response received", kind]];
     }
 
@@ -41,7 +41,7 @@
 
     if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
         NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"Failed to upload %@kind; invalid upload status returned: %@", kind, resultUploadStatus];
-        return [CMHErrorUtilities errorWithCode:CMHErrorFailedToUploadObject localizedDescription:invalidStatusMessage];
+        return [self errorWithCode:CMHErrorFailedToUploadObject localizedDescription:invalidStatusMessage];
     }
 
     return nil;
@@ -113,6 +113,71 @@
     }
 
     return [self errorWithCode:code localizedDescription:errorMessage];
+}
+
++ (NSError *_Nullable)errorForFetchWithResponse:(CMObjectFetchResponse *_Nullable)response
+{
+    NSString *errorPrefix = NSLocalizedString(@"Failed to fetch results", nil);
+
+    NSError *responseError = [self errorForInternalError:response.error withPrefix:errorPrefix];
+    if (nil != responseError) {
+        return responseError;
+    }
+
+    // Note: an error with any result will cause an error for the whole fetch.
+    // This decision keeps the API simple, but is there a compelling reason why
+    // we wouldn't want this?
+    NSString *objectInternalErrorMessage = response.objectErrors[response.objectErrors.allKeys.firstObject][@"message"];
+    NSString *errorKey = response.objectErrors.allKeys.firstObject;
+
+    if(nil != objectInternalErrorMessage) {
+        NSString *objectErrorMessage = [NSString localizedStringWithFormat:@"%@; there was an error with at least one object: %@ (key: %@)", errorPrefix, objectInternalErrorMessage, errorKey];
+        return [self errorWithCode:CMHErrorUnknown localizedDescription:objectErrorMessage];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForUploadWithObjectId:(NSString *_Nonnull)objectId uploadResponse:(CMObjectUploadResponse *_Nonnull)response
+{
+    NSString *errorPrefix = NSLocalizedString(@"Failed to save", nil);
+
+    NSError *responseError = [self errorForInternalError:response.error withPrefix:errorPrefix];
+    if (nil != responseError) {
+        return responseError;
+    }
+
+    if (nil == response.uploadStatuses || nil == [response.uploadStatuses objectForKey:objectId]) {
+        NSString *noStatusMessage = [NSString localizedStringWithFormat:@"%@. No response received", errorPrefix];
+        return [self errorWithCode:CMHErrorInvalidResponse
+                           localizedDescription:noStatusMessage];
+    }
+
+    NSString *resultUploadStatus = [response.uploadStatuses objectForKey:objectId];
+
+    if(![@"created" isEqualToString:resultUploadStatus] && ![@"updated" isEqualToString:resultUploadStatus]) {
+        NSString *invalidStatusMessage = [NSString localizedStringWithFormat:@"%@. Invalid upload status returned: %@", errorPrefix, resultUploadStatus];
+        return [self errorWithCode:CMHErrorInvalidResponse localizedDescription:invalidStatusMessage];
+    }
+
+    return nil;
+}
+
++ (NSError *_Nullable)errorForInternalError:(NSError *_Nullable)error withPrefix:(NSString *_Nonnull)prefix
+{
+    if (nil == error) {
+        return nil;
+    }
+
+    if (![error.domain isEqualToString:CMErrorDomain]) {
+        NSString *unknownMessage = [NSString stringWithFormat:@"%@. %@ (%@, %li)", prefix, error.localizedDescription, error.domain, error.code];
+        return [self errorWithCode:CMHErrorUnknown localizedDescription:unknownMessage];
+    }
+
+    CMHError localCode = [self localCodeForCloudMineCode:error.code];
+    NSString *message = [NSString stringWithFormat:@"%@. %@", prefix, [self messageForCode:localCode]];
+
+    return [self errorWithCode:localCode localizedDescription:message];
 }
 
 + (CMHError)localCodeForCloudMineCode:(CMErrorCode)code

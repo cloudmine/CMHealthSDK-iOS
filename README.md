@@ -1,30 +1,34 @@
 # CMHealth
 
-
 [CMHealth](https://cocoapods.org/pods/CMHealth) is the easiest way to add secure, HIPAA compliant cloud data storage
-and user management to your [ResearchKit](http://researchkit.org/) clinical study
+and user management to your [ResearchKit](http://researchkit.org/) or [CareKit](http://carekit.org/)
 iOS app.  Built and backed by [CloudMine](http://cloudmineinc.com/) and the
 CloudMine [Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
 
 ## Installation
 
-[CMHealth](https://cocoapods.org/pods/CMHealth) is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+[CMHealth](https://cocoapods.org/pods/CMHealth) is available through [CocoaPods](http://cocoapods.org) version 1.0.0 or later.
+To install it, simply add the following line to your Podfile:
 
 ```ruby
-pod "CMHealth"
+platform :ios, '9.0'
+
+target 'MyHealthApp' do
+  use_frameworks!
+
+  pod 'CMHealth'
+end
 ```
 
-## Usage
+## ResearchKit
 
-The SDK provides category methods on standard ResearchKit classes, allowing you 
-to save and fetch `ORKResult` object subclasses, such as `ORKTaskResult` and `ORKStepResult`,
-to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
+The SDK provides category methods on standard ResearchKit classes, allowing you
+to save and fetch `ORKTaskResult` objects to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
 
 You can see the full documentation and class references on [CocoaPods](http://cocoadocs.org/docsets/CMHealth/)
 or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
 
-### Save
+#### Save
 
 ```Objective-C
 #import <CMHealth/CMHealth.h>
@@ -43,7 +47,7 @@ or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
     }];
 ```
 
-### Fetch
+#### Fetch
 
 ```Objective-C
 #import <CMHealth/CMHealth.h>
@@ -60,7 +64,101 @@ or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
     }];
 ```
 
-### Authentication
+## CareKit
+
+The SDK provides the ability to save and fetch data stored in
+CareKit's local device store to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
+
+#### Activities
+
+Patients using a CareKit app are assigned activities to perform according to a pre-determined
+schedule. These activities can be easily pushed to or fetched from CloudMine.
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+// SAVE
+
+- (void)addInitialActivities
+{
+    // Add activities to local stores store
+
+    [self.carePlanStore cmh_saveActivtiesWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
+        if (nil == uploadStatus) {
+            // Handle Error
+            return;
+        }
+
+        // All activities in store saved remotely
+    }];
+}
+
+
+// FETCH
+
+- (void)fetchAndLoadActivities
+{
+    [self.carePlanStore cmh_fetchActivitiesWithCompletion:^(NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
+        if (nil != error) {
+            // handle error
+        }
+
+        // Sucessfully fetched activity
+
+        for (OCKCarePlanActivity *activity in activities) {
+            [self.carePlanStore addActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
+                if (!success) {
+                    // handle error
+                    return;
+                }
+
+                // activity added successfully
+            }];
+        }
+    }];
+}
+```
+
+#### Events
+
+As patients complete their activities CareKit creates events recording the data generated.
+CMHealth makes it simple to save these events or to fetch and load them into the local store,
+enabling you to collect important patient data across logins and devices.
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+// SAVE
+
+#pragma mark OCKCarePlanStoreDelegate
+- (void)carePlanStore:(OCKCarePlanStore *)store didReceiveUpdateOfEvent:(OCKCarePlanEvent *)event
+{
+    [event cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
+        if (nil == uploadStatus) {
+            // Handle Error
+            return;
+        }
+
+        // Successfully saved
+    }];
+}
+
+// FETCH
+
+- (void)fetchAndLoadSavedEvents
+{
+    [self.carePlanStore cmh_fetchAndLoadAllEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+        if (!success) {
+            // Handle Error
+            return;
+        }
+
+        // All events fetched and loaded to local store
+    }];
+}
+```
+
+## Authentication
 
 The SDK provides a user abstraction for managing your participant accounts, with straightforward
 methods for user authentication.
@@ -81,7 +179,7 @@ methods for user authentication.
 The SDK also provides [preconfigured screens](#authentication-screens)
 for participant authentication.
 
-### Authentication Screens
+#### Authentication Screens
 
 For convenience, the SDK provides preconfigured view controllers for user sign up and login.
 These screens can be presented modally and handle the collection and validation of user
@@ -142,7 +240,7 @@ email and password. Data is returned via delegation.
 @end
 ```
 
-### Consent
+## Consent
 
 The SDK provides specific methods for archiving and fetching participant consent.
 In ResearchKit, user consent is collected in any `ORKTask` with special consent and signature
@@ -193,8 +291,13 @@ of [CMHealth](https://cocoapods.org/pods/CMHealth), start with the [CloudMine iO
 ## CMHealth Examples
 
 To get a sense of how CMHealth works seamlessly with ResearchKit, you can check out the CloudMine
-[AsthmaHealth](https://github.com/cloudmine/AsthmaHealth/) demo application.  AsthmaHealth
-can also serve as a starting point for your own ResearchKit enabled app.
+[AsthmaHealth](https://github.com/cloudmine/AsthmaHealth/) demo application.
+The SDK is designed to work seamlessly with [Swift](https://swift.org/).
+Check out the [AsthmaHealthSwift](https://github.com/cloudmine/AsthmaHealthSwift) demo to
+see an all-Swift app enabled by CMHealth.
+
+To see an example of CMHealth working in tandem with CareKit, you can check out the CloudMine
+[BackTrack](TODO: URL) demo application.
 
 ## Support
 
@@ -207,4 +310,3 @@ document to get started.
 ## License
 
 CMHealth is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
-

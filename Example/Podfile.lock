@@ -20,12 +20,14 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - CareKit (1.0.1)
   - CloudMine (1.7.11):
     - AFNetworking (~> 2.6.3)
     - CloudMine/no-arc (= 1.7.11)
   - CloudMine/no-arc (1.7.11):
     - AFNetworking (~> 2.6.3)
-  - CMHealth (0.3.0):
+  - CMHealth (0.4.0):
+    - CareKit (~> 1.0)
     - CloudMine (~> 1.7)
     - ResearchKit (~> 1.3.1)
     - TPKeyboardAvoiding (~> 1.2)
@@ -45,13 +47,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
+  CareKit: 08e840f45807c7771708b731649e082bdb6eea2d
   CloudMine: ee5b3643fb1a2f4603de6428aea1252ac928d98d
-  CMHealth: 7a40693d7bea5f9f1c45734484917a415b226e51
+  CMHealth: 32f66ba859e303e26e77a251b6017644665615e2
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: badba0340dd71d1cbab4789a0bf01b26022b8f94
   Specta: ac94d110b865115fe60ff2c6d7281053c6f8e8a2
   TPKeyboardAvoiding: a5138f318c06fb3e151f886e18ce4a72695d9cbe
 
-PODFILE CHECKSUM: 945b636da21181a707901a018dfe56f60c53b7d1
+PODFILE CHECKSUM: 463ab4123b10a4a85a4bf7bf72996038de318e67
 
 COCOAPODS: 1.0.1
