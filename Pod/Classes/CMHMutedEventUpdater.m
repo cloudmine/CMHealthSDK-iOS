@@ -1,7 +1,7 @@
 #import "CMHMutedEventUpdater.h"
 #import "OCKCarePlanEvent+CMHealth.h"
 
-@interface CMHMutedEventUpdater ()
+@interface CMHMutedEventUpdater ()<OCKCarePlanStoreDelegate>
 
 @property (nonatomic, nonnull) OCKCarePlanStore *store;
 @property (nonatomic, nonnull) OCKCarePlanEvent *event;

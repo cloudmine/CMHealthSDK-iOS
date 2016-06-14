@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.platform          = :ios, '9.0'
   s.requires_arc      = true
 
-  s.public_header_files = 'CMHealth/CMHealth.h'
+  # s.public_header_files = 'Pod/Classes/CMHealth.h' # Pre 1.0 we need to specify exactly which should be public
   s.source_files         = 'Pod/Classes/**/*'
 
   s.resource_bundles  = {

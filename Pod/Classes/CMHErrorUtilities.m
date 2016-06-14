@@ -170,7 +170,7 @@
     }
 
     if (![error.domain isEqualToString:CMErrorDomain]) {
-        NSString *unknownMessage = [NSString stringWithFormat:@"%@. %@ (%@, %li)", prefix, error.localizedDescription, error.domain, error.code];
+        NSString *unknownMessage = [NSString stringWithFormat:@"%@. %@ (%@, %li)", prefix, error.localizedDescription, error.domain, (long)error.code];
         return [self errorWithCode:CMHErrorUnknown localizedDescription:unknownMessage];
     }
 
