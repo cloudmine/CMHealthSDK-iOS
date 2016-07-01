@@ -24,6 +24,9 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  */
 + (_Nonnull instancetype)currentUser;
 
+- (void)signUpWithRegistration:(ORKTaskResult *_Nullable)registrationResult
+                 andCompletion:(_Nullable CMHUserAuthCompletion)block;
+
 /**
  *  Creates a new user account and logs the current user into that account.
  *  Fails with an error if the email has an existing account.
