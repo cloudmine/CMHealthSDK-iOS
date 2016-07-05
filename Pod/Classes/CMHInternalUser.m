@@ -25,6 +25,8 @@
     newUser.profileId = newUser.profile.objectId;
     newUser.profile.familyName = regData.familyName;
     newUser.profile.givenName = regData.givenName;
+    newUser.profile.gender = regData.gender;
+    newUser.profile.dateOfBirth = regData.birthdate;
 
     [CMStore defaultStore].user = newUser;
 

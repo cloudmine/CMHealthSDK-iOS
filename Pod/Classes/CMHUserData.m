@@ -12,6 +12,8 @@
     self.email = profile.email;
     self.givenName = profile.givenName;
     self.familyName = profile.familyName;
+    self.gender = profile.gender;
+    self.dateOfBirth = profile.dateOfBirth;
 
     return self;
 }
