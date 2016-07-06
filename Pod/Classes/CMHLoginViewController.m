@@ -1,6 +1,7 @@
 #import "CMHLoginViewController.h"
 #import "CMHLoginStepViewController.h"
 #import "CMHAlerter.h"
+#import "CMHUser.h"
 
 static NSString *const _Nonnull CMHLoginTaskIdentifier = @"CMHLoginTask";
 static NSString *const _Nonnull CMHLoginStepIdentifier = @"CMHLoginStep";
@@ -93,7 +94,15 @@ static NSString *const _Nonnull CMHLoginStepIdentifier = @"CMHLoginStep";
 
     NSAssert(nil != email && nil != password, @"Login task should never return a nil email or password");
 
-    NSLog(@"%@, %@", email, password);
+    [CMHUser.currentUser loginWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+        if (nil == self.loginDelegate || NO == [self.loginDelegate respondsToSelector:@selector(loginViewController:didLogin:error:)]) {
+            return;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.loginDelegate loginViewController:self didLogin:(nil == error) error:error];
+        });
+    }];
 }
 
 @end

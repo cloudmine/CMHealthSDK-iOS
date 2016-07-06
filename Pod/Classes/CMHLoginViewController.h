@@ -5,6 +5,7 @@
 @protocol CMHLoginViewControllerDelegate <NSObject>
 @optional
 - (void)loginViewControllerCancelled:(CMHLoginViewController *_Nonnull)viewController;
+- (void)loginViewController:(CMHLoginViewController *_Nonnull)viewController didLogin:(BOOL)success error:(NSError *_Nullable)error;
 @end
 
 @interface CMHLoginViewController : ORKTaskViewController
