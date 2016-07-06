@@ -1,5 +1,6 @@
 #import "CMHLoginViewController.h"
 #import "CMHLoginStepViewController.h"
+#import "CMHAlerter.h"
 
 @interface CMHLoginViewController ()<ORKTaskViewControllerDelegate>
 
@@ -50,7 +51,10 @@
 - (void)taskViewController:(ORKTaskViewController *)taskViewController didFinishWithReason:(ORKTaskViewControllerFinishReason)reason error:(NSError *)error
 {
     if (nil != error) {
-        // TODO: Handle errors
+        NSString *message = [NSString localizedStringWithFormat:@"Error collecting authentication data; %@", error.localizedDescription];
+        [CMHAlerter displayAlertWithTitle:NSLocalizedString(@"Error", nil)
+                               andMessage:message
+                         inViewController:self];
         return;
     }
 
