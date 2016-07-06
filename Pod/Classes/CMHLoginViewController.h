@@ -10,13 +10,13 @@
 
 @interface CMHLoginViewController : ORKTaskViewController
 
-- (_Nonnull instancetype)initWithTitle:(NSString *_Nullable)title text:(NSString *_Nullable)text delegate:(id<CMHLoginViewControllerDelegate>)delegate;
+- (_Nonnull instancetype)initWithTitle:(NSString *_Nullable)title text:(NSString *_Nullable)text delegate:(_Nullable id<CMHLoginViewControllerDelegate>)delegate;
 
 @property (weak, nonatomic, nullable) id<CMHLoginViewControllerDelegate> loginDelegate;
 
-- (instancetype)initWithTask:(nullable id<ORKTask>)task taskRunUUID:(nullable NSUUID *)taskRunUUID NS_UNAVAILABLE;
-- (instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
-- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
-- (instancetype)initWithTask:(nullable id<ORKTask>)task restorationData:(nullable NSData *)data delegate:(nullable id<ORKTaskViewControllerDelegate>)delegate NS_UNAVAILABLE;
+- (_Null_unspecified instancetype)initWithTask:(nullable id<ORKTask>)task taskRunUUID:(nullable NSUUID *)taskRunUUID NS_UNAVAILABLE;
+- (_Null_unspecified instancetype)initWithCoder:(NSCoder *_Null_unspecified)aDecoder NS_UNAVAILABLE;
+- (_Null_unspecified instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
+- (_Null_unspecified instancetype)initWithTask:(nullable id<ORKTask>)task restorationData:(nullable NSData *)data delegate:(nullable id<ORKTaskViewControllerDelegate>)delegate NS_UNAVAILABLE;
 
 @end
