@@ -2,8 +2,10 @@
 #import "CMHLoginStepViewController.h"
 #import "CMHAlerter.h"
 
-@interface CMHLoginViewController ()<ORKTaskViewControllerDelegate>
+static NSString *const _Nonnull CMHLoginTaskIdentifier = @"CMHLoginTask";
+static NSString *const _Nonnull CMHLoginStepIdentifier = @"CMHLoginStep";
 
+@interface CMHLoginViewController ()<ORKTaskViewControllerDelegate>
 @end
 
 @implementation CMHLoginViewController
@@ -12,12 +14,12 @@
 
 - (_Nonnull instancetype)initWithTitle:(NSString *_Nullable)title text:(NSString *_Nullable)text delegate:(id<CMHLoginViewControllerDelegate>)delegate
 {
-    ORKLoginStep *loginStep = [[ORKLoginStep alloc] initWithIdentifier:@"CMHLoginStep"
+    ORKLoginStep *loginStep = [[ORKLoginStep alloc] initWithIdentifier:CMHLoginStepIdentifier
                                                                  title:title
                                                                   text:text
                                               loginViewControllerClass:[CMHLoginStepViewController class]];
 
-    ORKOrderedTask *loginTask = [[ORKOrderedTask alloc] initWithIdentifier:@"CMHLoginTask" steps:@[loginStep]];
+    ORKOrderedTask *loginTask = [[ORKOrderedTask alloc] initWithIdentifier:CMHLoginTaskIdentifier steps:@[loginStep]];
 
     self = [super initWithTask:loginTask taskRunUUID:nil];
     if (nil == self) return nil;
@@ -85,7 +87,13 @@
 
 - (void)handleLogin
 {
-    NSLog(@"User selected Login");
+    ORKCollectionResult *loginResult = [self.result resultForIdentifier:CMHLoginStepIdentifier];
+    NSString *email = ((ORKTextQuestionResult *)[loginResult resultForIdentifier:ORKLoginFormItemIdentifierEmail]).textAnswer;
+    NSString *password = ((ORKTextQuestionResult *)[loginResult resultForIdentifier:ORKLoginFormItemIdentifierPassword]).textAnswer;
+
+    NSAssert(nil != email && nil != password, @"Login task should never return a nil email or password");
+
+    NSLog(@"%@, %@", email, password);
 }
 
 @end
