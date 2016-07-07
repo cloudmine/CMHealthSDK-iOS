@@ -30,11 +30,9 @@ PODS:
     - CareKit (~> 1.0.1)
     - CloudMine (~> 1.7)
     - ResearchKit (~> 1.3.1)
-    - TPKeyboardAvoiding (~> 1.2)
   - Expecta (1.0.5)
   - ResearchKit (1.3.1)
   - Specta (1.0.5)
-  - TPKeyboardAvoiding (1.3)
 
 DEPENDENCIES:
   - CMHealth (from `../`)
@@ -49,11 +47,10 @@ SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   CareKit: 08e840f45807c7771708b731649e082bdb6eea2d
   CloudMine: ee5b3643fb1a2f4603de6428aea1252ac928d98d
-  CMHealth: 6e0fcc70d8c3e2132c4376db53be066afedef3b9
+  CMHealth: 82ca048f09c29055b859ba32aaf84e1cca6ecc4d
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: badba0340dd71d1cbab4789a0bf01b26022b8f94
   Specta: ac94d110b865115fe60ff2c6d7281053c6f8e8a2
-  TPKeyboardAvoiding: a5138f318c06fb3e151f886e18ce4a72695d9cbe
 
 PODFILE CHECKSUM: 463ab4123b10a4a85a4bf7bf72996038de318e67
 
