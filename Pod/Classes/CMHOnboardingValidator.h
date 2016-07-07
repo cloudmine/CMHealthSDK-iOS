@@ -3,7 +3,7 @@
 
 @class CMHRegistrationData;
 
-@interface CMHConsentValidator : NSObject
+@interface CMHOnboardingValidator : NSObject
 
 + (ORKConsentSignature *_Nullable)signatureFromConsentResults:(ORKTaskResult *_Nullable)consentResult      error:(NSError * __autoreleasing _Nullable * _Nullable)errorPtr;
 + (CMHRegistrationData *_Nullable)dataFromRegistrationResults:(ORKTaskResult *_Nullable)registrationResult error:(NSError * __autoreleasing _Nullable * _Nullable)errorPtr;

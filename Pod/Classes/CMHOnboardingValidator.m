@@ -1,8 +1,8 @@
-#import "CMHConsentValidator.h"
+#import "CMHOnboardingValidator.h"
 #import "CMHErrorUtilities.h"
 #import "CMHRegistrationData.h"
 
-@implementation CMHConsentValidator
+@implementation CMHOnboardingValidator
 
 + (ORKConsentSignature *_Nullable)signatureFromConsentResults:(ORKTaskResult *_Nullable)consentResult error:(NSError * __autoreleasing *)errorPtr
 {
@@ -44,7 +44,7 @@
         return nil;
     }
 
-    CMHRegistrationData *regData = [CMHConsentValidator registrationDataInResults:registrationResult.results];
+    CMHRegistrationData *regData = [CMHOnboardingValidator registrationDataInResults:registrationResult.results];
 
     if (nil == regData) {
         *errorPtr = [CMHErrorUtilities errorWithCode:CMHErrorUserMissingRegistration

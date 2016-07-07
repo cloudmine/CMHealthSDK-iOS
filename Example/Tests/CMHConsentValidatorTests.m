@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <CMHealth/CMHealth.h>
-#import <CMHealth/CMHConsentValidator.h>
+#import <CMHealth/CMHOnboardingValidator.h>
 
 @interface CMHConsentValidatorTestFactory : NSObject
 + (ORKConsentSignatureResult *)validSignatureResult;
@@ -37,7 +37,7 @@ describe(@"CMHConsentValidator", ^{
     it(@"should produce an error for a nil consent task", ^{
         NSError *error = nil;
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:nil error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:nil error:&error];
 
         expect(signature).to.beNil();
         expect(error).notTo.beNil();
@@ -49,7 +49,7 @@ describe(@"CMHConsentValidator", ^{
 
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:taskResult error:&error];
 
         expect(signature).to.beNil();
         expect(error).notTo.beNil();
@@ -66,7 +66,7 @@ describe(@"CMHConsentValidator", ^{
 
         taskResult.results = @[signatureResult];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:taskResult error:&error];
 
         expect(signature).to.beNil();
         expect(error).notTo.beNil();
@@ -84,7 +84,7 @@ describe(@"CMHConsentValidator", ^{
 
         taskResult.results = @[signatureResult];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:taskResult error:&error];
 
         expect(signature).notTo.beNil();
         expect(error).to.beNil();
@@ -100,7 +100,7 @@ describe(@"CMHConsentValidator", ^{
 
         taskResult.results = @[signatureResult];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:taskResult error:&error];
 
         expect(signature).to.beNil();
         expect(error).notTo.beNil();
@@ -114,7 +114,7 @@ describe(@"CMHConsentValidator", ^{
         ORKConsentSignatureResult *signatureResult = CMHConsentValidatorTestFactory.validSignatureResult;
         taskResult.results = @[signatureResult];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:taskResult error:&error];
 
         expect(error).to.beNil();
         expect(signature).to.equal(signatureResult.signature);
@@ -133,7 +133,7 @@ describe(@"CMHConsentValidator", ^{
         secondResult.results = @[finalResult];
         topResult.results = @[firstResult, secondResult];
 
-        ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:topResult error:&error];
+        ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:topResult error:&error];
 
         expect(error).to.beNil();
         expect(signature).to.equal([(ORKConsentSignatureResult *)[finalResult.results objectAtIndex:1] signature]);

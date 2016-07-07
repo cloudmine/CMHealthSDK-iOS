@@ -4,7 +4,7 @@
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
 #import "ORKResult+CMHealth.h"
-#import "CMHConsentValidator.h"
+#import "CMHOnboardingValidator.h"
 #import "CMHConsent_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHConstants_internal.h"
@@ -46,7 +46,7 @@
     self.userData = nil;
     NSError *regError = nil;
 
-    CMHRegistrationData *regData = [CMHConsentValidator dataFromRegistrationResults:registrationResult error:&regError];
+    CMHRegistrationData *regData = [CMHOnboardingValidator dataFromRegistrationResults:registrationResult error:&regError];
 
     if (nil != regError) {
         if (nil != block) {
@@ -106,7 +106,7 @@
 - (void)uploadUserConsent:(ORKTaskResult *)consentResult forStudyWithDescriptor:(NSString *)descriptor andCompletion:(CMHUploadConsentCompletion)block
 {
     NSError *consentError = nil;
-    ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:consentResult error:&consentError];
+    ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:consentResult error:&consentError];
 
     if (nil != consentError) {
         if (nil != block) {
