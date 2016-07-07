@@ -73,7 +73,7 @@ describe(@"CMHConsentValidator", ^{
         expect(error.code).to.equal(CMHErrorUserDidNotConsent);
     });
 
-    it(@"should produce an error if the family and given name are not included", ^{
+    it(@"should find a valid signature, even if the family and given name are not included", ^{
         NSError *error = nil;
 
         ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithTaskIdentifier:@"CMHTestIdentifier" taskRunUUID:[NSUUID new] outputDirectory:nil];
@@ -86,9 +86,8 @@ describe(@"CMHConsentValidator", ^{
 
         ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:taskResult error:&error];
 
-        expect(signature).to.beNil();
-        expect(error).notTo.beNil();
-        expect(error.code).to.equal(CMHErrorUserDidNotProvideName);
+        expect(signature).notTo.beNil();
+        expect(error).to.beNil();
     });
 
     it(@"should produce an error if the signature image is not included", ^{
