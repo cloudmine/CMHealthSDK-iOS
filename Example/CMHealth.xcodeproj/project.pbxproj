@@ -28,10 +28,11 @@
 		B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */; };
 		B447ED611C9220E200DC6208 /* CMHResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED601C9220E200DC6208 /* CMHResultTests.m */; };
 		B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */; };
-		B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED651C92710400DC6208 /* CMHConsentTests.m */; };
+		B447ED661C92710400DC6208 /* CMHOnboardingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED651C92710400DC6208 /* CMHOnboardingTests.m */; };
 		B447ED681C98755500DC6208 /* Test-Consent-PDF.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */; };
 		B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */; };
 		B4508D371CA452A300A95BC2 /* CMHBundleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4508D361CA452A300A95BC2 /* CMHBundleTests.m */; };
+		B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */; };
 		CCB9C20EB82A466AF455F60A /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACFFEE579378187005AF449 /* Pods_CMHealth_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -82,11 +83,12 @@
 		B447ED601C9220E200DC6208 /* CMHResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHResultTests.m; sourceTree = "<group>"; };
 		B447ED621C926FC100DC6208 /* CMHWrapperTestFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHWrapperTestFactory.h; sourceTree = "<group>"; };
 		B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHWrapperTestFactory.m; sourceTree = "<group>"; };
-		B447ED651C92710400DC6208 /* CMHConsentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHConsentTests.m; sourceTree = "<group>"; };
+		B447ED651C92710400DC6208 /* CMHOnboardingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHOnboardingTests.m; sourceTree = "<group>"; };
 		B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Test-Consent-PDF.pdf"; sourceTree = "<group>"; };
 		B447ED691C98A01D00DC6208 /* CMHTestCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHTestCleaner.h; sourceTree = "<group>"; };
 		B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHTestCleaner.m; sourceTree = "<group>"; };
 		B4508D361CA452A300A95BC2 /* CMHBundleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHBundleTests.m; sourceTree = "<group>"; };
+		B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHRegistrationDataTests.m; sourceTree = "<group>"; };
 		BA608B4FEDC37041B69ACBD6 /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -197,7 +199,8 @@
 				B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */,
 				B447ED5E1C920B3A00DC6208 /* CMHCocoaCategoryTests.m */,
 				B447ED601C9220E200DC6208 /* CMHResultTests.m */,
-				B447ED651C92710400DC6208 /* CMHConsentTests.m */,
+				B447ED651C92710400DC6208 /* CMHOnboardingTests.m */,
+				B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */,
 				B4508D361CA452A300A95BC2 /* CMHBundleTests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
@@ -438,7 +441,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */,
-				B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */,
+				B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */,
+				B447ED661C92710400DC6208 /* CMHOnboardingTests.m in Sources */,
 				B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */,
 				B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */,
 				B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */,
