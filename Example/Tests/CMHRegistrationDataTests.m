@@ -34,6 +34,30 @@ describe(@"CMHRegistrationData", ^{
         expect(regData.familyName).to.equal(@"Doe");
     });
 
+    it(@"should return nil for a registration result without an email", ^{
+        ORKTextQuestionResult *passwordResult = [[ORKTextQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierPassword];
+        passwordResult.textAnswer = @"testpassword123";
+
+        ORKCollectionResult *regResult = [[ORKCollectionResult alloc] initWithIdentifier:@"CMHRegistrationTestResult"];
+        regResult.results = @[passwordResult];
+
+        CMHRegistrationData *regData = [CMHRegistrationData registrationDataFromResult:regResult];
+
+        expect(regData).to.beNil();
+    });
+
+    it(@"should return nil for a registration result without a password", ^{
+        ORKTextQuestionResult *emailResult = [[ORKTextQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierEmail];
+        emailResult.textAnswer = @"test@test.com";
+
+        ORKCollectionResult *regResult = [[ORKCollectionResult alloc] initWithIdentifier:@"CMHRegistrationTestResult"];
+        regResult.results = @[emailResult];
+
+        CMHRegistrationData *regData = [CMHRegistrationData registrationDataFromResult:regResult];
+
+        expect(regData).to.beNil();
+    });
+
     it(@"should extract the user's email and password from registration results", ^{
         ORKTextQuestionResult *emailResult = [[ORKTextQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierEmail];
         emailResult.textAnswer = @"test@test.com";

@@ -6,9 +6,9 @@
 static NSString *const TestDescriptor = @"CMHTestDescriptor";
 static NSString *const TestFileName   = @"CMHTestFileName";
 
-SpecBegin(CMHOnboarding)
+SpecBegin(CMHConsent)
 
-describe(@"CMHOnboarding", ^{
+describe(@"CMHConsent", ^{
     it(@"should retain the result, filename, and descriptor", ^{
         ORKTaskResult *taskResult = CMHWrapperTestFactory.taskResult;
         CMHConsent *consent = [[CMHConsent alloc] initWithConsentResult:taskResult
