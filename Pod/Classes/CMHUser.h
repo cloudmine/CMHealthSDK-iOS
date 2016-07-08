@@ -24,6 +24,24 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  */
 + (_Nonnull instancetype)currentUser;
 
+/**
+ *  Creates a new user account and logs the current user into that account.
+ *  User data is extracted from the result of an `ORKRegistrationStep` that
+ *  must be present in the result hierarchy of the first parameter.
+ *
+ *  If included in the registration step, the user's name, gender, and birthdate
+ *  are extracted and included on their profile. Will fail with an error
+ *  if the email provide has and existing account.
+ *
+ *  @warning The behavior of this method if the current user is logged in should
+ *  be considered undefined. Ensure the current user is logged out before calling 
+ *  this method.
+ *
+ *  @param registrationResult The task result for user onboarding that must include
+ *  an `ORKRegistrationStep`.
+ *  @param block Executed when the account is created and the user is logged in
+ *  or fails with an error.
+ */
 - (void)signUpWithRegistration:(ORKTaskResult *_Nullable)registrationResult
                  andCompletion:(_Nullable CMHUserAuthCompletion)block;
 
@@ -32,7 +50,8 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  *  Fails with an error if the email has an existing account.
  *
  *  @warning The behavior of this method if the current user is logged in should
- *  be considered undefined. Log the current user out before calling this method.
+ *  be considered undefined. Ensure the current user is logged out before calling
+ *  this method.
  *
  *  @param email The email with which to create the account. Must not be `nil`.
  *  @param password The password to assign to this user. Must not be `nil`.
