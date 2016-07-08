@@ -93,7 +93,6 @@ schedule. These activities can be easily pushed to or fetched from CloudMine.
     }];
 }
 
-
 // FETCH
 
 - (void)fetchAndLoadActivities
@@ -158,7 +157,7 @@ enabling you to collect important patient data across logins and devices.
 }
 ```
 
-## Authentication
+## Registration
 
 The SDK provides a user abstraction for managing your participant accounts, with straightforward
 methods for user authentication.
@@ -176,68 +175,72 @@ methods for user authentication.
 }];
 ```
 
-The SDK also provides [preconfigured screens](#authentication-screens)
-for participant authentication.
-
-#### Authentication Screens
-
-For convenience, the SDK provides preconfigured view controllers for user sign up and login.
-These screens can be presented modally and handle the collection and validation of user
-email and password. Data is returned via delegation.
-
-![Login Screenshot](CMHealth-SDK-Login-Screen.png)
+The SDK also provides a convenient way to complete user signup if your app uses a standard
+ResearchKit `ORKRegistrationStep`. Simply pass the `ORKTaskResult`
+to the `signupWithRegistration:andCompletion:` method. The SDK ensures
+a registration result is present in the results hierarchy and extracts the relevant
+participant data before registering the user's account.
 
 ```Objective-C
-#import "MyViewController.h"
 #import <CMHealth/CMHealth.h>
 
-@interface MyViewController () <CMHAuthViewDelegate>
-@end
+#pragma mark ORKTaskViewControllerDelegate
 
-@implementation MyViewController
+- (void)taskViewController:(ORKTaskViewController *)taskViewController didFinishWithReason:(ORKTaskViewControllerFinishReason)reason error:(NSError *)error
+{
+    if (nil != error) {
+        // Handle Error
+        return;
+    }
+
+    if (reason == ORKTaskViewControllerFinishReasonCompleted) {
+        [CMHUser.currentUser signUpWithRegistration:taskViewController.result andCompletion:^(NSError * _Nullable signupError) {
+            if (nil == signupError) {
+                // Handle Error
+                return;
+            }
+
+            // The user is now signed up
+        }];
+    }
+
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+```
+
+The SDK includes a preconfigured ResearchKit `ORKLoginStepViewController` sublcass
+to handle login and password reset for existing users. The view controller can simply
+be instantiated and presented; the result is returned via a delegate callback.
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
 - (IBAction)loginButtonDidPress:(UIButton *)sender
 {
-    CMHAuthViewController *loginViewController = [CMHAuthViewController loginViewController];
-    loginViewController.delegate = self;
-    [self presentViewController:loginViewController animated:YES completion:nil];
+    CMHLoginViewController *loginVC = [[CMHLoginViewController alloc] initWithTitle:NSLocalizedString(@"Log In", nil)
+                                                                               text:NSLocalizedString(@"Please log in to you account to store and access your research data.", nil)
+                                                                           delegate:self];
+    loginVC.view.tintColor = [UIColor greenColor];
+
+    [self presentViewController:loginVC animated:YES completion:nil];
 }
 
-#pragma mark CMHAuthViewDelegate
+#pragma mark CMHLoginViewControllerDelegate
 
-- (void)authViewCancelledType:(CMHAuthType)authType
+- (void)loginViewControllerCancelled:(CMHLoginViewController *)viewController
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    // User cancelled login process
 }
 
-- (void)authViewOfType:(CMHAuthType)authType didSubmitWithEmail:(NSString *)email andPassword:(NSString *)password
+- (void)loginViewController:(CMHLoginViewController *)viewController didLogin:(BOOL)success error:(NSError *)error
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-
-    switch (authType) {
-        case CMHAuthTypeLogin:
-            [self loginWithEmail:email andPassword:password];
-            break;
-        case CMHAuthTypeSignup:
-            [self signupWithEmail:email andPassword:password];
-            break;
-        default:
-            break;
+    if (!success) {
+        // Handle Error
+        return;
     }
+
+    // The user is now logged in
 }
-
-#pragma mark Private
-
-- (void)signupWithEmail:(NSString *)email andPassword:(NSString *)password
-{
-    // Sign user up
-}
-
-- (void)loginWithEmail:(NSString *)email andPassword:(NSString *a)password
-{
-    // Log user in
-}
-
-@end
 ```
 
 ## Consent
