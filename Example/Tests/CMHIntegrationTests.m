@@ -8,6 +8,58 @@ static NSString *const TestPassword   = @"test-paSsword1!";
 static NSString *const TestGivenName  = @"John";
 static NSString *const TestFamilyName = @"Doe";
 
+@interface CMHIntegrationTestFactory : NSObject
++ (ORKTaskResult *)registrationTaskResultWithEmail:(NSString *)emailAddress;
+@end
+
+@implementation CMHIntegrationTestFactory
+
++ (NSString *)genderString
+{
+    return @"female";
+}
+
++ (NSDate *)dateOfBirth
+{
+    return [NSDate dateWithTimeIntervalSince1970:30000];
+}
+
++ (ORKCollectionResult *)registrationResultWithEmail:(NSString *)emailAddress
+{
+    ORKTextQuestionResult *emailResult = [[ORKTextQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierEmail];
+    emailResult.textAnswer = emailAddress;
+
+    ORKTextQuestionResult *passwordResult = [[ORKTextQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierPassword];
+    passwordResult.textAnswer = TestPassword;
+
+    ORKChoiceQuestionResult *genderResult = [[ORKChoiceQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierGender];
+    genderResult.choiceAnswers = @[self.genderString];
+
+    ORKDateQuestionResult *dobResult = [[ORKDateQuestionResult alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierDOB];
+    dobResult.dateAnswer = self.dateOfBirth;
+
+    ORKCollectionResult *regResult = [[ORKCollectionResult alloc] initWithIdentifier:@"CMHRegistrationTestResult"];
+    regResult.results = @[emailResult, passwordResult, genderResult, dobResult];
+
+    return regResult;
+}
+
++ (ORKTaskResult *)registrationTaskResultWithEmail:(NSString *)emailAddress
+{
+    ORKTaskResult *topResult = [[ORKTaskResult alloc] initWithIdentifier:@"CMHTestIdentifier"];
+    ORKTaskResult *firstResult = [[ORKTaskResult alloc] initWithIdentifier:@"CMHTestIdentifier1"];
+    ORKTaskResult *secondResult = [[ORKTaskResult alloc] initWithIdentifier:@"CMHTestIdentifier2"];
+    ORKStepResult *finalResult = [[ORKStepResult alloc] initWithStepIdentifier:@"CMHTestStepIdentifier" results:nil];
+
+    finalResult.results = @[ORKTextQuestionResult.new, [self registrationResultWithEmail:emailAddress], ORKTextQuestionResult.new];
+    secondResult.results = @[finalResult];
+    topResult.results = @[firstResult, secondResult];
+
+    return topResult;
+}
+
+@end
+
 SpecBegin(CMHealthIntegration)
 
 describe(@"CMHealthIntegration", ^{
@@ -43,14 +95,18 @@ describe(@"CMHealthIntegration", ^{
         NSString *unixTime = [NSNumber numberWithInt:(int)[NSDate new].timeIntervalSince1970].stringValue;
         NSString *emailAddress = [NSString stringWithFormat:@"cmhealth+%@@cloudmineinc.com", unixTime];
 
+        ORKTaskResult *regResult = [CMHIntegrationTestFactory registrationTaskResultWithEmail:emailAddress];
+
         waitUntil(^(DoneCallback done) {
-            [[CMHUser currentUser] signUpWithEmail:emailAddress password:TestPassword andCompletion:^(NSError *error) {
+            [[CMHUser currentUser] signUpWithRegistration:regResult andCompletion:^(NSError *error) {
                 done();
             }];
         });
 
         expect([CMHUser currentUser].isLoggedIn).to.equal(YES);
         expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
+        expect([CMHUser currentUser].userData.gender).to.equal(CMHIntegrationTestFactory.genderString);
+        expect([CMHUser currentUser].userData.dateOfBirth).to.equal(CMHIntegrationTestFactory.dateOfBirth);
     });
 
     it(@"should upload a user consent and consent PDF", ^{
