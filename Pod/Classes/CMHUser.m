@@ -4,11 +4,12 @@
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
 #import "ORKResult+CMHealth.h"
-#import "CMHConsentValidator.h"
+#import "CMHOnboardingValidator.h"
 #import "CMHConsent_internal.h"
 #import "CMHErrorUtilities.h"
 #import "CMHConstants_internal.h"
 #import "CMHInternalProfile.h"
+#import "CMHRegistrationData.h"
 
 @interface CMHUser ()
 @property (nonatomic, nullable, readwrite) CMHUserData *userData;
@@ -40,11 +41,48 @@
     return _sharedInstance;
 }
 
+- (void)signUpWithRegistration:(ORKTaskResult *_Nullable)registrationResult andCompletion:(_Nullable CMHUserAuthCompletion)block
+{
+    self.userData = nil;
+    NSError *regError = nil;
+
+    CMHRegistrationData *regData = [CMHOnboardingValidator dataFromRegistrationResults:registrationResult error:&regError];
+
+    if (nil != regError) {
+        if (nil != block) {
+            block(regError);
+        }
+        return;
+    }
+
+    [CMHInternalUser signupWithRegistration:regData andCompletion:^(NSError * _Nullable error) {
+        if (nil == block) {
+            return;
+        }
+
+        if (nil != error) {
+            block(error);
+            return;
+        }
+
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
+
+        block(nil);
+    }];
+}
+
 - (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
 {
     self.userData = nil;
 
-    [CMHInternalUser signUpWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+    CMHRegistrationData *basicRegData = [[CMHRegistrationData alloc] initWithEmail:email
+                                                                          password:password
+                                                                            gender:nil
+                                                                         birthdate:nil
+                                                                         givenName:nil
+                                                                        familyName:nil];
+
+    [CMHInternalUser signupWithRegistration:basicRegData andCompletion:^(NSError * _Nullable error) {
         if (nil != error) {
             if (nil != block) {
                 block(error);
@@ -68,7 +106,7 @@
 - (void)uploadUserConsent:(ORKTaskResult *)consentResult forStudyWithDescriptor:(NSString *)descriptor andCompletion:(CMHUploadConsentCompletion)block
 {
     NSError *consentError = nil;
-    ORKConsentSignature *signature = [CMHConsentValidator signatureFromConsentResults:consentResult error:&consentError];
+    ORKConsentSignature *signature = [CMHOnboardingValidator signatureFromConsentResults:consentResult error:&consentError];
 
     if (nil != consentError) {
         if (nil != block) {

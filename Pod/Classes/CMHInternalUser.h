@@ -2,10 +2,11 @@
 #import "CMHUser.h"
 
 @class CMHUserData;
+@class CMHRegistrationData;
 
 @interface CMHInternalUser : CMUser
 
-+ (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block;
++ (void)signupWithRegistration:(CMHRegistrationData *)regData andCompletion:(CMHUserAuthCompletion)block;
 + (void)loginAndLoadProfileWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block;
 
 - (void)loadProfileWithCompletion:(CMHUserAuthCompletion)block;

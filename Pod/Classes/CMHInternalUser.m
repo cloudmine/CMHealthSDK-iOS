@@ -1,7 +1,8 @@
 #import "CMHInternalUser.h"
-#import "CMHInternalProfile.h"
-#import "CMHErrorUtilities.h"
 #import "CMHUserData_internal.h"
+#import "CMHInternalProfile.h"
+#import "CMHRegistrationData.h"
+#import "CMHErrorUtilities.h"
 
 @interface CMHInternalUser ()
 @property (nonatomic, nullable) CMHInternalProfile *profile;
@@ -16,12 +17,17 @@
 
 #pragma mark Public
 
-+ (void)signUpWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
++ (void)signupWithRegistration:(CMHRegistrationData *)regData andCompletion:(CMHUserAuthCompletion)block
 {
-    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:email andPassword:password];
+    CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:regData.email andPassword:regData.password];
     newUser.profile = [CMHInternalProfile new];
-    newUser.profile.email = email;
+    newUser.profile.email = regData.email;
     newUser.profileId = newUser.profile.objectId;
+    newUser.profile.familyName = regData.familyName;
+    newUser.profile.givenName = regData.givenName;
+    newUser.profile.gender = regData.gender;
+    newUser.profile.dateOfBirth = regData.birthdate;
+
     [CMStore defaultStore].user = newUser;
 
     [newUser createAccountWithCallback:^(CMUserAccountResult createResultCode, NSArray *messages) {

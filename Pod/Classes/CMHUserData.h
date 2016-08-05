@@ -14,7 +14,7 @@
 @property (nonatomic, nonnull, readonly) NSString *email;
 
 /**
- *  Family name, if availble, or `nil`.
+ *  Family name, if available, or `nil`.
  */
 @property (nonatomic, nullable, readonly) NSString *familyName;
 
@@ -22,5 +22,15 @@
  *  Given name, if available, or `nil`.
  */
 @property (nonatomic, nullable, readonly) NSString *givenName;
+
+/**
+ *  User's gender as a string, if available, or `nil`.
+ */
+@property (nonatomic, nullable, readonly) NSString *gender;
+
+/**
+ *  User's date of birth, if available, or `nil`.
+ */
+@property (nonatomic, nullable, readonly) NSDate *dateOfBirth;
 
 @end

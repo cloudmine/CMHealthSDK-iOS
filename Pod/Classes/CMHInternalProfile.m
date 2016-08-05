@@ -10,6 +10,8 @@
     self.email = [aDecoder decodeObjectForKey:@"email"];
     self.givenName = [aDecoder decodeObjectForKey:@"givenName"];
     self.familyName = [aDecoder decodeObjectForKey:@"familyName"];
+    self.gender = [aDecoder decodeObjectForKey:@"gender"];
+    self.dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
 
     return self;
 }
@@ -27,6 +29,13 @@
         [aCoder encodeObject:self.familyName forKey:@"familyName"];
     }
 
+    if (nil != self.gender) {
+        [aCoder encodeObject:self.gender forKey:@"gender"];
+    }
+
+    if (nil != self.dateOfBirth) {
+        [aCoder encodeObject:self.dateOfBirth forKey:@"dateOfBirth"];
+    }
 }
 
 @end

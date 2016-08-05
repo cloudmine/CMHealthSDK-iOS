@@ -1,3 +1,16 @@
+0.5.0 (July 8, 2016)
+====================
+A pre-Beta release of CMHealth that adds a convenient way to authenticate participants
+using ResearchKit's built in Registration APIs. It is now possible to register a new
+user up by simply supplying an `ORKTaskResult` that includes results from an `ORKRegistrationStep`.
+Additionally, the SDK now includes a preconfigured view controller which wraps around
+ResearchKit's `ORKLoginStepViewController` and handles all aspects of login and password
+reset. The result is returned via delegate callback.
+
+The custom CMHealth sign up and login view controllers have been removed, being redundant.
+Developers can still opt to build custom registration and login experiences and authenticate
+participants by passing username and password to the SDK.
+
 0.4.0 (June 13, 2016)
 =====================
 A pre-Beta release of CMHealth with preliminary support for saving and fetching

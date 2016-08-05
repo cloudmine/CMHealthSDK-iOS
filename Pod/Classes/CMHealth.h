@@ -7,7 +7,7 @@
 #import "CMHUser.h"
 #import "ORKResult+CMHealth.h"
 #import "ORKConsentSection+CMHealth.h"
-#import "CMHAuthViewController.h"
+#import "CMHLoginViewController.h"
 #import "OCKCarePlanStore+CMHealth.h"
 #import "OCKCarePlanEvent+CMHealth.h"
 
