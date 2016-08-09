@@ -1,4 +1,4 @@
-0.5.0 (July 8, 2016)
+0.5.0 (August 9, 2016)
 ====================
 A pre-Beta release of CMHealth that adds a convenient way to authenticate participants
 using ResearchKit's built in Registration APIs. It is now possible to register a new
