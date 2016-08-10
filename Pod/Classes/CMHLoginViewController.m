@@ -88,7 +88,10 @@ static NSString *const _Nonnull CMHLoginStepIdentifier = @"CMHLoginStep";
 
 - (void)handleLogin
 {
-    ORKCollectionResult *loginResult = [self.result resultForIdentifier:CMHLoginStepIdentifier];
+    ORKResult *result = [self.result resultForIdentifier:CMHLoginStepIdentifier];
+    NSAssert([result isKindOfClass:[ORKCollectionResult class]], @"Expecting Login Step to be an ORKCollectionResult, but received %@ instead", [result class]);
+
+    ORKCollectionResult *loginResult = (ORKCollectionResult *)result;
     NSString *email = ((ORKTextQuestionResult *)[loginResult resultForIdentifier:ORKLoginFormItemIdentifierEmail]).textAnswer;
     NSString *password = ((ORKTextQuestionResult *)[loginResult resultForIdentifier:ORKLoginFormItemIdentifierPassword]).textAnswer;
 
