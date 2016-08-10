@@ -67,7 +67,7 @@
             continue;
         }
 
-        CMHRegistrationData *registrationData = [CMHRegistrationData registrationDataFromResult:aResult];
+        CMHRegistrationData *registrationData = [CMHRegistrationData registrationDataFromResult:(ORKCollectionResult *)aResult];
         if (nil != registrationData) {
             return registrationData;
         }
