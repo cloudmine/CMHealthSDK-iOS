@@ -4,6 +4,7 @@ use_frameworks!
 
 target 'CMHealth_Example' do
   pod 'CMHealth', :path => '../'
+  pod 'CareKit', :path => '../../carekit-beta-private'
   #pod "CareKit", "~> 1.0"
 
   target 'CMHealth_Tests' do
