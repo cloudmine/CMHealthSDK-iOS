@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
     'CMHealth' => ['Pod/Assets/*']
   }
 
-  s.dependency 'ResearchKit', '~> 1.3.1'
+  s.dependency 'ResearchKit', '~> 1.3'
   s.dependency 'CareKit', '~> 2.0.0'
   s.dependency 'CloudMine', '~> 1.7'
 end
