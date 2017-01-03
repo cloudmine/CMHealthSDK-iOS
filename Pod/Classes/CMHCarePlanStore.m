@@ -43,6 +43,32 @@
     _passDelegate = delegate;
 }
 
+#pragma MARK Overrides
+
+- (void)updateEvent:(OCKCarePlanEvent *)event
+         withResult:(OCKCarePlanEventResult *)result
+              state:(OCKCarePlanEventState)state
+         completion:(void (^)(BOOL, OCKCarePlanEvent * _Nullable, NSError * _Nullable))completion
+{
+    [super updateEvent:event withResult:result state:state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
+        // Pass results regardless of outcome
+        completion(success, event, error);
+        
+        if (!success) {
+            return;
+        }
+        
+        [event cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
+            if (nil == uploadStatus) {
+                NSLog(@"[CMHealth] Error uploading event: %@", error.localizedDescription);
+                return;
+            }
+            
+            NSLog(@"[CMHealth] Event uploaded with status: %@", uploadStatus);
+        }];
+    }];
+}
+
 #pragma MARK OCKCarePlanStoreDelegate
 
 - (void)carePlanStore:(OCKCarePlanStore *)store didReceiveUpdateOfEvent:(OCKCarePlanEvent *)event
@@ -50,15 +76,6 @@
     if (nil != _passDelegate && [_passDelegate respondsToSelector:@selector(carePlanStore:didReceiveUpdateOfEvent:)]) {
         [_passDelegate carePlanStore:store didReceiveUpdateOfEvent:event];
     }
-    
-    [event cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
-        if (nil == uploadStatus) {
-            NSLog(@"[CMHealth] Error uploading event: %@", error.localizedDescription);
-            return;
-        }
-        
-        NSLog(@"[CMHealth] Event uploaded with status: %@", uploadStatus);
-    }];
 }
 
 - (void)carePlanStoreActivityListDidChange:(OCKCarePlanStore *)store
