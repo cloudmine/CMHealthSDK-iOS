@@ -45,6 +45,50 @@
 
 #pragma MARK Overrides
 
+- (void)addActivity:(OCKCarePlanActivity *)activity completion:(void (^)(BOOL, NSError * _Nullable))completion
+{
+    [super addActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
+        completion(success, error);
+        
+        if (!success) {
+            return;
+        }
+        
+        // TODO: Queue update to activity
+    }];
+}
+
+- (void)setEndDate:(NSDateComponents *)endDate
+       forActivity:(OCKCarePlanActivity *)activity
+        completion:(void (^)(BOOL, OCKCarePlanActivity * _Nullable, NSError * _Nullable))completion
+{
+    [super setEndDate:endDate forActivity:activity completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+        
+        completion(success, activity, error);
+        
+        if (!success) {
+            return;
+        }
+        
+        // TODO: Queue update to activity
+    }];
+}
+
+- (void)removeActivity:(OCKCarePlanActivity *)activity
+            completion:(void (^)(BOOL, NSError * _Nullable))completion
+{
+    [super removeActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
+        
+        completion(success, error);
+        
+        if (!success) {
+            return;
+        }
+        
+        // TODO: Queue update to activity
+    }];
+}
+
 - (void)updateEvent:(OCKCarePlanEvent *)event
          withResult:(OCKCarePlanEventResult *)result
               state:(OCKCarePlanEventState)state
