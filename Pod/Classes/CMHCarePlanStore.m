@@ -2,6 +2,8 @@
 #import "OCKCarePlanEvent+CMHealth.h"
 #import "CMHCarePlanStore_internal.h"
 #import "CMHInternalUser.h"
+#import "CMHCareActivity.h"
+#import "CMHErrorUtilities.h"
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
@@ -67,7 +69,17 @@
             return;
         }
         
-        // TODO: Queue update to activity
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
+        
+        [cmhActivity saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
+            NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhActivity.objectId uploadResponse:response];
+            if (nil != saveError) {
+                NSLog(@"[CMHealth] Error uploading activity: %@", error.localizedDescription);
+                return;
+            }
+            
+            NSLog(@"[CMHealth] Activity uploaded with status: %@", response.uploadStatuses[cmhActivity.objectId]);
+        }];
     }];
 }
 
