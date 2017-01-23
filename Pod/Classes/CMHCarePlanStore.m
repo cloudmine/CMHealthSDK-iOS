@@ -1,15 +1,18 @@
 #import "CMHCarePlanStore.h"
 #import "OCKCarePlanEvent+CMHealth.h"
+#import "CMHCarePlanStore_internal.h"
+#import "CMHInternalUser.h"
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
 @property (nonatomic, weak) id<OCKCarePlanStoreDelegate> passDelegate;
+@property (nonatomic, nonnull) NSString *cmhIdentifier;
 
 @end
 
 @implementation CMHCarePlanStore
 
-#pragma MARK Initialization
+#pragma mark Initialization
 
 - (instancetype)initWithPersistenceDirectoryURL:(NSURL *)URL
 {
@@ -17,20 +20,30 @@
     return nil;
 }
 
-- (instancetype)_initWithPersistenceDirectoryURL:(NSURL *)URL
+- (instancetype)initWithPersistenceDirectoryURL:(NSURL *)URL andCMHIdentifier:(NSString *)cmhIdentifier
 {
-    return [super initWithPersistenceDirectoryURL:URL];
+    NSAssert(nil != cmhIdentifier, @"Cannot instantiate %@ without a CMHIdentifier- the object id of the user whose data is being stored", [self class]);
+    
+    self = [super initWithPersistenceDirectoryURL:URL];
+    if (nil == self) { return nil; }
+    
+    _cmhIdentifier = [cmhIdentifier copy];
+    
+    return self;
 }
 
 + (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL
 {
-    CMHCarePlanStore *store = [[CMHCarePlanStore alloc] _initWithPersistenceDirectoryURL:URL];
+    NSString *currentUserId = [CMHInternalUser currentUser].objectId;
+    NSAssert(nil != currentUserId, @"The patient must be signed in before accessing their %@", [self class]);
+    
+    CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:currentUserId];
     store.delegate = nil;
     
     return store;
 }
 
-#pragma MARK Setters/Getters
+#pragma mark Setters/Getters
 
 - (id<OCKCarePlanStoreDelegate>)delegate
 {
@@ -43,7 +56,7 @@
     _passDelegate = delegate;
 }
 
-#pragma MARK Overrides
+#pragma mark Overrides
 
 - (void)addActivity:(OCKCarePlanActivity *)activity completion:(void (^)(BOOL, NSError * _Nullable))completion
 {
@@ -113,7 +126,7 @@
     }];
 }
 
-#pragma MARK OCKCarePlanStoreDelegate
+#pragma mark OCKCarePlanStoreDelegate
 
 - (void)carePlanStore:(OCKCarePlanStore *)store didReceiveUpdateOfEvent:(OCKCarePlanEvent *)event
 {

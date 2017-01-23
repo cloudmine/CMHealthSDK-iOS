@@ -2,6 +2,6 @@
 
 @interface CMHCarePlanStore : OCKCarePlanStore
 
-+ (nonnull instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL;
++ (nonnull instancetype)storeWithPersistenceDirectoryURL:(nonnull NSURL *)URL;
 
 @end
