@@ -16,7 +16,7 @@ typedef void(^CMHCareSaveCompletion)(NSString *_Nullable uploadStatus, NSError *
  *  @warning the CareKit component of this SDK is experimental and subject to change. Your
  *  feedback is welcomed!
  */
-@property (nonatomic, nonnull, readonly) NSString *cmh_objectId;
+@property (nonatomic, nonnull, readonly) NSString *cmh_uniqueId;
 
 /**
  *  Save a representation of this `OCKCarePlanEvent` isntance to CloudMine.
@@ -30,6 +30,6 @@ typedef void(^CMHCareSaveCompletion)(NSString *_Nullable uploadStatus, NSError *
  *
  *  @param block Executes when the request completes successfully or fails with an error.
  */
-- (void)cmh_saveWithCompletion:(_Nullable CMHCareSaveCompletion)block;
+- (void)cmh_saveWithUserId:(NSString *_Nonnull)cmhIdentifier completion:(_Nullable CMHCareSaveCompletion)block;
 
 @end

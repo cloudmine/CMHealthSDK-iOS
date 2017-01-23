@@ -64,7 +64,7 @@
 
 - (void)carePlanStore:(OCKCarePlanStore *)store didReceiveUpdateOfEvent:(OCKCarePlanEvent *)event
 {
-    if ([event.cmh_objectId isEqualToString:self.event.cmh_objectId]) {
+    if ([event.cmh_uniqueId isEqualToString:self.event.cmh_uniqueId]) {
         dispatch_group_leave(self.updateGroup);
     } else {
         if (nil != self.holdDelegate && [self.holdDelegate respondsToSelector:@selector(carePlanStore:didReceiveUpdateOfEvent:)]) {

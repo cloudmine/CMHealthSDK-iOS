@@ -16,21 +16,24 @@
 
 # pragma mark Initializer
 
-- (instancetype)initWithEvent:(OCKCarePlanEvent *_Nonnull)event
+- (_Nonnull instancetype)initWithEvent:(OCKCarePlanEvent *_Nonnull)event andUserId:(NSString *_Nonnull)cmhIdentifier;
 {
     NSAssert(nil != event, @"%@ cannot be initialized without an event", [self class]);
+    NSAssert(nil != cmhIdentifier, @"%@ cannot be intitialized without a user object id", [self class]);
+    
+    NSString *cmhObjectId = [NSString stringWithFormat:@"%@-%@", event.cmh_uniqueId, cmhIdentifier];
 
-    self = [super initWithObjectId:event.cmh_objectId];
+    self = [super initWithObjectId:cmhObjectId];
     if (nil == self) return nil;
 
-    self.occurrenceIndexOfDay = event.occurrenceIndexOfDay;
-    self.numberOfDaysSinceStart = event.numberOfDaysSinceStart;
-    self.date = event.date;
-    self.activity = event.activity;
-    self.stateString = [CMHCareEvent stateStringFromState:event.state];
+    _occurrenceIndexOfDay = event.occurrenceIndexOfDay;
+    _numberOfDaysSinceStart = event.numberOfDaysSinceStart;
+    _date = event.date;
+    _activity = event.activity;
+    _stateString = [CMHCareEvent stateStringFromState:event.state];
 
     if (nil != event.result) {
-        self.resultWrapper = [[CMHCareEventResult alloc] initWithEventResult:event.result];
+        _resultWrapper = [[CMHCareEventResult alloc] initWithEventResult:event.result];
     }
 
     return self;

@@ -3,7 +3,7 @@
 
 @interface CMHCareEvent : CMObject
 
-- (_Nonnull instancetype)initWithEvent:(OCKCarePlanEvent *_Nonnull)event;
+- (_Nonnull instancetype)initWithEvent:(OCKCarePlanEvent *_Nonnull)event andUserId:(NSString *_Nonnull)cmhIdentifier;
 - (BOOL)isDataEquivalentOf:(OCKCarePlanEvent *_Nullable)event;
 
 @property (nonatomic, readonly) NSUInteger occurrenceIndexOfDay;

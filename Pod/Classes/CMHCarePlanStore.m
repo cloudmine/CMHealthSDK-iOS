@@ -115,7 +115,7 @@
             return;
         }
         
-        [event cmh_saveWithCompletion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
+        [event cmh_saveWithUserId:self.cmhIdentifier completion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
             if (nil == uploadStatus) {
                 NSLog(@"[CMHealth] Error uploading event: %@", error.localizedDescription);
                 return;

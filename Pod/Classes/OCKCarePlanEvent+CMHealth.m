@@ -5,15 +5,15 @@
 
 @implementation OCKCarePlanEvent (CMHealth)
 
-- (NSString *)cmh_objectId
+- (NSString *)cmh_uniqueId
 {
-    return [NSString stringWithFormat:@"%@-%li-%li-%@", self.activity.identifier,
-            (long)self.occurrenceIndexOfDay, (long)self.numberOfDaysSinceStart, [CMHInternalUser currentUser].objectId];
+    return [NSString stringWithFormat:@"%@-%li-%li", self.activity.identifier,
+            (long)self.occurrenceIndexOfDay, (long)self.numberOfDaysSinceStart];
 }
 
-- (void)cmh_saveWithCompletion:(_Nullable CMHCareSaveCompletion)block
+- (void)cmh_saveWithUserId:(NSString *)cmhIdentifier completion:(CMHCareSaveCompletion)block
 {
-    CMHCareEvent *cmEvent = [[CMHCareEvent alloc] initWithEvent:self];
+    CMHCareEvent *cmEvent = [[CMHCareEvent alloc] initWithEvent:self andUserId:cmhIdentifier];
 
     [cmEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
         if (nil == block) {
