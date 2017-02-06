@@ -4,4 +4,6 @@
 
 + (nonnull instancetype)storeWithPersistenceDirectoryURL:(nonnull NSURL *)URL;
 
+- (void)fetchEventsTest;
+
 @end
