@@ -14,6 +14,7 @@
 
 @property (nonatomic, nonnull) dispatch_group_t updateGroup;
 @property (nonatomic, nullable) CMHCareEvent *eventBeingUpdated;
+@property (nonatomic) BOOL isUpdatingActivity; // Can only do a flag because delegate callback does not include activity info; could drop 'real' activity updates
 
 @end
 
@@ -36,6 +37,7 @@
     
     _cmhIdentifier = [cmhIdentifier copy];
     _updateGroup = dispatch_group_create();
+    _isUpdatingActivity = NO;
     
     return self;
 }
@@ -93,6 +95,8 @@
                         NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
                         [updateErrors addObject:updateStoreError];
                         dispatch_group_leave(self.updateGroup);
+                        self.eventBeingUpdated = nil;
+                        continue;
                     }
                     
                     dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
@@ -150,7 +154,6 @@
                 if (nil != storeError) {
                     [updateErrors addObject:storeError];
                 }
-                
 //                if (nil != block) {
 //                    block(NO, [updateErrors copy]);
 //                }
@@ -164,6 +167,9 @@
                 if (nil == storeActivity) {
                     __block BOOL updateStoreSuccess = NO;
                     __block NSError *updateStoreError = nil;
+                    
+                    dispatch_group_enter(self.updateGroup);
+                    self.isUpdatingActivity = YES;
                     
                     cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
                         [super addActivity:wrappedActivity.ckActivity completion:^(BOOL success, NSError * _Nullable error) {
@@ -179,10 +185,16 @@
                         }
                         
                         NSLog(@"[CMHEALTH] Error adding fetched activity %@ to store: %@", wrappedActivity.ckActivity, updateStoreError.localizedDescription);
+                        dispatch_group_leave(self.updateGroup);
+                        self.isUpdatingActivity = NO;
                         continue; // Continue? Or totally stop? o_O
                     }
                     
+                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+                    
+                    self.isUpdatingActivity = NO;
                     NSLog(@"[CMHEALTH] Fetched and added new activity to store: %@", wrappedActivity.ckActivity);
+                    
                 } else if([wrappedActivity.ckActivity isEqual:storeActivity]) {
                     NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
                     continue;
@@ -317,6 +329,12 @@
 
 - (void)carePlanStoreActivityListDidChange:(OCKCarePlanStore *)store
 {
+    if (self.isUpdatingActivity) {
+        self.isUpdatingActivity = NO;
+        dispatch_group_leave(self.updateGroup);
+        return;
+    }
+    
     if (nil != _passDelegate && [_passDelegate respondsToSelector:@selector(carePlanStoreActivityListDidChange:)]) {
         [_passDelegate carePlanStoreActivityListDidChange:store];
     }
