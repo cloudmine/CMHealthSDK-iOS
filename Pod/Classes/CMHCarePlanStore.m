@@ -112,6 +112,100 @@
     }];
 }
 
+- (void)syncActivityTest
+{
+    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+
+    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareActivity class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+        if (nil != fetchError) {
+//            if (nil != block) {
+//                block(NO, @[fetchError]);
+//            }
+            return;
+        }
+        
+        NSArray <CMHCareActivity *> *wrappedActivities = response.objects;
+        
+        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        
+        dispatch_async(updateQueue, ^{
+            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
+            
+            __block BOOL storeSuccess = NO;
+            __block NSArray<OCKCarePlanActivity *> *storeActivities = nil;
+            __block NSError *storeError = nil;
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                [super activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
+                    storeSuccess = success;
+                    storeActivities = activities;
+                    storeError = error;
+                    
+                    done();
+                }];
+            });
+            
+            if (!storeSuccess) {
+                if (nil != storeError) {
+                    [updateErrors addObject:storeError];
+                }
+                
+//                if (nil != block) {
+//                    block(NO, [updateErrors copy]);
+//                }
+                
+                return;
+            }
+            
+            for (CMHCareActivity *wrappedActivity in wrappedActivities) {
+                OCKCarePlanActivity *storeActivity = [CMHCarePlanStore activityWithIdentifier:wrappedActivity.ckActivity.identifier from:storeActivities];
+                
+                if (nil == storeActivity) {
+                    __block BOOL updateStoreSuccess = NO;
+                    __block NSError *updateStoreError = nil;
+                    
+                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                        [super addActivity:wrappedActivity.ckActivity completion:^(BOOL success, NSError * _Nullable error) {
+                            updateStoreSuccess = success;
+                            updateStoreError = error;
+                            done();
+                        }];
+                    });
+                    
+                    if (!updateStoreSuccess) {
+                        if (nil != updateStoreError) {
+                            [updateErrors addObject:updateStoreError];
+                        }
+                        
+                        NSLog(@"[CMHEALTH] Error adding fetched activity %@ to store: %@", wrappedActivity.ckActivity, updateStoreError.localizedDescription);
+                        continue; // Continue? Or totally stop? o_O
+                    }
+                    
+                    NSLog(@"[CMHEALTH] Fetched and added new activity to store: %@", wrappedActivity.ckActivity);
+                } else if([wrappedActivity.ckActivity isEqual:storeActivity]) {
+                    NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
+                    continue;
+                } else if(![wrappedActivity.ckActivity.schedule isEqual:storeActivity.schedule]) {
+                    NSLog(@"[CMHEALTH] Fetched activity with updated schedule (end date): %@", wrappedActivity.ckActivity);
+                    // Set end date in store
+                }
+            }
+        });
+    }];
+}
+
++ (nullable OCKCarePlanActivity *)activityWithIdentifier:(nonnull NSString *)identifier from:(nonnull NSArray<OCKCarePlanActivity *>*)activities
+{
+    for (OCKCarePlanActivity *activity in activities) {
+        if ([activity.identifier isEqualToString:identifier]) {
+            return activity;
+        }
+    }
+    
+    return nil;
+}
+
 #pragma mark Setters/Getters
 
 - (id<OCKCarePlanStoreDelegate>)delegate
