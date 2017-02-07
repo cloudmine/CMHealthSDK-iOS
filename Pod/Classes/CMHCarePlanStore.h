@@ -6,7 +6,6 @@ typedef void(^CMHRemoteSyncCompletion)(BOOL success, NSArray<NSError *> *_Nonnul
 
 + (nonnull instancetype)storeWithPersistenceDirectoryURL:(nonnull NSURL *)URL;
 
-- (void)syncRemoteEventsWithCompletion:(nullable CMHRemoteSyncCompletion)block;
-- (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
+- (void)syncFromRemoteWithCompletion:(nullable CMHRemoteSyncCompletion)block;
 
 @end

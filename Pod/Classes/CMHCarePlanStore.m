@@ -55,6 +55,37 @@
 
 #pragma mark Public CM API
 
+- (void)syncFromRemoteWithCompletion:(CMHRemoteSyncCompletion)block
+{
+    [self syncRemoteActivitiesWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+        if (!success) {
+            NSLog(@"[CMHEALTH] Error syncing activities: %@", errors);
+            
+            if (nil != block) {
+                block(NO, errors);
+            }
+            return;
+        }
+        
+        
+        NSLog(@"[CMHEALTH] Successful sync of activities");
+        
+        [self syncRemoteEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+            if (!success) {
+                NSLog(@"[CMHEALTH] Error syncing events: %@", errors);
+                
+                if (nil != block) {
+                    block(NO, errors);
+                }
+                return;
+            }
+            
+            NSLog(@"[CMHEALTH] Successful sync of events");
+            block(YES, @[]);
+        }];
+    }];
+}
+
 - (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
