@@ -58,6 +58,6 @@ typedef void(^CMHCarePlanEventFetchCompletion)(BOOL success, NSArray<NSError *> 
  *
  *  @param block Executes when the request succeeds or fails with an error.
  */
-- (void)cmh_fetchAndLoadAllEventsWithCompletion:(_Nullable CMHCarePlanEventFetchCompletion)block;
+//- (void)cmh_fetchAndLoadAllEventsWithCompletion:(_Nullable CMHCarePlanEventFetchCompletion)block;
 
 @end

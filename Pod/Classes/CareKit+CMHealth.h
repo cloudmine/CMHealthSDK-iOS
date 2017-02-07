@@ -9,3 +9,6 @@
 
 @interface OCKCareSchedule (CMHealth)<CMCoding>
 @end
+
+@interface OCKCarePlanEventResult (CMHealth)<CMCoding>
+@end

@@ -1,4 +1,5 @@
 #import <CareKit/CareKit.h>
+#import <CloudMine/CloudMine.h>
 
 typedef void(^CMHCareSaveCompletion)(NSString *_Nullable uploadStatus, NSError *_Nullable error);
 
@@ -7,7 +8,7 @@ typedef void(^CMHCareSaveCompletion)(NSString *_Nullable uploadStatus, NSError *
  *  allow instances to be identified uniquely and saved to CloudMine's
  *  HIPAA compliant Connected Health Cloud.
  */
-@interface OCKCarePlanEvent (CMHealth)
+@interface OCKCarePlanEvent (CMHealth) <CMCoding>
 
 /**
  *  The unique identifier  assigned to this event based on its `OCKCarePlanActivity` 

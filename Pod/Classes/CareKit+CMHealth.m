@@ -21,3 +21,6 @@
 
 @implementation OCKCareSchedule (CMHealth)
 @end
+
+@implementation OCKCarePlanEventResult (CMHealth)
+@end

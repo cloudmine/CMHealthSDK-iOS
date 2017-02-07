@@ -53,56 +53,6 @@
 
 #pragma mark Public CM API
 
-- (void)fetchEventsTestOld
-{
-    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-    
-    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareEvent class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) { // TODO: Use __update__ based query
-        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
-        if (nil != fetchError) {
-            NSLog(@"[CMHEALTH] Error fetching events: %@", fetchError.localizedDescription);
-            return;
-        }
-        
-        NSArray <CMHCareEvent *> *wrappedEvents = response.objects;
-        
-        for (CMHCareEvent *cEvent in wrappedEvents) {
-            [self eventsForActivity:cEvent.activity date:cEvent.date completion:^(NSArray<OCKCarePlanEvent *> * _Nonnull storeEvents, NSError * _Nullable fetchStoreError) {
-                if (nil != fetchStoreError) {
-                    NSLog(@"[CMHEALTH] Error fetching event %@ from store: %@", cEvent, fetchStoreError.localizedDescription);
-                    return;
-                }
-                
-                for (OCKCarePlanEvent *sEvent in storeEvents) {
-                    BOOL isCorrectOccurence = sEvent.occurrenceIndexOfDay == cEvent.occurrenceIndexOfDay;
-                    BOOL isIdenticalToStore = [cEvent isDataEquivalentOf:sEvent];
-                    
-                    if (!isCorrectOccurence || isIdenticalToStore) {
-                        continue;
-                    }
-                    
-                    self.eventBeingUpdated = cEvent;
-    
-                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                        [super updateEvent:sEvent withResult:cEvent.result state:cEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable updatedEvent, NSError * _Nullable updateStoreError) {
-                            if (nil != updateStoreError) {
-                                NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
-                                //done();
-                                return;
-                            }
-                            
-                            NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
-                            done();
-                        }];
-                   });
-                    
-                    self.eventBeingUpdated = nil;
-                }
-            }];
-        }
-    }];
-}
-
 - (void)fetchEventsTest
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
@@ -124,28 +74,6 @@
             NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
             
             for (CMHCareEvent *wrappedEvent in wrappedEvents) {
-                __block NSArray<OCKCarePlanEvent *> *storeEvents = nil;
-                __block NSError *storeError = nil;
-                
-                cmh_wait_until(^(CMHDoneBlock _Nonnull done) {
-                    [self eventsForActivity:wrappedEvent.activity date:wrappedEvent.date completion:^(NSArray<OCKCarePlanEvent *> * _Nonnull events, NSError * _Nullable error) {
-                        storeEvents = events;
-                        storeError = error;
-                        done();
-                    }];
-                });
-                
-                if (nil != storeError) {
-                    [updateErrors addObject:storeError];
-                    continue;
-                }
-                
-                for (OCKCarePlanEvent *anEvent in storeEvents) {
-                    if (anEvent.occurrenceIndexOfDay != wrappedEvent.occurrenceIndexOfDay ||
-                        [wrappedEvent isDataEquivalentOf:anEvent]) {
-                        continue;
-                    }
-                    
                     __block NSError *updateStoreError = nil;
                     __block OCKCarePlanEvent *updatedEvent = nil;
                     
@@ -154,7 +82,7 @@
                     dispatch_group_enter(self.updateGroup);
                     
                     cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                        [super updateEvent:anEvent withResult:wrappedEvent.result state:wrappedEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
+                        [super updateEvent:wrappedEvent.ckEvent withResult:wrappedEvent.ckEvent.result state:wrappedEvent.ckEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
                             updateStoreError = error;
                             updatedEvent = event;
                             done();
@@ -172,7 +100,6 @@
                     self.eventBeingUpdated = nil;
                     
                     NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
-                }
             }
             
 //            if (nil == block) {
@@ -282,7 +209,7 @@
 
 - (void)carePlanStore:(OCKCarePlanStore *)store didReceiveUpdateOfEvent:(OCKCarePlanEvent *)event
 {
-    if (nil != self.eventBeingUpdated && [self.eventBeingUpdated isDataEquivalentOf:event]) {
+    if (nil != self.eventBeingUpdated && [self.eventBeingUpdated.ckEvent isEqual:event]) {
         dispatch_group_leave(self.updateGroup);
         return;
     }
