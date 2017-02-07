@@ -53,16 +53,16 @@
 
 #pragma mark Public CM API
 
-- (void)fetchEventsTest
+- (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     
     [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareEvent class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
-//            if (nil != block) {
-//                block(NO, @[fetchError]);
-//            }
+            if (nil != block) {
+                block(NO, @[fetchError]);
+            }
             return;
         }
         
@@ -102,12 +102,12 @@
                     NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
             }
             
-//            if (nil == block) {
-//                return;
-//            }
+            if (nil == block) {
+                return;
+            }
             
             BOOL success = updateErrors.count < 1;
-//            block(success, [updateErrors copy]);
+            block(success, [updateErrors copy]);
         });
     }];
 }
