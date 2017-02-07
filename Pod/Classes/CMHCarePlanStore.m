@@ -116,16 +116,16 @@
     }];
 }
 
-- (void)syncActivityTest
+- (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
 
     [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareActivity class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
-//            if (nil != block) {
-//                block(NO, @[fetchError]);
-//            }
+            if (nil != block) {
+                block(NO, @[fetchError]);
+            }
             return;
         }
         
@@ -154,9 +154,10 @@
                 if (nil != storeError) {
                     [updateErrors addObject:storeError];
                 }
-//                if (nil != block) {
-//                    block(NO, [updateErrors copy]);
-//                }
+                
+                if (nil != block) {
+                    block(NO, [updateErrors copy]);
+                }
                 
                 return;
             }
@@ -203,6 +204,13 @@
                     // Set end date in store
                 }
             }
+            
+            if (nil == block) {
+                return;
+            }
+            
+            BOOL success = updateErrors.count < 1;
+            block(success, [updateErrors copy]);
         });
     }];
 }
