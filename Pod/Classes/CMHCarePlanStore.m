@@ -7,6 +7,9 @@
 #import "CMHErrorUtilities.h"
 #import "CMHDisptachUtils.h"
 
+static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
+static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
+
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
 @property (nonatomic, weak) id<OCKCarePlanStoreDelegate> passDelegate;
@@ -15,6 +18,10 @@
 @property (nonatomic, nonnull) dispatch_group_t updateGroup;
 @property (nonatomic, nullable) CMHCareEvent *eventBeingUpdated;
 @property (nonatomic) BOOL isUpdatingActivity; // Can only do a flag because delegate callback does not include activity info; could drop 'real' activity updates
+
+@property (nonatomic, nonnull) NSDateFormatter *cmTimestampFormatter;
+@property (nonatomic, nonnull, readonly) NSString *eventSyncKey;
+@property (nonatomic, nonnull, readonly) NSString *eventLastSyncStamp;
 
 @end
 
@@ -86,11 +93,18 @@
     }];
 }
 
+- (NSString *)timestampForDate:(NSDate *)date
+{
+    return [self.cmTimestampFormatter stringFromDate:date];
+}
+
 - (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMInternalUpdatedKey, self.eventLastSyncStamp];
+    NSDate *syncStartTime = [NSDate new];
     
-    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareEvent class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
             if (nil != block) {
@@ -107,34 +121,35 @@
             NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
             
             for (CMHCareEvent *wrappedEvent in wrappedEvents) {
-                    __block NSError *updateStoreError = nil;
-                    __block OCKCarePlanEvent *updatedEvent = nil;
-                    
-                    self.eventBeingUpdated = wrappedEvent;
-                    
-                    dispatch_group_enter(self.updateGroup);
-                    
-                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                        [super updateEvent:wrappedEvent.ckEvent withResult:wrappedEvent.ckEvent.result state:wrappedEvent.ckEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
-                            updateStoreError = error;
-                            updatedEvent = event;
-                            done();
-                        }];
-                    });
-                    
-                    if (nil != updateStoreError) {
-                        NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
-                        [updateErrors addObject:updateStoreError];
-                        dispatch_group_leave(self.updateGroup);
-                        self.eventBeingUpdated = nil;
-                        continue;
-                    }
-                    
-                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
-                    
+                __block NSError *updateStoreError = nil;
+                __block OCKCarePlanEvent *updatedEvent = nil;
+                
+                self.eventBeingUpdated = wrappedEvent;
+                
+                dispatch_group_enter(self.updateGroup);
+                
+                cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                    [super updateEvent:wrappedEvent.ckEvent withResult:wrappedEvent.ckEvent.result state:wrappedEvent.ckEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
+                        updateStoreError = error;
+                        updatedEvent = event;
+                        done();
+                    }];
+                });
+                
+                if (nil != updateStoreError) {
+                    NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
+                    [updateErrors addObject:updateStoreError];
+                    dispatch_group_leave(self.updateGroup);
                     self.eventBeingUpdated = nil;
+                    continue;
+                }
+                
+                dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
                     
-                    NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
+                self.eventBeingUpdated = nil;
+                [self saveEventLastSyncTime:syncStartTime];
+                
+                NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
             }
             
             if (nil == block) {
@@ -268,6 +283,43 @@
 {
     [super setDelegate:self];
     _passDelegate = delegate;
+}
+
+- (NSDateFormatter *)cmTimestampFormatter
+{
+    if (nil == _cmTimestampFormatter) {
+        _cmTimestampFormatter = [NSDateFormatter new];
+        _cmTimestampFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZZZZZ";
+        _cmTimestampFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        _cmTimestampFormatter.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+    }
+    
+    return _cmTimestampFormatter;
+}
+
+- (NSString *)eventSyncKey
+{
+    return [NSString stringWithFormat:@"%@%@", CMHEventSyncKeyPrefix, self.cmhIdentifier];
+}
+
+- (NSString *)eventLastSyncStamp
+{
+    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.eventSyncKey];
+    
+    if (nil == savedStamp) {
+        NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
+        return [self.cmTimestampFormatter stringFromDate:longAgo];
+    }
+    
+    return savedStamp;
+}
+
+- (void)saveEventLastSyncTime:(NSDate *)date
+{
+    NSAssert(nil != date, @"Must provide NSDate to -saveEventLastSyncTime:");
+    
+    NSString *stamp = [self timestampForDate:date];
+    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
 }
 
 #pragma mark Overrides
