@@ -224,13 +224,16 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
             return;
         }
         
-        [event cmh_saveWithUserId:self.cmhIdentifier completion:^(NSString * _Nullable uploadStatus, NSError * _Nullable error) {
-            if (nil == uploadStatus) {
-                NSLog(@"[CMHealth] Error uploading event: %@", error.localizedDescription);
+        CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
+        
+        [cmhEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
+            NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhEvent.objectId uploadResponse:response];
+            if (nil != saveError) {
+                NSLog(@"[CMHEALTH] Error uploading event: %@", error.localizedDescription);
                 return;
             }
             
-            NSLog(@"[CMHealth] Event uploaded with status: %@", uploadStatus);
+            NSLog(@"[CMHEALTH] Event uploaded with status: %@", response.uploadStatuses[cmhEvent.objectId]);
         }];
     }];
 }

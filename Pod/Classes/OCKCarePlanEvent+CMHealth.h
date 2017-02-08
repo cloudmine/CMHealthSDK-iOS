@@ -19,18 +19,4 @@ typedef void(^CMHCareSaveCompletion)(NSString *_Nullable uploadStatus, NSError *
  */
 @property (nonatomic, nonnull, readonly) NSString *cmh_uniqueId;
 
-/**
- *  Save a representation of this `OCKCarePlanEvent` isntance to CloudMine.
- *  The event is given a unique identifier based on its `OCKCarePlanActivity` identifier,
- *  its schedule, and its days since start. Saving an event multiple times will update
- *  the instance of that event on CloudMine. The callback will provide a string value 
- *  of `created` or `updated` if the operation was successful.
- *
- *  @warning the CareKit component of this SDK is experimental and subject to change. Your
- *  feedback is welcomed!
- *
- *  @param block Executes when the request completes successfully or fails with an error.
- */
-- (void)cmh_saveWithUserId:(NSString *_Nonnull)cmhIdentifier completion:(_Nullable CMHCareSaveCompletion)block;
-
 @end

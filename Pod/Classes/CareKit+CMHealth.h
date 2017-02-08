@@ -3,7 +3,7 @@
 
 @interface OCKCarePlanActivity (CMHealth)<CMCoding>
 
-- (BOOL)isDataEquivalentOf:(OCKCarePlanActivity *_Nullable)other;
+//- (BOOL)isDataEquivalentOf:(OCKCarePlanActivity *_Nullable)other;
 
 @end
 

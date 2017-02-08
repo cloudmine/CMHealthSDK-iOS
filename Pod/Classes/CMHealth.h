@@ -9,7 +9,6 @@
 #import "ORKConsentSection+CMHealth.h"
 #import "CMHLoginViewController.h"
 #import "CMHCarePlanStore.h"
-#import "OCKCarePlanStore+CMHealth.h"
 #import "OCKCarePlanEvent+CMHealth.h"
 
 /**
