@@ -105,185 +105,6 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
     }
 }
 
-- (NSString *)timestampForDate:(NSDate *)date
-{
-    return [self.cmTimestampFormatter stringFromDate:date];
-}
-
-- (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
-{
-    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMInternalUpdatedKey, self.eventLastSyncStamp];
-    NSDate *syncStartTime = [NSDate new];
-    
-    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
-        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
-        if (nil != fetchError) {
-            if (nil != block) {
-                block(NO, @[fetchError]);
-            }
-            return;
-        }
-        
-        NSArray <CMHCareEvent *> *wrappedEvents = response.objects;
-        
-        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        
-        dispatch_async(updateQueue, ^{
-            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
-            
-            for (CMHCareEvent *wrappedEvent in wrappedEvents) {
-                __block NSError *updateStoreError = nil;
-                __block OCKCarePlanEvent *updatedEvent = nil;
-                
-                self.eventBeingUpdated = wrappedEvent;
-                
-                dispatch_group_enter(self.updateGroup);
-                
-                cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                    [super updateEvent:wrappedEvent.ckEvent withResult:wrappedEvent.ckEvent.result state:wrappedEvent.ckEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
-                        updateStoreError = error;
-                        updatedEvent = event;
-                        done();
-                    }];
-                });
-                
-                if (nil != updateStoreError) {
-                    NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
-                    [updateErrors addObject:updateStoreError];
-                    dispatch_group_leave(self.updateGroup);
-                    self.eventBeingUpdated = nil;
-                    continue;
-                }
-                
-                dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
-                    
-                self.eventBeingUpdated = nil;
-                [self saveEventLastSyncTime:syncStartTime];
-                
-                NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
-            }
-            
-            if (nil == block) {
-                return;
-            }
-            
-            BOOL success = updateErrors.count < 1;
-            block(success, [updateErrors copy]);
-        });
-    }];
-}
-
-- (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
-{
-    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-
-    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareActivity class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
-        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
-        if (nil != fetchError) {
-            if (nil != block) {
-                block(NO, @[fetchError]);
-            }
-            return;
-        }
-        
-        NSArray <CMHCareActivity *> *wrappedActivities = response.objects;
-        
-        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        
-        dispatch_async(updateQueue, ^{
-            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
-            
-            __block BOOL storeSuccess = NO;
-            __block NSArray<OCKCarePlanActivity *> *storeActivities = nil;
-            __block NSError *storeError = nil;
-            
-            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                [super activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
-                    storeSuccess = success;
-                    storeActivities = activities;
-                    storeError = error;
-                    
-                    done();
-                }];
-            });
-            
-            if (!storeSuccess) {
-                if (nil != storeError) {
-                    [updateErrors addObject:storeError];
-                }
-                
-                if (nil != block) {
-                    block(NO, [updateErrors copy]);
-                }
-                
-                return;
-            }
-            
-            for (CMHCareActivity *wrappedActivity in wrappedActivities) {
-                OCKCarePlanActivity *storeActivity = [CMHCarePlanStore activityWithIdentifier:wrappedActivity.ckActivity.identifier from:storeActivities];
-                
-                if (nil == storeActivity) {
-                    __block BOOL updateStoreSuccess = NO;
-                    __block NSError *updateStoreError = nil;
-                    
-                    dispatch_group_enter(self.updateGroup);
-                    self.isUpdatingActivity = YES;
-                    
-                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                        [super addActivity:wrappedActivity.ckActivity completion:^(BOOL success, NSError * _Nullable error) {
-                            updateStoreSuccess = success;
-                            updateStoreError = error;
-                            done();
-                        }];
-                    });
-                    
-                    if (!updateStoreSuccess) {
-                        if (nil != updateStoreError) {
-                            [updateErrors addObject:updateStoreError];
-                        }
-                        
-                        NSLog(@"[CMHEALTH] Error adding fetched activity %@ to store: %@", wrappedActivity.ckActivity, updateStoreError.localizedDescription);
-                        dispatch_group_leave(self.updateGroup);
-                        self.isUpdatingActivity = NO;
-                        continue; // Continue? Or totally stop? o_O
-                    }
-                    
-                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
-                    
-                    self.isUpdatingActivity = NO;
-                    NSLog(@"[CMHEALTH] Fetched and added new activity to store: %@", wrappedActivity.ckActivity);
-                    
-                } else if([wrappedActivity.ckActivity isEqual:storeActivity]) {
-                    NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
-                    continue;
-                } else if(![wrappedActivity.ckActivity.schedule isEqual:storeActivity.schedule]) {
-                    NSLog(@"[CMHEALTH] Fetched activity with updated schedule (end date): %@", wrappedActivity.ckActivity);
-                    // Set end date in store
-                }
-            }
-            
-            if (nil == block) {
-                return;
-            }
-            
-            BOOL success = updateErrors.count < 1;
-            block(success, [updateErrors copy]);
-        });
-    }];
-}
-
-+ (nullable OCKCarePlanActivity *)activityWithIdentifier:(nonnull NSString *)identifier from:(nonnull NSArray<OCKCarePlanActivity *>*)activities
-{
-    for (OCKCarePlanActivity *activity in activities) {
-        if ([activity.identifier isEqualToString:identifier]) {
-            return activity;
-        }
-    }
-    
-    return nil;
-}
-
 #pragma mark Setters/Getters
 
 - (id<OCKCarePlanStoreDelegate>)delegate
@@ -444,6 +265,185 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
 }
 
 # pragma mark Helpers
+
++ (nullable OCKCarePlanActivity *)activityWithIdentifier:(nonnull NSString *)identifier from:(nonnull NSArray<OCKCarePlanActivity *>*)activities
+{
+    for (OCKCarePlanActivity *activity in activities) {
+        if ([activity.identifier isEqualToString:identifier]) {
+            return activity;
+        }
+    }
+    
+    return nil;
+}
+
+- (NSString *)timestampForDate:(NSDate *)date
+{
+    return [self.cmTimestampFormatter stringFromDate:date];
+}
+
+- (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
+{
+    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMInternalUpdatedKey, self.eventLastSyncStamp];
+    NSDate *syncStartTime = [NSDate new];
+    
+    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+        if (nil != fetchError) {
+            if (nil != block) {
+                block(NO, @[fetchError]);
+            }
+            return;
+        }
+        
+        NSArray <CMHCareEvent *> *wrappedEvents = response.objects;
+        
+        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        
+        dispatch_async(updateQueue, ^{
+            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
+            
+            for (CMHCareEvent *wrappedEvent in wrappedEvents) {
+                __block NSError *updateStoreError = nil;
+                __block OCKCarePlanEvent *updatedEvent = nil;
+                
+                self.eventBeingUpdated = wrappedEvent;
+                
+                dispatch_group_enter(self.updateGroup);
+                
+                cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                    [super updateEvent:wrappedEvent.ckEvent withResult:wrappedEvent.ckEvent.result state:wrappedEvent.ckEvent.state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
+                        updateStoreError = error;
+                        updatedEvent = event;
+                        done();
+                    }];
+                });
+                
+                if (nil != updateStoreError) {
+                    NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
+                    [updateErrors addObject:updateStoreError];
+                    dispatch_group_leave(self.updateGroup);
+                    self.eventBeingUpdated = nil;
+                    continue;
+                }
+                
+                dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+                
+                self.eventBeingUpdated = nil;
+                [self saveEventLastSyncTime:syncStartTime];
+                
+                NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
+            }
+            
+            if (nil == block) {
+                return;
+            }
+            
+            BOOL success = updateErrors.count < 1;
+            block(success, [updateErrors copy]);
+        });
+    }];
+}
+
+- (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
+{
+    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    
+    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareActivity class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+        if (nil != fetchError) {
+            if (nil != block) {
+                block(NO, @[fetchError]);
+            }
+            return;
+        }
+        
+        NSArray <CMHCareActivity *> *wrappedActivities = response.objects;
+        
+        dispatch_queue_t updateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        
+        dispatch_async(updateQueue, ^{
+            NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
+            
+            __block BOOL storeSuccess = NO;
+            __block NSArray<OCKCarePlanActivity *> *storeActivities = nil;
+            __block NSError *storeError = nil;
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                [super activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
+                    storeSuccess = success;
+                    storeActivities = activities;
+                    storeError = error;
+                    
+                    done();
+                }];
+            });
+            
+            if (!storeSuccess) {
+                if (nil != storeError) {
+                    [updateErrors addObject:storeError];
+                }
+                
+                if (nil != block) {
+                    block(NO, [updateErrors copy]);
+                }
+                
+                return;
+            }
+            
+            for (CMHCareActivity *wrappedActivity in wrappedActivities) {
+                OCKCarePlanActivity *storeActivity = [CMHCarePlanStore activityWithIdentifier:wrappedActivity.ckActivity.identifier from:storeActivities];
+                
+                if (nil == storeActivity) {
+                    __block BOOL updateStoreSuccess = NO;
+                    __block NSError *updateStoreError = nil;
+                    
+                    dispatch_group_enter(self.updateGroup);
+                    self.isUpdatingActivity = YES;
+                    
+                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                        [super addActivity:wrappedActivity.ckActivity completion:^(BOOL success, NSError * _Nullable error) {
+                            updateStoreSuccess = success;
+                            updateStoreError = error;
+                            done();
+                        }];
+                    });
+                    
+                    if (!updateStoreSuccess) {
+                        if (nil != updateStoreError) {
+                            [updateErrors addObject:updateStoreError];
+                        }
+                        
+                        NSLog(@"[CMHEALTH] Error adding fetched activity %@ to store: %@", wrappedActivity.ckActivity, updateStoreError.localizedDescription);
+                        dispatch_group_leave(self.updateGroup);
+                        self.isUpdatingActivity = NO;
+                        continue; // Continue? Or totally stop? o_O
+                    }
+                    
+                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+                    
+                    self.isUpdatingActivity = NO;
+                    NSLog(@"[CMHEALTH] Fetched and added new activity to store: %@", wrappedActivity.ckActivity);
+                    
+                } else if([wrappedActivity.ckActivity isEqual:storeActivity]) {
+                    NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
+                    continue;
+                } else if(![wrappedActivity.ckActivity.schedule isEqual:storeActivity.schedule]) {
+                    NSLog(@"[CMHEALTH] Fetched activity with updated schedule (end date): %@", wrappedActivity.ckActivity);
+                    // Set end date in store
+                }
+            }
+            
+            if (nil == block) {
+                return;
+            }
+            
+            BOOL success = updateErrors.count < 1;
+            block(success, [updateErrors copy]);
+        });
+    }];
+}
 
 - (NSArray<NSError *> *_Nonnull)clearLocalStoreDataSynchronously
 {
