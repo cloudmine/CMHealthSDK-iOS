@@ -93,6 +93,18 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
     }];
 }
 
+- (void)clearLocalStore
+{
+    NSArray *errors = [self clearLocalStoreDataSynchronously];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.eventSyncKey];
+    
+    if (errors.count > 0) {
+        NSLog(@"[CMHEALTH] There were %li errors clearing the local store: %@", (long)errors.count, errors);
+    } else {
+        NSLog(@"[CMHEALTH] Successfully flushed the local store");
+    }
+}
+
 - (NSString *)timestampForDate:(NSDate *)date
 {
     return [self.cmTimestampFormatter stringFromDate:date];
@@ -429,6 +441,46 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
     if (nil != _passDelegate && [_passDelegate respondsToSelector:@selector(carePlanStoreActivityListDidChange:)]) {
         [_passDelegate carePlanStoreActivityListDidChange:store];
     }
+}
+
+# pragma mark Helpers
+
+- (NSArray<NSError *> *_Nonnull)clearLocalStoreDataSynchronously
+{
+    __block NSArray *allActivities = nil;
+    __block NSError *fetchError = nil;
+    __block BOOL fetchSuccess = NO;
+    
+    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+        [self activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
+            fetchSuccess = success;
+            allActivities = activities;
+            fetchError = error;
+            done();
+        }];
+    });
+    
+    if (nil != fetchError) {
+        return @[fetchError];
+    }
+    
+    NSMutableArray *mutableErrors = [NSMutableArray new];
+    
+    for (OCKCarePlanActivity *activity in allActivities) {
+        cmh_wait_until(^(CMHDoneBlock _Nonnull done) {
+            [super removeActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
+                if (!success) {
+                    [mutableErrors addObject:error];
+                    done();
+                    return;
+                }
+                
+                done();
+            }];
+        });
+    }
+    
+    return [mutableErrors copy];
 }
 
 @end
