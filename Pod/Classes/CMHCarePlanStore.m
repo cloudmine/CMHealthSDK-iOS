@@ -9,6 +9,7 @@
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
+static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
@@ -22,6 +23,8 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
 @property (nonatomic, nonnull) NSDateFormatter *cmTimestampFormatter;
 @property (nonatomic, nonnull, readonly) NSString *eventSyncKey;
 @property (nonatomic, nonnull, readonly) NSString *eventLastSyncStamp;
+@property (nonatomic, nonnull, readonly) NSString *activitySyncKey;
+@property (nonatomic, nonnull, readonly) NSString *activityLastSyncStamp;
 
 @end
 
@@ -97,6 +100,7 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
 {
     NSArray *errors = [self clearLocalStoreDataSynchronously];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.eventSyncKey];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.activitySyncKey];
     
     if (errors.count > 0) {
         NSLog(@"[CMHEALTH] There were %li errors clearing the local store: %@", (long)errors.count, errors);
@@ -141,7 +145,7 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
     
     if (nil == savedStamp) {
         NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
-        return [self.cmTimestampFormatter stringFromDate:longAgo];
+        return [self timestampForDate:longAgo];
     }
     
     return savedStamp;
@@ -149,10 +153,35 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
 
 - (void)saveEventLastSyncTime:(NSDate *)date
 {
-    NSAssert(nil != date, @"Must provide NSDate to -saveEventLastSyncTime:");
+    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
     
     NSString *stamp = [self timestampForDate:date];
     [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
+}
+
+- (NSString *)activitySyncKey
+{
+    return [NSString stringWithFormat:@"%@%@", CMHActivitySyncKeyPrefix, self.cmhIdentifier];
+}
+
+- (NSString *)activityLastSyncStamp
+{
+    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.activitySyncKey];
+    
+    if (nil == savedStamp) {
+        NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
+        return [self timestampForDate:longAgo];
+    }
+    
+    return savedStamp;
+}
+
+- (void)saveActivityLastSyncTime:(NSDate *)date
+{
+    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
+    
+    NSString *stamp = [self timestampForDate:date];
+    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.activitySyncKey];
 }
 
 #pragma mark Overrides
@@ -334,16 +363,19 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
                 dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
                 
                 self.eventBeingUpdated = nil;
-                [self saveEventLastSyncTime:syncStartTime];
                 
                 NSLog(@"[CMHEALTH] Successfully updated event in store: %@", updatedEvent);
+            }
+            
+            BOOL success = updateErrors.count < 1;
+            if (success) {
+                [self saveEventLastSyncTime:syncStartTime];
             }
             
             if (nil == block) {
                 return;
             }
             
-            BOOL success = updateErrors.count < 1;
             block(success, [updateErrors copy]);
         });
     }];
@@ -352,8 +384,10 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
 - (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMInternalUpdatedKey, self.activityLastSyncStamp];
+    NSDate *syncStartTime = [NSDate new];
     
-    [[CMStore defaultStore] allUserObjectsOfClass:[CMHCareActivity class] additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
             if (nil != block) {
@@ -438,11 +472,15 @@ static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
                 }
             }
             
+            BOOL success = updateErrors.count < 1;
+            if (success) {
+                [self saveActivityLastSyncTime:syncStartTime];
+            }
+            
             if (nil == block) {
                 return;
             }
             
-            BOOL success = updateErrors.count < 1;
             block(success, [updateErrors copy]);
         });
     }];
