@@ -1,9 +1,10 @@
 #import "CMHCareActivity.h"
+#import "CMHConstants_internal.h"
 
 @interface CMHCareActivity ()
 
 @property (nonatomic, nonnull, readwrite) OCKCarePlanActivity *ckActivity;
-
+@property (nonatomic, nonnull) NSString *cmhOwnerId;
 @end
 
 @implementation CMHCareActivity
@@ -21,6 +22,7 @@
     if (nil == self) return nil;
     
     _ckActivity = activity;
+    _cmhOwnerId = [cmhIdentifier copy];
     
     return self;
 }
@@ -31,13 +33,17 @@
     if (nil == self) { return nil; }
     
     _ckActivity = [aDecoder decodeObjectForKey:@"ckActivity"];
+    _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
     
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
+    [super encodeWithCoder:aCoder];
+    
     [aCoder encodeObject:self.ckActivity forKey:@"ckActivity"];
+    [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
 }
 
 @end

@@ -2,9 +2,11 @@
 #import "CMHCareEventResult.h"
 #import "OCKCarePlanEvent+CMHealth.h"
 #import "CareKit+CMHealth.h"
+#import "CMHConstants_internal.h"
 
 @interface CMHCareEvent ()
 @property (nonatomic, nonnull, readwrite) OCKCarePlanEvent *ckEvent;
+@property (nonatomic, nonnull) NSString *cmhOwnerId;
 @end
 
 @implementation CMHCareEvent
@@ -22,6 +24,7 @@
     if (nil == self) return nil;
     
     _ckEvent = event;
+    _cmhOwnerId = [cmhIdentifier copy];
     
     return self;
 }
@@ -34,6 +37,7 @@
     if (nil == self) return nil;
 
     _ckEvent = [aDecoder decodeObjectForKey:@"ckEvent"];
+    _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
 
     return self;
 }
@@ -43,6 +47,7 @@
     [super encodeWithCoder:aCoder];
     
     [aCoder encodeObject:self.ckEvent forKey:@"ckEvent"];
+    [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
 }
 
 @end

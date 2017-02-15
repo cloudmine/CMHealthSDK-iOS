@@ -6,6 +6,7 @@
 #import "CMHCareEvent.h"
 #import "CMHErrorUtilities.h"
 #import "CMHDisptachUtils.h"
+#import "CMHConstants_internal.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -57,8 +58,15 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     NSString *currentUserId = [CMHInternalUser currentUser].objectId;
     NSAssert(nil != currentUserId, @"The patient must be signed in before accessing their %@", [self class]);
     
-    CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:currentUserId];
-    store.delegate = nil;
+    return [self storeWithPersistenceDirectoryURL:URL andCMHIdentifier:currentUserId];
+}
+
++ (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL andCMHIdentifier:(NSString *)cmhIdentifier
+{
+    NSAssert(nil != cmhIdentifier, @"Must provide a patient user identifier when intitializing %@", [self class]);
+    
+    CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:cmhIdentifier];
+    store.delegate = nil; // ensures our subclass is set up as super's delegate
     
     return store;
 }
@@ -91,7 +99,9 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             }
             
             NSLog(@"[CMHEALTH] Successful sync of events");
-            block(YES, @[]);
+            if (nil != block) {
+                block(YES, @[]);
+            }
         }];
     }];
 }
@@ -107,6 +117,83 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     } else {
         NSLog(@"[CMHEALTH] Successfully flushed the local store");
     }
+}
+
++ (void)fetchAllPatientsWithCompletion:(CMHFetchPatientsCompletion)block
+{
+    NSAssert(nil != block, @"Cannot call %@ without completion block parameter", __PRETTY_FUNCTION__);
+    
+    dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(highQueue, ^{
+        __block NSArray *allUsers = nil;
+        __block NSDictionary *userErrors = nil;
+        
+        cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+            [CMUser allUsersWithCallback:^(NSArray *users, NSDictionary *errors) {
+                allUsers = users;
+                userErrors = errors;
+                done();
+            }];
+        });
+        
+        if (nil != userErrors && userErrors.count > 0) {
+            block(NO, @[], userErrors.allValues);
+            return;
+        }
+        
+        NSMutableArray<OCKPatient *> *mutablePatients = [NSMutableArray new];
+        
+        for (CMUser *user in allUsers) {
+            NSAssert([user isKindOfClass:[CMUser class]], @"Expected CMUser but got %@", [user class]);
+            if (![user isKindOfClass:[CMHInternalUser class]]) {
+                continue;
+            }
+            
+            // TODO: CMH Users? Filter admins
+            
+            NSURL *patientDir = [CMHCarePlanStore persistenceDirectoryNamed:user.objectId];
+            __block CMHCarePlanStore *patientStore = nil;
+            
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                patientStore = [CMHCarePlanStore storeWithPersistenceDirectoryURL:patientDir andCMHIdentifier:user.objectId];
+            });
+            
+            __block BOOL syncSuccess = NO;
+            __block NSArray<NSError *> *syncErrors = nil;
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                [patientStore syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+                    syncSuccess = success;
+                    syncErrors = errors;
+                    done();
+                }];
+            });
+            
+            if (!syncSuccess) {
+                if (nil != syncErrors) {
+                    block(NO, @[], syncErrors);
+                } else {
+                    block(NO, @[], @[]);
+                }
+                
+                return;
+            }
+            
+            OCKPatient *patient = [[OCKPatient alloc] initWithIdentifier:user.objectId
+                                                           carePlanStore:patientStore
+                                                                    name:user.email
+                                                              detailInfo:nil
+                                                        careTeamContacts:nil
+                                                               tintColor:nil
+                                                                monogram:nil
+                                                                   image:nil
+                                                              categories:nil];
+            [mutablePatients addObject:patient];
+        }
+        
+        block(YES, [mutablePatients copy], @[]);
+    });
 }
 
 #pragma mark Setters/Getters
@@ -196,6 +283,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
+        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
         
         [cmhActivity saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
             NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhActivity.objectId uploadResponse:response];
@@ -254,6 +342,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
+        [cmhEvent addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
         
         [cmhEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
             NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhEvent.objectId uploadResponse:response];
@@ -309,6 +398,22 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return nil;
 }
 
++ (nonnull NSURL *)persistenceDirectoryNamed:(nonnull NSString *)name
+{
+    NSURL *appDirURL = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
+    NSURL *namedDirURL = [appDirURL URLByAppendingPathComponent:name isDirectory:YES];
+    
+    NSAssert(nil != namedDirURL, @"Failed to create store directory URL: %@", namedDirURL);
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[namedDirURL path] isDirectory:nil]) {
+        NSError *dirError = nil;
+        [[NSFileManager defaultManager] createDirectoryAtURL:namedDirURL withIntermediateDirectories:YES attributes:nil error:&dirError];
+        NSAssert(nil == dirError, @"Error creating store directory: %@", dirError.localizedDescription);
+    }
+    
+    return namedDirURL;
+}
+
 - (NSString *)timestampForDate:(NSDate *)date
 {
     return [self.cmTimestampFormatter stringFromDate:date];
@@ -316,11 +421,13 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 - (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
 {
-    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMInternalUpdatedKey, self.eventLastSyncStamp];
+    CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    noLimitSharedOption.shared = YES;
+    
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.eventLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
-    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
             if (nil != block) {
@@ -383,11 +490,13 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 - (void)syncRemoteActivitiesWithCompletion:(nullable CMHRemoteSyncCompletion)block;
 {
-    CMStoreOptions *noLimitOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMInternalUpdatedKey, self.activityLastSyncStamp];
+    CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+    noLimitSharedOption.shared = YES;
+    
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.activityLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
-    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitOption callback:^(CMObjectFetchResponse *response) {
+    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
         NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
         if (nil != fetchError) {
             if (nil != block) {

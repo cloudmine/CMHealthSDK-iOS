@@ -3,5 +3,6 @@
 
 static NSString *const CMHStudyDescriptorKey    = @"studyDescriptor";
 static NSString *const CMHResearchKitResultKey  = @"rkResult";
+static NSString *const CMHOwningUserKey         = @"cmh_owner";
 
 #endif
