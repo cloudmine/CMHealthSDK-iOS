@@ -42,6 +42,9 @@ void cmh_swizzle(Class class, SEL originalSelector, SEL swizzledSelector)
 
 @end
 
+@implementation UIColor (CMHealth)
+@end
+
 @implementation NSUUID (CMHealth)
 
 + (void)load {

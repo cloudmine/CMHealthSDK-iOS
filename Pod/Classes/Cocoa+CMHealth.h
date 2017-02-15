@@ -4,6 +4,9 @@
 @interface UIImage (CMHealth)<CMCoding>
 @end
 
+@interface UIColor (CMHealth)<CMCoding>
+@end
+
 @interface NSUUID (CMHealth)<CMCoding>
 @end
 
