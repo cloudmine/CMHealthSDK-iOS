@@ -31,6 +31,7 @@ typedef NS_ENUM(NSUInteger, CMHError) {
     CMHErrorInvalidRequest          = 804,
     CMHErrorInvalidResponse         = 805,
     CMHErrorUnauthorized            = 806,
+    CMHErrorCareObjectSaveError     = 900,
 };
 
 #endif

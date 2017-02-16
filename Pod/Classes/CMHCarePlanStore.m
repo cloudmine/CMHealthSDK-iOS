@@ -7,6 +7,7 @@
 #import "CMHErrorUtilities.h"
 #import "CMHDisptachUtils.h"
 #import "CMHConstants_internal.h"
+#import "CMHCareObjectSaver.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -344,14 +345,23 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
         [cmhEvent addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
         
-        [cmhEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
-            NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhEvent.objectId uploadResponse:response];
+//        CMServerFunction *saveAsUserSnippet = [CMServerFunction
+//                                               serverFunctionWithName:@"insertCareKitActivity"
+//                                               extraParameters:@{ @"session_token": [CMUser currentUser].token,
+//                                                                  @"ptUserId": self.cmhIdentifier,
+//                                                                  @"ptActivity": cmhEvent, }];
+//        CMStoreOptions *owningUserSnippetOptions = [CMStoreOptions new];
+//        owningUserSnippetOptions.serverSideFunction = saveAsUserSnippet;
+        
+        [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
+        //[[CMStore defaultStore] saveUserObject:cmhEvent additionalOptions:owningUserSnippetOptions callback:^(CMObjectUploadResponse *response) {
+        //[cmhEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
             if (nil != saveError) {
-                NSLog(@"[CMHEALTH] Error uploading event: %@", error.localizedDescription);
+                NSLog(@"[CMHEALTH] Error uploading event: %@", saveError.localizedDescription);
                 return;
             }
             
-            NSLog(@"[CMHEALTH] Event uploaded with status: %@", response.uploadStatuses[cmhEvent.objectId]);
+            NSLog(@"[CMHEALTH] Event uploaded with status: %@", status);
         }];
     }];
 }
