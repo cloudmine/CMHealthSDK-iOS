@@ -253,7 +253,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 }
 
 - (NSString *)activityLastSyncStamp
-{
+{   
     NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.activitySyncKey];
     
     if (nil == savedStamp) {
@@ -286,14 +286,13 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
         [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
         
-        [cmhActivity saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
-            NSError *saveError = [CMHErrorUtilities errorForUploadWithObjectId:cmhActivity.objectId uploadResponse:response];
-            if (nil != saveError) {
-                NSLog(@"[CMHealth] Error uploading activity: %@", error.localizedDescription);
+        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
+            if (nil == status) {
+                NSLog(@"[CMHealth] Error uploading activity: %@", saveError.localizedDescription);
                 return;
             }
             
-            NSLog(@"[CMHealth] Activity uploaded with status: %@", response.uploadStatuses[cmhActivity.objectId]);
+            NSLog(@"[CMHealth] Activity uploaded with status: %@", status);
         }];
     }];
 }
@@ -310,7 +309,17 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             return;
         }
         
-        // TODO: Queue update to activity
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
+        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        
+        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
+            if (nil == status) {
+                NSLog(@"[CMHealth] Error updating end date for activity: %@", saveError.localizedDescription);
+                return;
+            }
+            
+            NSLog(@"[CMHealth] Activity end date set with status: %@", status);
+        }];
     }];
 }
 
@@ -345,17 +354,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
         [cmhEvent addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
         
-//        CMServerFunction *saveAsUserSnippet = [CMServerFunction
-//                                               serverFunctionWithName:@"insertCareKitActivity"
-//                                               extraParameters:@{ @"session_token": [CMUser currentUser].token,
-//                                                                  @"ptUserId": self.cmhIdentifier,
-//                                                                  @"ptActivity": cmhEvent, }];
-//        CMStoreOptions *owningUserSnippetOptions = [CMStoreOptions new];
-//        owningUserSnippetOptions.serverSideFunction = saveAsUserSnippet;
-        
         [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
-        //[[CMStore defaultStore] saveUserObject:cmhEvent additionalOptions:owningUserSnippetOptions callback:^(CMObjectUploadResponse *response) {
-        //[cmhEvent saveWithUser:[CMStore defaultStore].user callback:^(CMObjectUploadResponse *response) {
             if (nil != saveError) {
                 NSLog(@"[CMHEALTH] Error uploading event: %@", saveError.localizedDescription);
                 return;
@@ -586,8 +585,35 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
                     NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
                     continue;
                 } else if(![wrappedActivity.ckActivity.schedule isEqual:storeActivity.schedule]) {
-                    NSLog(@"[CMHEALTH] Fetched activity with updated schedule (end date): %@", wrappedActivity.ckActivity);
-                    // Set end date in store
+                    __block updateStoreSuccess = NO;
+                    __block NSError *updateStoreError = nil;
+                    
+                    dispatch_group_enter(self.updateGroup);
+                    self.isUpdatingActivity = YES;
+                    
+                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                       [super setEndDate:wrappedActivity.ckActivity.schedule.endDate forActivity:storeActivity completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+                           updateStoreSuccess = success;
+                           updateStoreError = error;
+                           done();
+                       }];
+                    });
+                    
+                    if (!updateStoreSuccess) {
+                        if (nil != updateStoreError) {
+                            [updateErrors addObject:updateStoreError];
+                        }
+                        
+                        NSLog(@"[CMHEALTH] Error updating end date for fetched activity %@ to store: %@", wrappedActivity.ckActivity, updateStoreError.localizedDescription);
+                        dispatch_group_leave(self.updateGroup);
+                        self.isUpdatingActivity = NO;
+                        continue;
+                    }
+                    
+                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+                    
+                    self.isUpdatingActivity = NO;
+                    NSLog(@"[CMHEALTH] Fetched activity and updated schedule (end date): %@", wrappedActivity.ckActivity);
                 }
             }
             
