@@ -561,7 +561,43 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             for (CMHCareActivity *wrappedActivity in wrappedActivities) {
                 OCKCarePlanActivity *storeActivity = [CMHCarePlanStore activityWithIdentifier:wrappedActivity.ckActivity.identifier from:storeActivities];
                 
-                if (nil == storeActivity) {
+                if (wrappedActivity.isDeleted) {
+                    if (nil == storeActivity) {
+                        NSLog(@"[CMHealth] Skipping fetched activity that is deleted and is not in store: %@", wrappedActivity.ckActivity);
+                        continue;
+                    }
+                    
+                    __block BOOL deleteSuccess = NO;
+                    __block NSError *deleteError = nil;
+                    
+                    dispatch_group_enter(self.updateGroup);
+                    self.isUpdatingActivity = YES;
+                    
+                    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                        [super removeActivity:storeActivity completion:^(BOOL success, NSError * _Nullable error) {
+                            deleteSuccess = success;
+                            deleteError = error;
+                            done();
+                        }];
+                    });
+                    
+                    if (!deleteSuccess) {
+                        if (nil != deleteError) {
+                            [updateErrors addObject:deleteError];
+                        }
+                        
+                        NSLog(@"[CMHealth] Error removing deleted activity %@ from local store: %@", wrappedActivity.ckActivity, deleteError);
+                        dispatch_group_leave(self.updateGroup);
+                        self.isUpdatingActivity = NO;
+                        continue;
+                    }
+                    
+                    dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+                    
+                    self.isUpdatingActivity = NO;
+                    NSLog(@"[CMHealth] Fetched deleted activity and removed it from local store: %@", storeActivity);
+                    
+                } else if (nil == storeActivity) {
                     __block BOOL updateStoreSuccess = NO;
                     __block NSError *updateStoreError = nil;
                     
