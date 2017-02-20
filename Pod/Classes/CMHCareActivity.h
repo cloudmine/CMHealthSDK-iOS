@@ -6,5 +6,6 @@
 - (nonnull instancetype)initWithActivity:(nonnull OCKCarePlanActivity *)activity andUserId:(nonnull NSString *)cmhIdentifier;
 
 @property (nonatomic, nonnull, readonly) OCKCarePlanActivity *ckActivity;
+@property (nonatomic) BOOL isDeleted;
 
 @end

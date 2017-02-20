@@ -334,7 +334,18 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             return;
         }
         
-        // TODO: Queue update to activity
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
+        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        cmhActivity.isDeleted = YES;
+        
+        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
+            if (nil == status) {
+                NSLog(@"[CMHealth] Error updating delted activity: @%", error.localizedDescription);
+                return;
+            }
+            
+            NSLog(@"[CMHealth] Updated activity to delete with status: %@", status);
+        }];
     }];
 }
 

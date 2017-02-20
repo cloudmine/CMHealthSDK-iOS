@@ -5,6 +5,7 @@
 
 @property (nonatomic, nonnull, readwrite) OCKCarePlanActivity *ckActivity;
 @property (nonatomic, nonnull) NSString *cmhOwnerId;
+
 @end
 
 @implementation CMHCareActivity
@@ -23,6 +24,7 @@
     
     _ckActivity = activity;
     _cmhOwnerId = [cmhIdentifier copy];
+    _isDeleted = NO;
     
     return self;
 }
@@ -34,6 +36,7 @@
     
     _ckActivity = [aDecoder decodeObjectForKey:@"ckActivity"];
     _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
+    _isDeleted = [aDecoder decodeBoolForKey:@"isDeleted"];
     
     return self;
 }
@@ -44,6 +47,7 @@
     
     [aCoder encodeObject:self.ckActivity forKey:@"ckActivity"];
     [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
+    [aCoder encodeBool:self.isDeleted forKey:@"isDeleted"];
 }
 
 @end
