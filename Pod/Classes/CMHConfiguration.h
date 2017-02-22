@@ -4,6 +4,6 @@
 
 + (instancetype)sharedConfiguration;
 
-@property (nonatomic, copy, nullable) NSString *careObjectACLId;
+@property (nonatomic, copy, nullable) NSString *providerSharedAclId;
 
 @end

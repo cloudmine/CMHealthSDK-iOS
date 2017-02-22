@@ -3,6 +3,7 @@
 #import "CMHInternalProfile.h"
 #import "CMHRegistrationData.h"
 #import "CMHErrorUtilities.h"
+#import "CMHConfiguration.h"
 
 @interface CMHInternalUser ()
 @property (nonatomic, nullable) CMHInternalProfile *profile;
@@ -27,6 +28,10 @@
     newUser.profile.givenName = regData.givenName;
     newUser.profile.gender = regData.gender;
     newUser.profile.dateOfBirth = regData.birthdate;
+    
+    if (nil != [CMHConfiguration sharedConfiguration].providerSharedAclId) {
+        [newUser.profile addAclId:[CMHConfiguration sharedConfiguration].providerSharedAclId];
+    }
 
     [CMStore defaultStore].user = newUser;
 

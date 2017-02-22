@@ -24,7 +24,7 @@
     
     NSAssert(aclId.length > 0, @"Please provide a valid Shared Object ACL Id, not an empty string");
     
-    [CMHConfiguration sharedConfiguration].careObjectACLId = aclId;
+    [CMHConfiguration sharedConfiguration].providerSharedAclId = aclId;
 }
 
 @end

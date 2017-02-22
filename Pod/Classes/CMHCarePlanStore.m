@@ -69,7 +69,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 + (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL andCMHIdentifier:(NSString *)cmhIdentifier
 {
-    NSAssert(nil != [CMHConfiguration sharedConfiguration].careObjectACLId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
+    NSAssert(nil != [CMHConfiguration sharedConfiguration].providerSharedAclId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
     NSAssert(nil != cmhIdentifier, @"Must provide a patient user identifier when intitializing %@", [self class]);
     
     CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:cmhIdentifier];
@@ -264,8 +264,8 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 - (NSString *)sharedAclId
 {
-    NSAssert(nil != [CMHConfiguration sharedConfiguration].careObjectACLId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
-    return [CMHConfiguration sharedConfiguration].careObjectACLId;
+    NSAssert(nil != [CMHConfiguration sharedConfiguration].providerSharedAclId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
+    return [CMHConfiguration sharedConfiguration].providerSharedAclId;
 }
 
 #pragma mark Overrides
