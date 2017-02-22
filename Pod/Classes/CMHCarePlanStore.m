@@ -8,6 +8,7 @@
 #import "CMHDisptachUtils.h"
 #import "CMHConstants_internal.h"
 #import "CMHCareObjectSaver.h"
+#import "CMHConfiguration.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -27,6 +28,8 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 @property (nonatomic, nonnull, readonly) NSString *eventLastSyncStamp;
 @property (nonatomic, nonnull, readonly) NSString *activitySyncKey;
 @property (nonatomic, nonnull, readonly) NSString *activityLastSyncStamp;
+
+@property (nonatomic, nonnull, readonly) NSString *sharedAclId;
 
 @end
 
@@ -56,14 +59,17 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 + (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL
 {
+    // TODO: Asserting for a currently logged in user should be moved to the base initializer, but before we
+    // can do this, we have to decide if admin users are going to CMHInternalUsers or not, right?
     NSString *currentUserId = [CMHInternalUser currentUser].objectId;
-    NSAssert(nil != currentUserId, @"The patient must be signed in before accessing their %@", [self class]);
+    NSAssert(nil != currentUserId, @"A user must be signed in before accessing the %@", [self class]);
     
     return [self storeWithPersistenceDirectoryURL:URL andCMHIdentifier:currentUserId];
 }
 
 + (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL andCMHIdentifier:(NSString *)cmhIdentifier
 {
+    NSAssert(nil != [CMHConfiguration sharedConfiguration].careObjectACLId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
     NSAssert(nil != cmhIdentifier, @"Must provide a patient user identifier when intitializing %@", [self class]);
     
     CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:cmhIdentifier];
@@ -239,14 +245,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return savedStamp;
 }
 
-- (void)saveEventLastSyncTime:(NSDate *)date
-{
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
-    
-    NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
-}
-
 - (NSString *)activitySyncKey
 {
     return [NSString stringWithFormat:@"%@%@", CMHActivitySyncKeyPrefix, self.cmhIdentifier];
@@ -264,12 +262,10 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return savedStamp;
 }
 
-- (void)saveActivityLastSyncTime:(NSDate *)date
+- (NSString *)sharedAclId
 {
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
-    
-    NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.activitySyncKey];
+    NSAssert(nil != [CMHConfiguration sharedConfiguration].careObjectACLId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
+    return [CMHConfiguration sharedConfiguration].careObjectACLId;
 }
 
 #pragma mark Overrides
@@ -284,7 +280,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        [cmhActivity addAclId:self.sharedAclId];
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
             if (nil == status) {
@@ -310,7 +306,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        [cmhActivity addAclId:self.sharedAclId];
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
             if (nil == status) {
@@ -335,7 +331,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        [cmhActivity addAclId:self.sharedAclId];
         cmhActivity.isDeleted = YES;
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
@@ -363,7 +359,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
-        [cmhEvent addAclId:@"0964342D-2178-4CC9-930F-4FAF0DC0BE41"];
+        [cmhEvent addAclId:self.sharedAclId];
         
         [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
             if (nil != saveError) {
@@ -437,6 +433,22 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 - (NSString *)timestampForDate:(NSDate *)date
 {
     return [self.cmTimestampFormatter stringFromDate:date];
+}
+
+- (void)saveEventLastSyncTime:(NSDate *)date
+{
+    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
+    
+    NSString *stamp = [self timestampForDate:date];
+    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
+}
+
+- (void)saveActivityLastSyncTime:(NSDate *)date
+{
+    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
+    
+    NSString *stamp = [self timestampForDate:date];
+    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.activitySyncKey];
 }
 
 - (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;

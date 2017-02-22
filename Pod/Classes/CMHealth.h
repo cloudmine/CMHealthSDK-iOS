@@ -30,4 +30,6 @@
  */
 + (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret;
 
++ (void)setAppIdentifier:(NSString *)identifier appSecret:(NSString *)secret sharedACLId:(NSString *_Nullable)aclId;
+
 @end
