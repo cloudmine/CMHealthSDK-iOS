@@ -7,11 +7,11 @@
     self = [super initWithCoder:aDecoder];
     if (nil == self) return nil;
 
-    self.email = [aDecoder decodeObjectForKey:@"email"];
-    self.givenName = [aDecoder decodeObjectForKey:@"givenName"];
-    self.familyName = [aDecoder decodeObjectForKey:@"familyName"];
-    self.gender = [aDecoder decodeObjectForKey:@"gender"];
-    self.dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
+    _email = [aDecoder decodeObjectForKey:@"email"];
+    _givenName = [aDecoder decodeObjectForKey:@"givenName"];
+    _familyName = [aDecoder decodeObjectForKey:@"familyName"];
+    _gender = [aDecoder decodeObjectForKey:@"gender"];
+    _dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
 
     return self;
 }

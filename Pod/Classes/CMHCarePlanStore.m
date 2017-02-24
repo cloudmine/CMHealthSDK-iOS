@@ -9,6 +9,7 @@
 #import "CMHConstants_internal.h"
 #import "CMHCareObjectSaver.h"
 #import "CMHConfiguration.h"
+#import "CMHInternalProfile.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -149,6 +150,26 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             return;
         }
         
+        __block NSArray *allProfiles = @[];
+        __block NSError *profilesError = nil;
+        
+        cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+            CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
+            noLimitSharedOption.shared = YES;
+            
+            NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\"]", CMInternalClassStorageKey, [CMHInternalProfile class]];
+            [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
+                profilesError = [CMHErrorUtilities errorForFetchWithResponse:response];
+                allProfiles = response.objects;
+                done();
+            }];
+        });
+        
+        if (nil != profilesError) {
+            block(NO, @[], @[profilesError]);
+            return;
+        }
+        
         NSMutableArray<OCKPatient *> *mutablePatients = [NSMutableArray new];
         
         for (CMUser *user in allUsers) {
@@ -187,9 +208,28 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
                 return;
             }
             
+            NSString *patientName = user.email;
+            CMHInternalProfile *profile = [CMHCarePlanStore profileForUser:(CMHInternalUser *)user from:allProfiles];
+            
+            if (nil != profile) {
+                NSString *fullName = nil;
+                
+                if (nil != profile.givenName && nil != profile.familyName) {
+                    fullName = [NSString stringWithFormat:@"%@ %@", profile.givenName, profile.familyName];
+                } else if (nil != profile.familyName) {
+                    fullName = profile.familyName;
+                } else if (nil != profile.givenName) {
+                    fullName = profile.givenName;
+                }
+                
+                if (nil != fullName) {
+                    patientName = fullName;
+                }
+            }
+            
             OCKPatient *patient = [[OCKPatient alloc] initWithIdentifier:user.objectId
                                                            carePlanStore:patientStore
-                                                                    name:user.email
+                                                                    name:patientName
                                                               detailInfo:nil
                                                         careTeamContacts:nil
                                                                tintColor:nil
@@ -201,6 +241,24 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         
         block(YES, [mutablePatients copy], @[]);
     });
+}
+
++ (nullable CMHInternalProfile *)profileForUser:(nonnull CMHInternalUser *)user from:(nonnull NSArray<CMHInternalProfile *> *)profiles
+{
+    NSAssert(nil != user && nil != profiles, @"%@ called without a user and profiles array", __PRETTY_FUNCTION__);
+    
+    for (CMHInternalProfile *profile in profiles) {
+        if (![profile isKindOfClass:[CMHInternalProfile class]]) {
+            NSAssert(false, @"Expecting an array of %@'s, but found a: %@", [CMHInternalProfile class], [profile class]);
+            continue;
+        }
+        
+        if ([user.profileId isEqualToString:profile.objectId]) {
+            return profile;
+        }
+    }
+    
+    return nil;
 }
 
 #pragma mark Setters/Getters

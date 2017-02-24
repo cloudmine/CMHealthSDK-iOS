@@ -2,10 +2,10 @@
 
 @interface CMHInternalProfile : CMObject
 
-@property (nonatomic, nullable) NSString *email;
-@property (nonatomic, nullable) NSString *givenName;
-@property (nonatomic, nullable) NSString *familyName;
-@property (nonatomic, nullable) NSString *gender;
-@property (nonatomic, nullable) NSDate *dateOfBirth;
+@property (nonatomic, copy, nullable) NSString *email;
+@property (nonatomic, copy, nullable) NSString *givenName;
+@property (nonatomic, copy, nullable) NSString *familyName;
+@property (nonatomic, copy, nullable) NSString *gender;
+@property (nonatomic, copy, nullable) NSDate *dateOfBirth;
 
 @end
