@@ -10,6 +10,7 @@
 #import "CMHCareObjectSaver.h"
 #import "CMHConfiguration.h"
 #import "CMHInternalProfile.h"
+#import "CMHCareSyncQueue.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -419,14 +420,18 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
         [cmhEvent addAclId:self.sharedAclId];
         
-        [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
-            if (nil != saveError) {
-                NSLog(@"[CMHEALTH] Error uploading event: %@", saveError.localizedDescription);
-                return;
-            }
-            
-            NSLog(@"[CMHEALTH] Event uploaded with status: %@", status);
-        }];
+        [[CMHCareSyncQueue sharedQueue] enqueueUpdateEvent:cmhEvent];
+        
+        
+        
+//        [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
+//            if (nil != saveError) {
+//                NSLog(@"[CMHEALTH] Error uploading event: %@", saveError.localizedDescription);
+//                return;
+//            }
+//            
+//            NSLog(@"[CMHEALTH] Event uploaded with status: %@", status);
+//        }];
     }];
 }
 
