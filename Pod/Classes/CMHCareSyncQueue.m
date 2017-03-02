@@ -27,24 +27,63 @@
 
 - (void)main
 {
-    if (self.cancelled) {
-        return;
-    }
+    NSUInteger retryCount = 0;
     
-    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-        [CMHCareObjectSaver saveCMHCareObject:self.event withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
+    while(true) { // Retry loop
+        if (self.isCancelled) {
+            NSLog(@"[CMHealth] Operation cancelled");
+            return;
+        }
+        
+        __block NSString *saveStatus = nil;
+        __block NSError *saveError = nil;
+        
+        cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+            [CMHCareObjectSaver saveCMHCareObject:self.event withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
+                saveStatus = status;
+                saveError = error;
+                
+                done();
+            }];
+        });
+        
+        if (nil == saveStatus) {
+            NSTimeInterval sleepTime = [CMHOperation sleepTimeForRetryCount:retryCount];
+            retryCount += 1;
             
-            if (nil != saveError) {
-                NSLog(@"[CMHEALTH] Error uploading event via queue: %@", saveError.localizedDescription);
-            } else {
-                NSLog(@"[CMHEALTH] Event uploaded via queue with status: %@", status);
+            NSLog(@"[CMHEALTH] Error uploading event via queue %@, retrying after: %f", saveError.localizedDescription, sleepTime);
+            if (self.isCancelled) {
+                NSLog(@"[CMHealth] Operation cancelled");
+                return;
             }
             
-            done();
-            
-            //TODO: Handle failure/retries
-        }];
-    });
+            [NSThread sleepForTimeInterval:sleepTime];
+        } else {
+            NSLog(@"[CMHEALTH] Event uploaded via queue with status: %@", saveStatus);
+            break;
+        }
+    }
+}
+
+#pragma mark Helpers
++ (NSTimeInterval)sleepTimeForRetryCount:(NSUInteger)count
+{
+    switch (count) {
+        case 0:
+            return 0.1f;
+        case 1:
+            return 1.0f;
+        case 2:
+            return 2.0f;
+        case 3:
+            return 5.0f;
+        case 4:
+            return 10.0f;
+        case 5:
+            return 15.0f;
+        default:
+            return 30.0f;
+    }
 }
 
 
@@ -58,6 +97,8 @@
 
 @implementation CMHCareSyncQueue
 
+#pragma mark Public API
+
 + (instancetype)sharedQueue
 {
     static dispatch_once_t onceToken;
@@ -69,6 +110,16 @@
     
     return queue;
 }
+
+- (void)enqueueUpdateEvent:(CMHCareEvent *)event
+{
+    NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
+    
+    CMHOperation *updateOperation = [[CMHOperation alloc] initWithEvent:event];
+    [self.updateQueue addOperation:updateOperation];
+}
+
+#pragma mark Initialization
 
 - (instancetype)init
 {
@@ -85,17 +136,28 @@
     _updateQueue.maxConcurrentOperationCount = 1;
     _updateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
     
+    [_updateQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
+    
     return self;
 }
 
-#pragma mark Public API
-
-- (void)enqueueUpdateEvent:(CMHCareEvent *)event
+- (void)dealloc
 {
-    NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
-    
-    CMHOperation *updateOperation = [[CMHOperation alloc] initWithEvent:event];
-    [self.updateQueue addOperation:updateOperation];
+    [_updateQueue removeObserver:self forKeyPath:@"operationCount"];
+}
+
+#pragma mark KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+    if (object == self.updateQueue && [@"operationCount" isEqualToString:keyPath] ) {
+        [self operationCountChangedTo:self.updateQueue.operationCount];
+    }
+}
+
+- (void)operationCountChangedTo:(NSUInteger)count
+{
+    NSLog(@"[CMHealth] Operation count is: %li", (long)count);
 }
 
 @end
