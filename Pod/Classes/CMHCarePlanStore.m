@@ -33,6 +33,8 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 @property (nonatomic, nonnull, readonly) NSString *sharedAclId;
 
+@property (nonatomic, nonnull) CMHCareSyncQueue *syncQueue;
+
 @end
 
 @implementation CMHCarePlanStore
@@ -55,6 +57,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     _cmhIdentifier = [cmhIdentifier copy];
     _updateGroup = dispatch_group_create();
     _isUpdatingActivity = NO;
+    _syncQueue = [CMHCareSyncQueue new];
     
     return self;
 }
@@ -420,9 +423,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
         [cmhEvent addAclId:self.sharedAclId];
         
-        [[CMHCareSyncQueue sharedQueue] enqueueUpdateEvent:cmhEvent];
-        
-        
+        [self.syncQueue enqueueUpdateEvent:cmhEvent];
         
 //        [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
 //            if (nil != saveError) {

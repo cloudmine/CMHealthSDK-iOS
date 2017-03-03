@@ -4,8 +4,6 @@
 
 @interface CMHCareSyncQueue : NSObject
 
-+ (instancetype)sharedQueue;
-
 - (void)enqueueUpdateEvent:(CMHCareEvent *)event;
 
 @end

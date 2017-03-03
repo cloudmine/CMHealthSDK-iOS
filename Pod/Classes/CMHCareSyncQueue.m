@@ -97,53 +97,37 @@
 
 @implementation CMHCareSyncQueue
 
-#pragma mark Public API
-
-+ (instancetype)sharedQueue
-{
-    static dispatch_once_t onceToken;
-    static CMHCareSyncQueue *queue = nil;
-    
-    dispatch_once(&onceToken, ^{
-        queue = [[self alloc] initInternal];
-    });
-    
-    return queue;
-}
-
-- (void)enqueueUpdateEvent:(CMHCareEvent *)event
-{
-    NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
-    
-    CMHOperation *updateOperation = [[CMHOperation alloc] initWithEvent:event];
-    [self.updateQueue addOperation:updateOperation];
-}
-
 #pragma mark Initialization
 
 - (instancetype)init
 {
-    @throw @"%s Unavailable, call + sharedQueue";
-}
-
-- (instancetype)initInternal
-{
     self = [super init];
     if (nil == self) { return nil; }
-    
+
     _updateQueue = [[NSOperationQueue alloc] init];
     _updateQueue.name = @"com.cloudemineinc.CMHealth.UpdateQueue";
     _updateQueue.maxConcurrentOperationCount = 1;
     _updateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
-    
+
     [_updateQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
-    
+
     return self;
 }
 
 - (void)dealloc
 {
     [_updateQueue removeObserver:self forKeyPath:@"operationCount"];
+}
+
+#pragma mark Public API
+
+- (void)enqueueUpdateEvent:(CMHCareEvent *)event
+{
+    NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
+    
+    CMHOperation *updateOperation = [[CMHOperation alloc] initWithEvent:event];
+    updateOperation.queuePriority = NSOperationQueuePriorityHigh;
+    [self.updateQueue addOperation:updateOperation];
 }
 
 #pragma mark KVO
