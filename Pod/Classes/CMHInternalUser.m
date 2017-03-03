@@ -29,10 +29,6 @@
     newUser.profile.givenName = regData.givenName;
     newUser.profile.gender = regData.gender;
     newUser.profile.dateOfBirth = regData.birthdate;
-    
-//    if (nil != [CMHConfiguration sharedConfiguration].providerSharedAclId) {
-//        [newUser.profile addAclId:[CMHConfiguration sharedConfiguration].providerSharedAclId];
-//    }
 
     [CMStore defaultStore].user = newUser;
 
@@ -70,21 +66,6 @@
             }];
         }];
     }];
-}
-
-
-+ (void)saveUserProfile:(nonnull CMHInternalProfile *)profile completion:(void (^_Nonnull)(NSError *_Nullable error))block
-{
-    if ([CMHConfiguration sharedConfiguration].shouldShareUserProfile) {
-        [CMHCareObjectSaver saveCMHCareObject:profile withCompletion:^(NSString * _Nullable status, NSError * _Nullable sharedSaveError) {
-            block(sharedSaveError);
-        }];
-    } else {
-        [CMStore.defaultStore saveUserObject:profile callback:^(CMObjectUploadResponse *response) {
-            NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:profile.objectId uploadResponse:response];
-            block(saveError);
-        }];
-    }
 }
 
 + (void)loginAndLoadProfileWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block
@@ -134,8 +115,7 @@
     self.profile.familyName = familyName;
     self.profile.givenName = givenName;
 
-    [self.profile save:^(CMObjectUploadResponse *response) {
-        NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:self.profile.objectId uploadResponse:response];
+    [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable saveError) {
         if (nil != saveError) {
             if (nil != block) {
                 block(saveError);
@@ -177,6 +157,22 @@
 
     if (nil != self.profileId) {
         [aCoder encodeObject:self.profileId forKey:@"profileId"];
+    }
+}
+
+#pragma mark Private Helpers
+
++ (void)saveUserProfile:(nonnull CMHInternalProfile *)profile completion:(void (^_Nonnull)(NSError *_Nullable error))block
+{
+    if ([CMHConfiguration sharedConfiguration].shouldShareUserProfile) {
+        [CMHCareObjectSaver saveCMHCareObject:profile withCompletion:^(NSString * _Nullable status, NSError * _Nullable sharedSaveError) {
+            block(sharedSaveError);
+        }];
+    } else {
+        [CMStore.defaultStore saveUserObject:profile callback:^(CMObjectUploadResponse *response) {
+            NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:profile.objectId uploadResponse:response];
+            block(saveError);
+        }];
     }
 }
 
