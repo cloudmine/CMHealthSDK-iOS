@@ -1,8 +1,8 @@
 #import "CMHCareObjectSaver.h"
 #import <CloudMine/CloudMine.h>
 #import "CMHErrorUtilities.h"
+#import "CMHConfiguration.h"
 
-static NSString *_Nonnull const CMHSaveCareObjectSnippetName = @"insertCareKitObject";
 static NSString *_Nonnull const CMHSaveSessionTokenParamKey  = @"session_token";
 static NSString *_Nonnull const CMHSaveCareObjectParamKey    = @"care_object";
 static NSString *_Nonnull const CMHSaveResultBodyKey         = @"result";
@@ -21,7 +21,7 @@ static NSString *_Nonnull const CMHSaveResultSuccessKey      = @"success";
     NSDictionary *encodedCareObject = encodingResult[careObject.objectId];
     
     NSAssert(nil != encodedCareObject, @"Failed to encode care object: %@", careObject);
-    NSAssert(nil != encodedCareObject[@"cmh_owner"], @"CareObject Parameter: %@ does not conform to contract of snippet: %@, requires a cmh_owner parameter", careObject, CMHSaveCareObjectSnippetName);
+    NSAssert(nil != encodedCareObject[@"cmh_owner"], @"CareObject Parameter: %@ does not conform to contract of snippet: %@, requires a cmh_owner parameter", careObject, [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName);
     
     CMWebService *webService = [CMStore defaultStore].webService;
     NSDictionary *parameters = @{ CMHSaveSessionTokenParamKey: [CMUser currentUser].token,
@@ -35,9 +35,9 @@ static NSString *_Nonnull const CMHSaveResultSuccessKey      = @"success";
         return;
     }
     
-    [webService runPOSTSnippet:CMHSaveCareObjectSnippetName withBody:parameterData user:[CMUser currentUser] successHandler:^(id snippetResponse, NSDictionary *headers) {
+    [webService runPOSTSnippet:[CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName withBody:parameterData user:[CMUser currentUser] successHandler:^(id snippetResponse, NSDictionary *headers) {
         if (nil == snippetResponse || ![snippetResponse isKindOfClass:[NSDictionary class]]) {
-            NSString *errorMessage = [NSString localizedStringWithFormat:@"Invalid Response from %@ snippet: %@", CMHSaveCareObjectSnippetName, snippetResponse];
+            NSString *errorMessage = [NSString localizedStringWithFormat:@"Invalid Response from %@ snippet: %@", [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName, snippetResponse];
             NSError *error = [CMHErrorUtilities errorWithCode:CMHErrorCareObjectSaveError localizedDescription:errorMessage];
             block(nil, error);
             return;
@@ -55,7 +55,7 @@ static NSString *_Nonnull const CMHSaveResultSuccessKey      = @"success";
         
         NSDictionary *successDictionary = result[CMHSaveResultSuccessKey];
         if (nil == successDictionary || ![successDictionary isKindOfClass:[NSDictionary class]] || nil == successDictionary[careObject.objectId]) {
-            NSString *errorMessage = [NSString localizedStringWithFormat:@"Ambiguous response from %@ snippet: %@", CMHSaveCareObjectSnippetName, successDictionary];
+            NSString *errorMessage = [NSString localizedStringWithFormat:@"Ambiguous response from %@ snippet: %@", [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName, successDictionary];
             NSError *error = [CMHErrorUtilities errorWithCode:CMHErrorCareObjectSaveError localizedDescription:errorMessage];
             block(nil, error);
             return;

@@ -29,9 +29,9 @@
     newUser.profile.gender = regData.gender;
     newUser.profile.dateOfBirth = regData.birthdate;
     
-    if (nil != [CMHConfiguration sharedConfiguration].providerSharedAclId) {
-        [newUser.profile addAclId:[CMHConfiguration sharedConfiguration].providerSharedAclId];
-    }
+//    if (nil != [CMHConfiguration sharedConfiguration].providerSharedAclId) {
+//        [newUser.profile addAclId:[CMHConfiguration sharedConfiguration].providerSharedAclId];
+//    }
 
     [CMStore defaultStore].user = newUser;
 
@@ -53,8 +53,7 @@
                 return;
             }
 
-            [CMStore.defaultStore saveUserObject:newUser.profile callback:^(CMObjectUploadResponse *response) {
-                NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:newUser.profile.objectId uploadResponse:response];
+            [self saveUserProfile:newUser.profile completion:^(NSError * _Nullable saveError) {
                 if (nil != saveError) {
                     if (nil != block) {
                         block(saveError);
@@ -67,6 +66,15 @@
                 }
             }];
         }];
+    }];
+}
+
+
++ (void)saveUserProfile:(nonnull CMHInternalProfile *)profile completion:(void (^_Nonnull)(NSError *_Nullable error))block
+{
+    [CMStore.defaultStore saveUserObject:profile callback:^(CMObjectUploadResponse *response) {
+        NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:profile.objectId uploadResponse:response];
+        block(saveError);
     }];
 }
 

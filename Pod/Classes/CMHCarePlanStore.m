@@ -72,7 +72,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 + (instancetype)storeWithPersistenceDirectoryURL:(NSURL *)URL andCMHIdentifier:(NSString *)cmhIdentifier
 {
-    NSAssert(nil != [CMHConfiguration sharedConfiguration].providerSharedAclId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
+    NSAssert(nil != [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName, @"Must configure a Shared Object Update Snippet Name for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedUpdateSnippetName:] before utitlizing %@", [self class]);
     NSAssert(nil != cmhIdentifier, @"Must provide a patient user identifier when intitializing %@", [self class]);
     
     CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:cmhIdentifier];

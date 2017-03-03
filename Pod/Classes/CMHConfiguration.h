@@ -4,6 +4,6 @@
 
 + (instancetype)sharedConfiguration;
 
-@property (nonatomic, copy, nullable) NSString *providerSharedAclId;
+@property (nonatomic, copy, nullable) NSString *sharedObjectUpdateSnippetName;
 
 @end

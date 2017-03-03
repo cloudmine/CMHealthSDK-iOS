@@ -6,10 +6,10 @@
 
 + (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret
 {
-    [self setAppIdentifier:identifier appSecret:secret sharedACLId:nil];
+    [self setAppIdentifier:identifier appSecret:secret sharedUpdateSnippetName:nil];
 }
 
-+ (void)setAppIdentifier:(NSString *)identifier appSecret:(NSString *)secret sharedACLId:(NSString *_Nullable)aclId
++ (void)setAppIdentifier:(NSString *_Nonnull)identifier appSecret:(NSString *_Nonnull)secret sharedUpdateSnippetName:(NSString *_Nullable)snippetName;
 {
     NSAssert(nil != identifier, @"CMHealth App Identifier can not be nil");
     NSAssert(nil != secret, @"CMHealth App Secret can not be nil");
@@ -18,13 +18,13 @@
     credentials.appIdentifier = identifier;
     credentials.appSecret = secret;
     
-    if (nil == aclId) {
+    if (nil == snippetName) {
         return;
     }
     
-    NSAssert(aclId.length > 0, @"Please provide a valid Shared Object ACL Id, not an empty string");
+    NSAssert(snippetName.length > 0, @"Please provide a valid Shared Object Update Snippet Name, not an empty string");
     
-    [CMHConfiguration sharedConfiguration].providerSharedAclId = aclId;
+    [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName = snippetName;
 }
 
 @end
