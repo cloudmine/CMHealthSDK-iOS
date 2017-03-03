@@ -1,94 +1,9 @@
 #import "CMHCareSyncQueue.h"
 #import "CMHCareEvent.h"
+#import "CMHCareActivity.h"
 #import "CMHDisptachUtils.h"
 #import "CMHCareObjectSaver.h"
 #import "CMHCarePushOperation.h"
-
-//@interface CMHOperation : NSOperation
-//
-//@property (nonatomic, nonnull) CMHCareEvent *event;
-//
-//@end
-//
-//@implementation CMHOperation
-//
-//- (instancetype)initWithEvent:(CMHCareEvent *)event
-//{
-//    NSAssert(nil != event, @"Cannot instantiate %@ without an object to upload", [self class]);
-//    
-//    self = [super init];
-//    if (nil == self || nil == event) { return nil; }
-//    
-//    _event = event;
-//    
-//    return self;
-//}
-//
-//#pragma mark Overrides
-//
-//- (void)main
-//{
-//    NSUInteger retryCount = 0;
-//    
-//    while(true) { // Retry loop
-//        if (self.isCancelled) {
-//            NSLog(@"[CMHealth] Operation cancelled");
-//            return;
-//        }
-//        
-//        __block NSString *saveStatus = nil;
-//        __block NSError *saveError = nil;
-//        
-//        cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-//            [CMHCareObjectSaver saveCMHCareObject:self.event withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
-//                saveStatus = status;
-//                saveError = error;
-//                
-//                done();
-//            }];
-//        });
-//        
-//        if (nil == saveStatus) {
-//            NSTimeInterval sleepTime = [CMHOperation sleepTimeForRetryCount:retryCount];
-//            retryCount += 1;
-//            
-//            NSLog(@"[CMHEALTH] Error uploading event via queue %@, retrying after: %f", saveError.localizedDescription, sleepTime);
-//            if (self.isCancelled) {
-//                NSLog(@"[CMHealth] Operation cancelled");
-//                return;
-//            }
-//            
-//            [NSThread sleepForTimeInterval:sleepTime];
-//        } else {
-//            NSLog(@"[CMHEALTH] Event uploaded via queue with status: %@", saveStatus);
-//            break;
-//        }
-//    }
-//}
-//
-//#pragma mark Helpers
-//+ (NSTimeInterval)sleepTimeForRetryCount:(NSUInteger)count
-//{
-//    switch (count) {
-//        case 0:
-//            return 0.1f;
-//        case 1:
-//            return 1.0f;
-//        case 2:
-//            return 2.0f;
-//        case 3:
-//            return 5.0f;
-//        case 4:
-//            return 10.0f;
-//        case 5:
-//            return 15.0f;
-//        default:
-//            return 30.0f;
-//    }
-//}
-//
-//
-//@end
 
 @interface CMHCareSyncQueue ()
 
@@ -127,6 +42,15 @@
     NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
     
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithEvent:event];
+    updateOperation.queuePriority = NSOperationQueuePriorityHigh;
+    [self.updateQueue addOperation:updateOperation];
+}
+
+- (void)enqueueUpdateActivity:(CMHCareActivity *)activity
+{
+    NSAssert(nil != activity, @"Cannot call %s without providen a %@", __PRETTY_FUNCTION__, [CMHCareActivity class]);
+
+    CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithActivity:activity];
     updateOperation.queuePriority = NSOperationQueuePriorityHigh;
     [self.updateQueue addOperation:updateOperation];
 }

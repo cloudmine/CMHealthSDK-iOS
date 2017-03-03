@@ -72,7 +72,7 @@
             NSTimeInterval sleepTime = [CMHCarePushOperation sleepTimeForRetryCount:retryCount];
             retryCount += 1;
 
-            NSLog(@"[CMHEALTH] Error uploading Care Object (%@) via queue %@, retrying after: %f", self.careObject, saveError.localizedDescription, sleepTime);
+            NSLog(@"[CMHEALTH] Error uploading Care Object via queue %@, retrying after: %f. -> %@", saveError.localizedDescription, sleepTime, self.careObject);
             if (self.isCancelled) {
                 NSLog(@"[CMHealth] Operation cancelled");
                 return;
@@ -80,7 +80,7 @@
 
             [NSThread sleepForTimeInterval:sleepTime];
         } else {
-            NSLog(@"[CMHEALTH] Care Object (%@) uploaded via queue with status: %@", self.careObject, saveStatus);
+            NSLog(@"[CMHEALTH] Care Object uploaded via queue with status: %@. -> %@", saveStatus, self.careObject);
             break;
         }
     }

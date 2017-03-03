@@ -339,14 +339,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
         
-        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
-            if (nil == status) {
-                NSLog(@"[CMHealth] Error uploading activity: %@", saveError.localizedDescription);
-                return;
-            }
-            
-            NSLog(@"[CMHealth] Activity uploaded with status: %@", status);
-        }];
+        [self.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -364,14 +357,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
         
-        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
-            if (nil == status) {
-                NSLog(@"[CMHealth] Error updating end date for activity: %@", saveError.localizedDescription);
-                return;
-            }
-            
-            NSLog(@"[CMHealth] Activity end date set with status: %@", status);
-        }];
+        [self.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -389,14 +375,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
         cmhActivity.isDeleted = YES;
         
-        [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
-            if (nil == status) {
-                NSLog(@"[CMHealth] Error updating delted activity: @%", error.localizedDescription);
-                return;
-            }
-            
-            NSLog(@"[CMHealth] Updated activity to delete with status: %@", status);
-        }];
+        [self.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -416,15 +395,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
         
         [self.syncQueue enqueueUpdateEvent:cmhEvent];
-        
-//        [CMHCareObjectSaver saveCMHCareObject:cmhEvent withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
-//            if (nil != saveError) {
-//                NSLog(@"[CMHEALTH] Error uploading event: %@", saveError.localizedDescription);
-//                return;
-//            }
-//            
-//            NSLog(@"[CMHEALTH] Event uploaded with status: %@", status);
-//        }];
     }];
 }
 
