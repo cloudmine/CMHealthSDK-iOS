@@ -31,8 +31,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 @property (nonatomic, nonnull, readonly) NSString *activitySyncKey;
 @property (nonatomic, nonnull, readonly) NSString *activityLastSyncStamp;
 
-@property (nonatomic, nonnull, readonly) NSString *sharedAclId;
-
 @property (nonatomic, nonnull) CMHCareSyncQueue *syncQueue;
 
 @end
@@ -328,12 +326,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return savedStamp;
 }
 
-- (NSString *)sharedAclId
-{
-    NSAssert(nil != [CMHConfiguration sharedConfiguration].providerSharedAclId, @"Must configure an ACL Id for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedACLId:] before utitlizing %@", [self class]);
-    return [CMHConfiguration sharedConfiguration].providerSharedAclId;
-}
-
 #pragma mark Overrides
 
 - (void)addActivity:(OCKCarePlanActivity *)activity completion:(void (^)(BOOL, NSError * _Nullable))completion
@@ -346,7 +338,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:self.sharedAclId];
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
             if (nil == status) {
@@ -372,7 +363,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:self.sharedAclId];
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable saveError) {
             if (nil == status) {
@@ -397,7 +387,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [cmhActivity addAclId:self.sharedAclId];
         cmhActivity.isDeleted = YES;
         
         [CMHCareObjectSaver saveCMHCareObject:cmhActivity withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
@@ -425,7 +414,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         }
         
         CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
-        [cmhEvent addAclId:self.sharedAclId];
         
         [self.syncQueue enqueueUpdateEvent:cmhEvent];
         
