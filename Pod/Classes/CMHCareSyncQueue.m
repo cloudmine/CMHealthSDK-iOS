@@ -130,6 +130,20 @@
     [self.updateQueue addOperation:updateOperation];
 }
 
+- (void)runInBackgroundAfterQueueEmpties:(void(^_Nonnull)())block
+{
+    NSAssert(nil != block, @"Must provide block to execute to %s", __PRETTY_FUNCTION__);
+
+    dispatch_queue_t gcdQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+    dispatch_async(gcdQueue, ^{
+        NSLog(@"[CMHealth] Waiting for update queu to empty %li operations", self.updateQueue.operationCount);
+        [self.updateQueue waitUntilAllOperationsAreFinished];
+        NSLog(@"[CMHealth] Update queue emptied; proceeding with block");
+        block();
+    });
+}
+
 #pragma mark KVO
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context

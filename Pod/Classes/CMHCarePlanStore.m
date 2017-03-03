@@ -87,33 +87,37 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 - (void)syncFromRemoteWithCompletion:(CMHRemoteSyncCompletion)block
 {
-    [self syncRemoteActivitiesWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
-        if (!success) {
-            NSLog(@"[CMHEALTH] Error syncing activities: %@", errors);
-            
-            if (nil != block) {
-                block(NO, errors);
-            }
-            return;
-        }
-        
-        
-        NSLog(@"[CMHEALTH] Successful sync of activities");
-        
-        [self syncRemoteEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+    __weak typeof(self) weakSelf = self;
+
+    [self.syncQueue runInBackgroundAfterQueueEmpties:^{
+        [weakSelf syncRemoteActivitiesWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
             if (!success) {
-                NSLog(@"[CMHEALTH] Error syncing events: %@", errors);
-                
+                NSLog(@"[CMHEALTH] Error syncing activities: %@", errors);
+
                 if (nil != block) {
                     block(NO, errors);
                 }
                 return;
             }
-            
-            NSLog(@"[CMHEALTH] Successful sync of events");
-            if (nil != block) {
-                block(YES, @[]);
-            }
+
+
+            NSLog(@"[CMHEALTH] Successful sync of activities");
+
+            [weakSelf syncRemoteEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+                if (!success) {
+                    NSLog(@"[CMHEALTH] Error syncing events: %@", errors);
+
+                    if (nil != block) {
+                        block(NO, errors);
+                    }
+                    return;
+                }
+
+                NSLog(@"[CMHEALTH] Successful sync of events");
+                if (nil != block) {
+                    block(YES, @[]);
+                }
+            }];
         }];
     }];
 }
