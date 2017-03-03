@@ -1,4 +1,5 @@
 #import "CMHInternalProfile.h"
+#import "CMHConstants_internal.h"
 
 @implementation CMHInternalProfile
 
@@ -12,6 +13,7 @@
     _familyName = [aDecoder decodeObjectForKey:@"familyName"];
     _gender = [aDecoder decodeObjectForKey:@"gender"];
     _dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
+    _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
 
     return self;
 }
@@ -20,6 +22,7 @@
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.email forKey:@"email"];
+    [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
 
     if (nil != self.givenName) {
         [aCoder encodeObject:self.givenName forKey:@"givenName"];

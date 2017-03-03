@@ -14,4 +14,9 @@
     return configInstance;
 }
 
+- (BOOL)shouldShareUserProfile
+{
+    return nil != self.sharedObjectUpdateSnippetName;
+}
+
 @end

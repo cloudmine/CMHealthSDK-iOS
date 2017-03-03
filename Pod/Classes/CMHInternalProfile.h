@@ -7,5 +7,6 @@
 @property (nonatomic, copy, nullable) NSString *familyName;
 @property (nonatomic, copy, nullable) NSString *gender;
 @property (nonatomic, copy, nullable) NSDate *dateOfBirth;
+@property (nonatomic, copy, nullable) NSString *cmhOwnerId;
 
 @end

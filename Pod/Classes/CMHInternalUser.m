@@ -4,6 +4,7 @@
 #import "CMHRegistrationData.h"
 #import "CMHErrorUtilities.h"
 #import "CMHConfiguration.h"
+#import "CMHCareObjectSaver.h"
 
 @interface CMHInternalUser ()
 @property (nonatomic, nullable) CMHInternalProfile *profile;
@@ -53,6 +54,8 @@
                 return;
             }
 
+            newUser.profile.cmhOwnerId = [CMHInternalUser currentUser].objectId;
+
             [self saveUserProfile:newUser.profile completion:^(NSError * _Nullable saveError) {
                 if (nil != saveError) {
                     if (nil != block) {
@@ -72,10 +75,16 @@
 
 + (void)saveUserProfile:(nonnull CMHInternalProfile *)profile completion:(void (^_Nonnull)(NSError *_Nullable error))block
 {
-    [CMStore.defaultStore saveUserObject:profile callback:^(CMObjectUploadResponse *response) {
-        NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:profile.objectId uploadResponse:response];
-        block(saveError);
-    }];
+    if ([CMHConfiguration sharedConfiguration].shouldShareUserProfile) {
+        [CMHCareObjectSaver saveCMHCareObject:profile withCompletion:^(NSString * _Nullable status, NSError * _Nullable sharedSaveError) {
+            block(sharedSaveError);
+        }];
+    } else {
+        [CMStore.defaultStore saveUserObject:profile callback:^(CMObjectUploadResponse *response) {
+            NSError *saveError = [CMHErrorUtilities errorForKind:@"user profile" objectId:profile.objectId uploadResponse:response];
+            block(saveError);
+        }];
+    }
 }
 
 + (void)loginAndLoadProfileWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block

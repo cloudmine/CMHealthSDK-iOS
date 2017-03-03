@@ -2,8 +2,9 @@
 
 @interface CMHConfiguration : NSObject
 
-+ (instancetype)sharedConfiguration;
++ (nonnull instancetype)sharedConfiguration;
 
 @property (nonatomic, copy, nullable) NSString *sharedObjectUpdateSnippetName;
+@property (nonatomic, readonly) BOOL shouldShareUserProfile;
 
 @end
