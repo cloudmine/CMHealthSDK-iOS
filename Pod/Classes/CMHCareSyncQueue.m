@@ -27,12 +27,15 @@
 
     [_updateQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emptyQueueWithAppInBackground) name:UIApplicationWillResignActiveNotification object:nil];
+
     return self;
 }
 
 - (void)dealloc
 {
     [_updateQueue removeObserver:self forKeyPath:@"operationCount"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 }
 
 #pragma mark Public API
@@ -81,6 +84,33 @@
 - (void)operationCountChangedTo:(NSUInteger)count
 {
     NSLog(@"[CMHealth] Operation count is: %li", (long)count);
+}
+
+#pragma mark Notificatoin Handlers
+
+- (void)emptyQueueWithAppInBackground
+{
+    if (0 == self.updateQueue.operationCount) {
+        return;
+    }
+
+    NSLog(@"[CMHealth] Sync queue attempting to complete %li operation(s) in background", (long)self.updateQueue.operationCount);
+
+    UIApplication *app = [UIApplication sharedApplication];
+    __block UIBackgroundTaskIdentifier bgTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
+        NSLog(@"[CMHealth] Sync queue failed to complete %li operation(s) in background", (long)self.updateQueue.operationCount);
+
+        [app endBackgroundTask:bgTaskId];
+        bgTaskId = UIBackgroundTaskInvalid;
+    }];
+
+    dispatch_queue_t completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(completionQueue, ^{
+        [self.updateQueue waitUntilAllOperationsAreFinished];
+
+        NSLog(@"[CMHealth] Sync queue successfully emptied in background");
+        [app endBackgroundTask:bgTaskId];
+    });
 }
 
 @end
