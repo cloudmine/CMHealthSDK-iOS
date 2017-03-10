@@ -519,8 +519,14 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
                 });
                 
                 if (nil != updateStoreError) {
-                    NSLog(@"[CMHEALTH] Error updating event %@ in store:", updatedEvent, updateStoreError);
-                    [updateErrors addObject:updateStoreError];
+                    // TODO: Ask Umer, shouldn't the domain and codes be in the public API
+                    if ([updateStoreError.domain isEqualToString:@"OCKErrorDomain"] && updateStoreError.code == 1) {
+                        NSLog(@"[CMHealth] Skipping update to event which is not in local store, and is assumed to be part of a deleted activity %@", wrappedEvent.ckEvent);
+                    } else {
+                        NSLog(@"[CMHEALTH] Error updating event in store: %@ (%@)`", wrappedEvent.ckEvent, updateStoreError);
+                        [updateErrors addObject:updateStoreError];
+                    }
+                    
                     dispatch_group_leave(self.updateGroup);
                     self.eventBeingUpdated = nil;
                     continue;
