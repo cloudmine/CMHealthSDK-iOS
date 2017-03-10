@@ -11,6 +11,7 @@
 #import "CMHConfiguration.h"
 #import "CMHInternalProfile.h"
 #import "CMHCareSyncQueue.h"
+#import "CMHCarePlanStoreVendor.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
@@ -57,6 +58,10 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     _isUpdatingActivity = NO;
     _syncQueue = [CMHCareSyncQueue new];
     
+    // ensures our subclass is set up as super's delegate
+    _passDelegate = nil;
+    [super setDelegate:self];
+    
     return self;
 }
 
@@ -75,10 +80,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     NSAssert(nil != [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName, @"Must configure a Shared Object Update Snippet Name for shared care plan objects via +[CMHealth  setAppIdentifier: appSecret: sharedUpdateSnippetName:] before utitlizing %@", [self class]);
     NSAssert(nil != cmhIdentifier, @"Must provide a patient user identifier when intitializing %@", [self class]);
     
-    CMHCarePlanStore *store = [[CMHCarePlanStore alloc] initWithPersistenceDirectoryURL:URL andCMHIdentifier:cmhIdentifier];
-    store.delegate = nil; // ensures our subclass is set up as super's delegate
-    
-    return store;
+    return [[CMHCarePlanStoreVendor sharedVendor] storeForCMHIdentifier:cmhIdentifier atDirectory:URL];
 }
 
 #pragma mark Public CM API
@@ -276,7 +278,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 - (void)setDelegate:(id<OCKCarePlanStoreDelegate>)delegate
 {
-    [super setDelegate:self];
     _passDelegate = delegate;
 }
 
