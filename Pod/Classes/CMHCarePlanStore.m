@@ -217,6 +217,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             }
             
             NSString *patientName = user.email;
+            NSString *patientDetail = nil;
             CMHInternalProfile *profile = [CMHCarePlanStore profileForUser:(CMHInternalUser *)user from:allProfiles];
             
             if (nil != profile) {
@@ -232,13 +233,14 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
                 
                 if (nil != fullName) {
                     patientName = fullName;
+                    patientDetail = user.email;
                 }
             }
             
             OCKPatient *patient = [[OCKPatient alloc] initWithIdentifier:user.objectId
                                                            carePlanStore:patientStore
                                                                     name:patientName
-                                                              detailInfo:nil
+                                                              detailInfo:patientDetail
                                                         careTeamContacts:nil
                                                                tintColor:nil
                                                                 monogram:nil
