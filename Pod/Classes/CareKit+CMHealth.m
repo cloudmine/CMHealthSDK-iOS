@@ -24,3 +24,6 @@
 
 @implementation OCKCarePlanEventResult (CMHealth)
 @end
+
+@implementation OCKCarePlanThreshold (CMHealth)
+@end

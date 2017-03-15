@@ -12,3 +12,6 @@
 
 @interface OCKCarePlanEventResult (CMHealth)<CMCoding>
 @end
+
+@interface OCKCarePlanThreshold (CMHealth)<CMCoding>
+@end
