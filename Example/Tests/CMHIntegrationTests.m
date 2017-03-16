@@ -213,6 +213,33 @@ describe(@"CMHealthIntegration", ^{
         expect(pdfError).to.beNil();
         expect(pdfData).to.equal(localPDFData);
     });
+    
+    it(@"should let us update the user's profile data", ^{
+        __block CMHUserData *updateUserData = nil;
+        __block NSError *updateError = nil;
+        
+        NSString *updatedGender = @"male";
+        NSDate *updatedDOB = [NSDate dateWithTimeIntervalSince1970:116000];
+        
+        CMHMutableUserData *mutableUserData = [[CMHUser currentUser].userData mutableCopy];
+        mutableUserData.gender = updatedGender;
+        mutableUserData.dateOfBirth = updatedDOB;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] updateUserData:mutableUserData withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
+                updateUserData = userData;
+                updateError = error;
+                done();
+            }];
+        });
+        
+        expect(updateError).to.beNil();
+        expect(updateUserData == [CMHUser currentUser].userData).to.beTruthy();
+        expect(updateUserData.gender).to.equal(updatedGender);
+        expect(updateUserData.dateOfBirth).to.equal(updatedDOB);
+        expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
+        expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
+    });
 
     it(@"should return nothing for a consent that is not on file", ^{
         __block CMHConsent *fetchedConsent = nil;

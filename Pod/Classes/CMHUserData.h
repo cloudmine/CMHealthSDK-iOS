@@ -6,7 +6,7 @@
  *
  *  @see CMHUser class
  */
-@interface CMHUserData : NSObject
+@interface CMHUserData : NSObject<NSCopying, NSMutableCopying>
 
 /**
  *  Email address used to create the account. Never `nil`.

@@ -10,7 +10,7 @@
 + (void)loginAndLoadProfileWithEmail:(NSString *)email password:(NSString *)password andCompletion:(CMHUserAuthCompletion)block;
 
 - (void)loadProfileWithCompletion:(CMHUserAuthCompletion)block;
-- (void)updateFamilyName:(NSString *)familyName givenName:(NSString *)givenName withCompletion:(CMHUserAuthCompletion)block;
+- (void)updateProfileWithUserData:(CMHUserData *)userData withCompletion:(void(^)(NSError *error))block;
 - (CMHUserData *)generateCurrentUserData;
 
 @property (nonatomic) NSString *profileId;

@@ -3,6 +3,7 @@
 
 #import "CMHErrors.h"
 #import "CMHUserData.h"
+#import "CMHMutableUserData.h"
 #import "CMHConsent.h"
 #import "CMHUser.h"
 #import "ORKResult+CMHealth.h"

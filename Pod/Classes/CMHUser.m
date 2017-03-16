@@ -1,6 +1,7 @@
 #import "CMHUser.h"
 #import <CloudMine/CloudMine.h>
 #import "CMHUserData.h"
+#import "CMHMutableUserData.h"
 #import "CMHUserData_internal.h"
 #import "CMHInternalUser.h"
 #import "ORKResult+CMHealth.h"
@@ -228,6 +229,36 @@
     }];
 }
 
+-(void)updateUserData:(CMHUserData *)userData
+       withCompletion:(CMHUpdateUserDataCompletion)block
+{
+    NSAssert(nil != userData, @"Attempted to update user data without providing an instance of %@", [CMHUserData class]);
+    
+    if (![CMHInternalUser currentUser].isLoggedIn) {
+        if (nil != block) {
+            NSError *loggedOutError = [CMHErrorUtilities errorWithCode:CMHErrorUserNotLoggedIn localizedDescription:@"Must be logged in to update user data"];
+            block(nil, loggedOutError);
+        }
+        
+        return;
+    }
+    
+    [[CMHInternalUser currentUser] updateProfileWithUserData:userData withCompletion:^(NSError *error) {
+        if (nil != error) {
+            if (nil != block) {
+                block(nil, error);
+            }
+            return;
+        }
+        
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
+        
+        if (nil != block) {
+            block(self.userData, nil);
+        }
+    }];
+}
+
 - (void)resetPasswordForAccountWithEmail:(NSString *_Nonnull)email
                           withCompletion:(_Nullable CMHResetPasswordCompletion)block
 {
@@ -272,26 +303,24 @@
 
 - (void)conditionallySaveNameFromSignature:(ORKConsentSignature *_Nonnull)signature withCompletion:(void (^)(NSError *error))block
 {
-    CMHInternalUser *user = [CMHInternalUser currentUser];
-
-    if (user.hasName) {
+    if ( [CMHInternalUser currentUser].hasName) {
         block(nil);
         return;
     }
-
-    [user updateFamilyName:signature.familyName givenName:signature.givenName withCompletion:^(NSError * _Nullable error) {
-        if (nil != error) {
+    
+    CMHMutableUserData *mutableUserData = [self.userData mutableCopy];
+    mutableUserData.familyName = signature.familyName;
+    mutableUserData.givenName = signature.givenName;
+    
+    [self updateUserData:[mutableUserData copy] withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
+        if (nil == userData) {
             if (nil != block) {
                 block(error);
             }
             return;
         }
-
-        self.userData = [user generateCurrentUserData];
-
-        if (nil != block) {
-            block(nil);
-        }
+        
+        block(nil);
     }];
 }
 

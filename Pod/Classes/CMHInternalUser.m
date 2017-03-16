@@ -110,22 +110,16 @@
     }];
 }
 
-- (void)updateFamilyName:(NSString *)familyName givenName:(NSString *)givenName withCompletion:(CMHUserAuthCompletion)block
+- (void)updateProfileWithUserData:(CMHUserData *)userData withCompletion:(void(^)(NSError *error))block;
 {
-    self.profile.familyName = familyName;
-    self.profile.givenName = givenName;
-
-    [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable saveError) {
-        if (nil != saveError) {
-            if (nil != block) {
-                block(saveError);
-            }
-            return;
-        }
-
-        if (nil != block) {
-            block(nil);
-        }
+    self.profile.email = userData.email;
+    self.profile.givenName = userData.givenName;
+    self.profile.familyName = userData.familyName;
+    self.profile.gender = userData.gender;
+    self.profile.dateOfBirth = userData.dateOfBirth;
+    
+    [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable error) {
+        block(error);
     }];
 }
 

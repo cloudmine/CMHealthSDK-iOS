@@ -8,6 +8,7 @@ typedef void(^CMHUserLogoutCompletion)(NSError * _Nullable error);
 typedef void(^CMHResetPasswordCompletion)(NSError *_Nullable error);
 typedef void(^CMHUploadConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
+typedef void(^CMHUpdateUserDataCompletion)(CMHUserData *_Nullable userData, NSError *_Nullable error);
 
 /**
  *  `CMHUser` is a singleton class representing the current user. It represents
@@ -120,6 +121,21 @@ typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError 
  */
 - (void)fetchUserConsentForStudyWithDescriptor:(NSString *_Nullable)descriptor
                                  andCompletion:(_Nullable CMHFetchConsentCompletion)block;
+
+/**
+ * Updates the data for the current user. Fails with an error if the current user is
+ * not logged in.
+ *
+ * To get a CMHUserData object to provide to this method, make a `mutableCopy` of
+ * [CMHUser currentUser].userData and update the properties you want to change. The
+ * callback includes the updated CMHUserData object. Alternatively, the userData property
+ * on currentUser can be observed for changes with KVO.
+ *
+ * @param userData The updated user data to update on the server.
+ * @param block Executes when the update completes successfully or fails with an error.
+ */
+- (void)updateUserData:(CMHUserData *_Nonnull)userData
+        withCompletion:(_Nullable CMHUpdateUserDataCompletion)block;
 
 /**
  *  Logs into an existing account. Fails with an error if it doesn't exist or
