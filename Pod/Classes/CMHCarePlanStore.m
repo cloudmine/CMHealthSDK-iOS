@@ -56,7 +56,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     _cmhIdentifier = [cmhIdentifier copy];
     _updateGroup = dispatch_group_create();
     _isUpdatingActivity = NO;
-    _syncQueue = [CMHCareSyncQueue new];
+    _syncQueue = [[CMHCareSyncQueue alloc] initWithCMHIdentifier:_cmhIdentifier];
     
     // ensures our subclass is set up as super's delegate
     _passDelegate = nil;

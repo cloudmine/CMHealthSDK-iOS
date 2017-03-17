@@ -28,6 +28,7 @@
     if (nil == self || nil == event) { return nil; }
 
     _careObject = event;
+    self.queuePriority = NSOperationQueuePriorityHigh;
 
     return self;
 }
@@ -40,8 +41,32 @@
     if (nil == self || nil == activity) { return nil; }
 
     _careObject = activity;
+    self.queuePriority = NSOperationQueuePriorityHigh;
 
     return self;
+}
+
+#pragma mark NSSecureCoding
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super init];
+    if (nil == self) { return nil; }
+    
+    _careObject = [aDecoder decodeObjectForKey:@"careObject"];
+    self.queuePriority = NSOperationQueuePriorityHigh;
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:self.careObject forKey:@"careObject"];
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 #pragma mark Overrides
@@ -87,6 +112,7 @@
 }
 
 #pragma mark Helpers
+
 + (NSTimeInterval)sleepTimeForRetryCount:(NSUInteger)count
 {
     switch (count) {

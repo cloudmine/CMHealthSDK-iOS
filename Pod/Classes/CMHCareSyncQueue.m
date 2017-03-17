@@ -8,6 +8,8 @@
 @interface CMHCareSyncQueue ()
 
 @property (nonatomic, nonnull) NSOperationQueue *updateQueue;
+@property (nonatomic, nonnull) NSString *cmhIdentifier;
+@property (nonatomic, nonnull, readonly) NSString *archiveKey;
 
 @end
 
@@ -15,10 +17,14 @@
 
 #pragma mark Initialization
 
-- (instancetype)init
+- (instancetype)initWithCMHIdentifier:(NSString *)cmhIdentifer
 {
+    NSAssert(nil != cmhIdentifer, @"Cannot instantiate %@ without a cmhIdentifier");
+    
     self = [super init];
-    if (nil == self) { return nil; }
+    if (nil == self || nil == cmhIdentifer) { return nil; }
+    
+    _cmhIdentifier = [cmhIdentifer copy];
 
     _updateQueue = [[NSOperationQueue alloc] init];
     _updateQueue.name = @"com.cloudemineinc.CMHealth.UpdateQueue";
@@ -28,6 +34,16 @@
     [_updateQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emptyQueueWithAppInBackground) name:UIApplicationWillResignActiveNotification object:nil];
+    
+    // The order here matters. We don't want to drop operations if the app is terminated during this initializer
+    // So, we don't clear the archive until:
+    // 1. Archived Ops are added to the new queue
+    // 2. New queue is listening for termination notification
+    // This ensures any pending operations would be re-archived before termination
+    NSArray <CMHCarePushOperation *> *archivedOps = [self unarchiveOperations];
+    [_updateQueue addOperations:archivedOps waitUntilFinished:NO];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveOperations) name:UIApplicationWillTerminateNotification object:nil];
+    [self clearArchivedOperations];
 
     return self;
 }
@@ -36,6 +52,7 @@
 {
     [_updateQueue removeObserver:self forKeyPath:@"operationCount"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
 }
 
 #pragma mark Public API
@@ -45,7 +62,6 @@
     NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
     
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithEvent:event];
-    updateOperation.queuePriority = NSOperationQueuePriorityHigh;
     [self.updateQueue addOperation:updateOperation];
 }
 
@@ -54,7 +70,6 @@
     NSAssert(nil != activity, @"Cannot call %s without providen a %@", __PRETTY_FUNCTION__, [CMHCareActivity class]);
 
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithActivity:activity];
-    updateOperation.queuePriority = NSOperationQueuePriorityHigh;
     [self.updateQueue addOperation:updateOperation];
 }
 
@@ -111,6 +126,47 @@
         NSLog(@"[CMHealth] Sync queue successfully emptied in background");
         [app endBackgroundTask:bgTaskId];
     });
+}
+
+- (void)archiveOperations
+{
+    self.updateQueue.suspended = YES;
+    
+    if (self.updateQueue.operationCount < 1) {
+        return;
+    }
+    
+    NSLog(@"[CMHealth] Sync queue archiving %li operations before termination", (long)self.updateQueue.operationCount);
+    
+    NSData *opsData = [NSKeyedArchiver archivedDataWithRootObject:self.updateQueue.operations];
+    [[NSUserDefaults standardUserDefaults] setObject:opsData forKey:self.archiveKey];
+}
+
+#pragma mark Getters
+
+- (NSString *)archiveKey
+{
+    return [NSString stringWithFormat:@"CMHQueueArchive-%@", _cmhIdentifier];
+}
+
+#pragma mark Helpers
+
+- (NSArray *)unarchiveOperations
+{
+    NSData *opsData = [[NSUserDefaults standardUserDefaults] objectForKey:self.archiveKey];
+    if (nil == opsData) {
+        return @[];
+    }
+    
+    NSArray *ops = [NSKeyedUnarchiver unarchiveObjectWithData:opsData];
+    NSLog(@"[CMHealth] Sync queue restoring %li unarchived operations", (long)ops.count);
+    
+    return ops;
+}
+
+- (void)clearArchivedOperations
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.archiveKey];
 }
 
 @end
