@@ -117,6 +117,7 @@
     self.profile.familyName = userData.familyName;
     self.profile.gender = userData.gender;
     self.profile.dateOfBirth = userData.dateOfBirth;
+    self.profile.userInfo = userData.userInfo;
     
     [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable error) {
         block(error);

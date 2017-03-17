@@ -14,6 +14,7 @@
     _gender = [aDecoder decodeObjectForKey:@"gender"];
     _dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
     _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
+    _userInfo = [aDecoder decodeObjectForKey:@"userInfo"];
 
     return self;
 }
@@ -23,22 +24,20 @@
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.email forKey:@"email"];
     [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
+    [aCoder encodeObject:self.givenName forKey:@"givenName"];
+    [aCoder encodeObject:self.familyName forKey:@"familyName"];
+    [aCoder encodeObject:self.gender forKey:@"gender"];
+    [aCoder encodeObject:self.dateOfBirth forKey:@"dateOfBirth"];
+    [aCoder encodeObject:self.userInfo forKey:@"userInfo"];
+}
 
-    if (nil != self.givenName) {
-        [aCoder encodeObject:self.givenName forKey:@"givenName"];
+- (NSDictionary<NSString *,id<NSCoding>> *)userInfo
+{
+    if (nil == _userInfo) {
+        _userInfo = @{};
     }
-
-    if (nil != self.familyName) {
-        [aCoder encodeObject:self.familyName forKey:@"familyName"];
-    }
-
-    if (nil != self.gender) {
-        [aCoder encodeObject:self.gender forKey:@"gender"];
-    }
-
-    if (nil != self.dateOfBirth) {
-        [aCoder encodeObject:self.dateOfBirth forKey:@"dateOfBirth"];
-    }
+    
+    return _userInfo;
 }
 
 @end

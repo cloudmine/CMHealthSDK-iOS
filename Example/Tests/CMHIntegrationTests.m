@@ -19,9 +19,27 @@ static NSString *const TestFamilyName = @"Doe";
     return @"female";
 }
 
++ (NSString *)updateGenderString
+{
+    return @"male";
+}
+
 + (NSDate *)dateOfBirth
 {
     return [NSDate dateWithTimeIntervalSince1970:30000];
+}
+
++ (NSDate *)updateDateOfBirth
+{
+    return [NSDate dateWithTimeIntervalSince1970:116000];
+}
+
++ (NSDictionary *)updateUserInfo
+{
+    return @{ @"key1" : @"A String element",
+              @"key2" : @YES,
+              @"key3" : @116,
+              @"key4" : @[@"Hello", @"World"] };
 }
 
 + (ORKCollectionResult *)registrationResultWithEmail:(NSString *)emailAddress
@@ -107,6 +125,7 @@ describe(@"CMHealthIntegration", ^{
         expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
         expect([CMHUser currentUser].userData.gender).to.equal(CMHIntegrationTestFactory.genderString);
         expect([CMHUser currentUser].userData.dateOfBirth).to.equal(CMHIntegrationTestFactory.dateOfBirth);
+        expect([CMHUser currentUser].userData.userInfo).to.equal(@{});
     });
 
     it(@"should upload a user consent and consent PDF", ^{
@@ -218,12 +237,10 @@ describe(@"CMHealthIntegration", ^{
         __block CMHUserData *updateUserData = nil;
         __block NSError *updateError = nil;
         
-        NSString *updatedGender = @"male";
-        NSDate *updatedDOB = [NSDate dateWithTimeIntervalSince1970:116000];
-        
         CMHMutableUserData *mutableUserData = [[CMHUser currentUser].userData mutableCopy];
-        mutableUserData.gender = updatedGender;
-        mutableUserData.dateOfBirth = updatedDOB;
+        mutableUserData.gender = CMHIntegrationTestFactory.updateGenderString;
+        mutableUserData.dateOfBirth = CMHIntegrationTestFactory.updateDateOfBirth;
+        mutableUserData.userInfo = CMHIntegrationTestFactory.updateUserInfo;
         
         waitUntil(^(DoneCallback done) {
             [[CMHUser currentUser] updateUserData:mutableUserData withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
@@ -235,8 +252,9 @@ describe(@"CMHealthIntegration", ^{
         
         expect(updateError).to.beNil();
         expect(updateUserData == [CMHUser currentUser].userData).to.beTruthy();
-        expect(updateUserData.gender).to.equal(updatedGender);
-        expect(updateUserData.dateOfBirth).to.equal(updatedDOB);
+        expect(updateUserData.gender).to.equal(CMHIntegrationTestFactory.updateGenderString);
+        expect(updateUserData.dateOfBirth).to.equal(CMHIntegrationTestFactory.updateDateOfBirth);
+        expect(updateUserData.userInfo).to.equal(CMHIntegrationTestFactory.updateUserInfo);
         expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
         expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
     });
@@ -609,6 +627,9 @@ describe(@"CMHealthIntegration", ^{
         expect([CMHUser currentUser].userData.email).to.equal(email);
         expect([CMHUser currentUser].userData.familyName).to.equal(TestFamilyName);
         expect([CMHUser currentUser].userData.givenName).to.equal(TestGivenName);
+        expect([CMHUser currentUser].userData.gender).to.equal(CMHIntegrationTestFactory.updateGenderString);
+        expect([CMHUser currentUser].userData.dateOfBirth).to.equal(CMHIntegrationTestFactory.updateDateOfBirth);
+        expect([CMHUser currentUser].userData.userInfo).to.equal(CMHIntegrationTestFactory.updateUserInfo);
     });
 
     it(@"should pass", ^{

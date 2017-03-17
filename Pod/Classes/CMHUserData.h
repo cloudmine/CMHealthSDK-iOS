@@ -33,4 +33,11 @@
  */
 @property (nonatomic, nullable, readonly) NSDate *dateOfBirth;
 
+/**
+ * Save any additional properties to the user's profile
+ *
+ * @warning Elements are restricted to _JSON-COMPATIBLE TYPES ONLY_
+ */
+@property (nonatomic, nonnull, readonly) NSDictionary<NSString *, id<NSCoding>> *userInfo;
+
 @end
