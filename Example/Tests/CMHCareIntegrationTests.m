@@ -1,6 +1,29 @@
 #import <CMHealth/CMHealth.h>
 #import "CMHTest-Secrets.h"
 
+@interface CMHCareIntegrationTestUtils : NSObject
++ (NSURL *)persistenceDirectory;
+@end
+
+@implementation CMHCareIntegrationTestUtils
+
++ (NSURL *)persistenceDirectory
+{
+    NSURL *appDirURL = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
+    
+    NSAssert(nil != appDirURL, @"[CMHealth] Failed to create store director URL");
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[appDirURL path] isDirectory:nil]) {
+        NSError *dirError = nil;
+        [[NSFileManager defaultManager] createDirectoryAtURL:appDirURL withIntermediateDirectories:YES attributes:nil error:&dirError];
+        NSAssert(nil == dirError, @"[CMHealth] Error creating store directory: %@", dirError.localizedDescription);
+    }
+    
+    return appDirURL;
+}
+
+@end
+
 SpecBegin(CMHCareIntegration)
 
 describe(@"CMHCareIntegration", ^{
@@ -31,8 +54,24 @@ describe(@"CMHCareIntegration", ^{
         NSAssert(![CMHUser currentUser].isLoggedIn, @"Failed to log user out before beginning test");
     });
     
-    it(@"Should run a true test", ^{
-        expect(YES).to.beTruthy();
+    it(@"should create and login a user with email and password", ^{
+        __block NSError *signupError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] signUpWithEmail:@"ben+caretest2@scopelift.co" password:@"password2" andCompletion:^(NSError * _Nullable error) {
+                signupError = error;
+                done();
+            }];
+        });
+        
+        expect(signupError).to.beNil();
+    });
+    
+    it(@"should create a store for the current user and always return the same instance for that store", ^{
+        CMHCarePlanStore *storeOne = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        CMHCarePlanStore *storeTwo = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        
+        expect(storeOne == storeTwo).to.beTruthy();
     });
     
 });
