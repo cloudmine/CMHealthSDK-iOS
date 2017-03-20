@@ -154,10 +154,10 @@
             </objects>
             <point key="canvasLocation" x="1549.5999999999999" y="32.833583208395808"/>
         </scene>
-        <!--View Controller-->
+        <!--New Admin View Controller-->
         <scene sceneID="VUp-jB-Dkl">
             <objects>
-                <viewController id="Skv-v1-nSe" sceneMemberID="viewController">
+                <viewController id="Skv-v1-nSe" customClass="CMHNewAdminViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="FaJ-QJ-Zyd"/>
                         <viewControllerLayoutGuide type="bottom" id="RsI-ED-6IH"/>
@@ -165,12 +165,102 @@
                     <view key="view" contentMode="scaleToFill" id="LEq-O4-b9S">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ydB-K0-WDG">
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AoL-zw-3d9" userLabel="Content View">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="284"/>
+                                        <subviews>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ACL Owner Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="gDw-Y8-LzZ">
+                                                <rect key="frame" x="20" y="58" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="emailAddress"/>
+                                            </textField>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ACL Owner Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Zdl-U5-f2z">
+                                                <rect key="frame" x="20" y="96" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" secureTextEntry="YES"/>
+                                            </textField>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New Admin Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aTV-So-rJd">
+                                                <rect key="frame" x="20" y="158" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="emailAddress"/>
+                                            </textField>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New Admin Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sHN-2n-93c">
+                                                <rect key="frame" x="20" y="196" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" secureTextEntry="YES"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lq1-Uq-bjb">
+                                                <rect key="frame" x="105" y="234" width="164" height="30"/>
+                                                <state key="normal" title="Create New Admin User"/>
+                                                <connections>
+                                                    <action selector="didPressCreateButton:" destination="Skv-v1-nSe" eventType="touchUpInside" id="ZJz-Eo-kYc"/>
+                                                </connections>
+                                            </button>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Existing ACL ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="FYM-Sw-FLy">
+                                                <rect key="frame" x="20" y="20" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
+                                            </textField>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="sHN-2n-93c" firstAttribute="leading" secondItem="aTV-So-rJd" secondAttribute="leading" id="6mC-iR-3yn"/>
+                                            <constraint firstItem="gDw-Y8-LzZ" firstAttribute="top" secondItem="FYM-Sw-FLy" secondAttribute="bottom" constant="8" symbolic="YES" id="95J-bd-3aw"/>
+                                            <constraint firstItem="FYM-Sw-FLy" firstAttribute="top" secondItem="AoL-zw-3d9" secondAttribute="top" constant="20" symbolic="YES" id="AGI-Bl-eHs"/>
+                                            <constraint firstAttribute="bottom" secondItem="lq1-Uq-bjb" secondAttribute="bottom" constant="20" symbolic="YES" id="Bta-Lx-pgC"/>
+                                            <constraint firstItem="Zdl-U5-f2z" firstAttribute="top" secondItem="gDw-Y8-LzZ" secondAttribute="bottom" constant="8" symbolic="YES" id="FMB-py-rRt"/>
+                                            <constraint firstItem="sHN-2n-93c" firstAttribute="trailing" secondItem="aTV-So-rJd" secondAttribute="trailing" id="HWH-iP-Vhc"/>
+                                            <constraint firstItem="gDw-Y8-LzZ" firstAttribute="leading" secondItem="AoL-zw-3d9" secondAttribute="leading" constant="20" symbolic="YES" id="Hjk-3v-nQt"/>
+                                            <constraint firstItem="sHN-2n-93c" firstAttribute="top" secondItem="aTV-So-rJd" secondAttribute="bottom" constant="8" symbolic="YES" id="M3w-Mq-trA"/>
+                                            <constraint firstItem="aTV-So-rJd" firstAttribute="top" secondItem="Zdl-U5-f2z" secondAttribute="bottom" constant="32" id="Qfz-yz-8wh"/>
+                                            <constraint firstItem="Zdl-U5-f2z" firstAttribute="leading" secondItem="gDw-Y8-LzZ" secondAttribute="leading" id="SRy-ep-GEQ"/>
+                                            <constraint firstAttribute="trailing" secondItem="gDw-Y8-LzZ" secondAttribute="trailing" constant="20" symbolic="YES" id="XGw-Cf-Ktl"/>
+                                            <constraint firstItem="lq1-Uq-bjb" firstAttribute="centerX" secondItem="AoL-zw-3d9" secondAttribute="centerX" id="ap8-xC-Iu6"/>
+                                            <constraint firstItem="Zdl-U5-f2z" firstAttribute="trailing" secondItem="gDw-Y8-LzZ" secondAttribute="trailing" id="h6r-4K-gem"/>
+                                            <constraint firstItem="FYM-Sw-FLy" firstAttribute="leading" secondItem="gDw-Y8-LzZ" secondAttribute="leading" id="ik9-la-gkY"/>
+                                            <constraint firstItem="lq1-Uq-bjb" firstAttribute="top" secondItem="sHN-2n-93c" secondAttribute="bottom" constant="8" symbolic="YES" id="l4M-Vp-vuS"/>
+                                            <constraint firstItem="aTV-So-rJd" firstAttribute="trailing" secondItem="Zdl-U5-f2z" secondAttribute="trailing" id="mRk-fs-Bcf"/>
+                                            <constraint firstItem="aTV-So-rJd" firstAttribute="leading" secondItem="Zdl-U5-f2z" secondAttribute="leading" id="sWa-cx-RE5"/>
+                                            <constraint firstItem="FYM-Sw-FLy" firstAttribute="trailing" secondItem="gDw-Y8-LzZ" secondAttribute="trailing" id="wxY-uu-EVs"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="AoL-zw-3d9" secondAttribute="trailing" id="LK2-kG-CYO"/>
+                                    <constraint firstItem="AoL-zw-3d9" firstAttribute="top" secondItem="ydB-K0-WDG" secondAttribute="top" id="ORo-1f-LaB"/>
+                                    <constraint firstItem="AoL-zw-3d9" firstAttribute="leading" secondItem="ydB-K0-WDG" secondAttribute="leading" id="Tw3-fP-7yK"/>
+                                    <constraint firstAttribute="bottom" secondItem="AoL-zw-3d9" secondAttribute="bottom" id="rnm-5P-CeN"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="AoL-zw-3d9" firstAttribute="width" secondItem="LEq-O4-b9S" secondAttribute="width" id="1Wj-pa-Crb"/>
+                            <constraint firstItem="RsI-ED-6IH" firstAttribute="top" secondItem="ydB-K0-WDG" secondAttribute="bottom" id="HcB-dj-8Os"/>
+                            <constraint firstAttribute="trailing" secondItem="ydB-K0-WDG" secondAttribute="trailing" id="SzC-aX-uyQ"/>
+                            <constraint firstItem="ydB-K0-WDG" firstAttribute="leading" secondItem="LEq-O4-b9S" secondAttribute="leading" id="WMv-6i-EN6"/>
+                            <constraint firstItem="ydB-K0-WDG" firstAttribute="top" secondItem="FaJ-QJ-Zyd" secondAttribute="bottom" id="udx-J0-aSn"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="aclOwnerEmailTextField" destination="gDw-Y8-LzZ" id="ffo-KL-UkY"/>
+                        <outlet property="aclOwnerPasswordTextField" destination="Zdl-U5-f2z" id="VU2-DE-oVG"/>
+                        <outlet property="createAdminEmailTextField" destination="aTV-So-rJd" id="tCY-UH-lNp"/>
+                        <outlet property="createAdminPasswordTextField" destination="sHN-2n-93c" id="JKU-bP-FSe"/>
+                        <outlet property="existingACLTextField" destination="FYM-Sw-FLy" id="qkP-tc-Z0O"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="pwf-vm-jsJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1550" y="753"/>
+            <point key="canvasLocation" x="1549.5999999999999" y="752.47376311844084"/>
         </scene>
     </scenes>
 </document>
