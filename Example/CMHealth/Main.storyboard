@@ -1,27 +1,176 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="whP-gf-Uak">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="YUf-XC-dlP">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
-        <scene sceneID="wQg-tq-qST">
+        <!--Navigation Controller-->
+        <scene sceneID="RSF-NL-ZBN">
             <objects>
-                <viewController id="whP-gf-Uak" customClass="CMHViewController" sceneMemberID="viewController">
+                <navigationController id="YUf-XC-dlP" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Fig-eH-gnj">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="3DV-iY-nsP" kind="relationship" relationship="rootViewController" id="yZU-rb-gC7"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eli-OD-rnb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-52" y="404"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="wLx-JF-23O">
+            <objects>
+                <viewController id="3DV-iY-nsP" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="uEw-UM-LJ8"/>
-                        <viewControllerLayoutGuide type="bottom" id="Mvr-aV-6Um"/>
+                        <viewControllerLayoutGuide type="top" id="04K-EM-ywc"/>
+                        <viewControllerLayoutGuide type="bottom" id="Nb3-Io-U32"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="TpU-gO-2f1">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                    <view key="view" contentMode="scaleToFill" id="b1x-i1-D8a">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5F9-26-yL3">
+                                <rect key="frame" x="87" y="286.5" width="200" height="30"/>
+                                <state key="normal" title="Create New CareKit Test ACL"/>
+                                <connections>
+                                    <segue destination="2kl-15-8Gy" kind="show" id="Cge-4y-D7d"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nPJ-Kt-sTA">
+                                <rect key="frame" x="61" y="380.5" width="252" height="30"/>
+                                <state key="normal" title="Create New CareKit Test Admin User"/>
+                                <connections>
+                                    <segue destination="Skv-v1-nSe" kind="show" id="hhe-rt-FpV"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="nPJ-Kt-sTA" firstAttribute="centerX" secondItem="b1x-i1-D8a" secondAttribute="centerX" id="O8y-i1-Pck"/>
+                            <constraint firstItem="nPJ-Kt-sTA" firstAttribute="top" secondItem="5F9-26-yL3" secondAttribute="bottom" constant="64" id="YNy-1I-req"/>
+                            <constraint firstItem="5F9-26-yL3" firstAttribute="centerY" secondItem="b1x-i1-D8a" secondAttribute="centerY" constant="-32" id="kGz-Zs-189"/>
+                            <constraint firstItem="5F9-26-yL3" firstAttribute="centerX" secondItem="b1x-i1-D8a" secondAttribute="centerX" id="y6K-Dv-Lrj"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="xfK-TY-tah"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Cq2-5Z-6by" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="758" y="403"/>
+        </scene>
+        <!--CareKit Test ACL Setup-->
+        <scene sceneID="hfd-d9-mmf">
+            <objects>
+                <viewController id="2kl-15-8Gy" customClass="CMHNewACLViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="913-mS-8G4"/>
+                        <viewControllerLayoutGuide type="bottom" id="W7A-fw-l53"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="VrU-eJ-4JG">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AmG-si-LKy">
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aR4-yk-bWc" userLabel="Content View">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="353"/>
+                                        <subviews>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New Admin Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tkb-ab-xNI">
+                                                <rect key="frame" x="20" y="72" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="emailAddress"/>
+                                            </textField>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New Admin Password" textAlignment="justified" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="thI-6L-ytQ">
+                                                <rect key="frame" x="20" y="136" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" secureTextEntry="YES"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4ax-jK-pCx">
+                                                <rect key="frame" x="123" y="195" width="129" height="30"/>
+                                                <state key="normal" title="Create User &amp; ACL"/>
+                                                <connections>
+                                                    <action selector="didPressCreateButton:" destination="2kl-15-8Gy" eventType="touchUpInside" id="xKU-vi-OYZ"/>
+                                                </connections>
+                                            </button>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New ACL ID" textAlignment="natural" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="h6J-JR-lDf">
+                                                <rect key="frame" x="20" y="303" width="335" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="4ax-jK-pCx" firstAttribute="top" secondItem="thI-6L-ytQ" secondAttribute="bottom" constant="29" id="20v-J8-8Wy"/>
+                                            <constraint firstItem="h6J-JR-lDf" firstAttribute="leading" secondItem="thI-6L-ytQ" secondAttribute="leading" id="BdR-ro-miK"/>
+                                            <constraint firstItem="4ax-jK-pCx" firstAttribute="centerX" secondItem="aR4-yk-bWc" secondAttribute="centerX" id="D5m-tx-jAe"/>
+                                            <constraint firstAttribute="trailing" secondItem="tkb-ab-xNI" secondAttribute="trailing" constant="20" symbolic="YES" id="IxD-iy-VQF"/>
+                                            <constraint firstItem="h6J-JR-lDf" firstAttribute="top" secondItem="4ax-jK-pCx" secondAttribute="bottom" constant="78" id="KdH-CL-hbw"/>
+                                            <constraint firstItem="tkb-ab-xNI" firstAttribute="top" secondItem="aR4-yk-bWc" secondAttribute="top" constant="72" id="LKt-kz-IAs"/>
+                                            <constraint firstItem="thI-6L-ytQ" firstAttribute="trailing" secondItem="tkb-ab-xNI" secondAttribute="trailing" id="boY-lM-76u"/>
+                                            <constraint firstItem="h6J-JR-lDf" firstAttribute="trailing" secondItem="thI-6L-ytQ" secondAttribute="trailing" id="d5F-9z-NXy"/>
+                                            <constraint firstItem="tkb-ab-xNI" firstAttribute="leading" secondItem="aR4-yk-bWc" secondAttribute="leading" constant="20" symbolic="YES" id="dKB-Vy-hK3"/>
+                                            <constraint firstItem="thI-6L-ytQ" firstAttribute="leading" secondItem="tkb-ab-xNI" secondAttribute="leading" id="f1z-wL-rwk"/>
+                                            <constraint firstItem="thI-6L-ytQ" firstAttribute="top" secondItem="tkb-ab-xNI" secondAttribute="bottom" constant="34" id="mLs-Wk-ZSj"/>
+                                            <constraint firstAttribute="bottom" secondItem="h6J-JR-lDf" secondAttribute="bottom" constant="20" symbolic="YES" id="nd3-7L-ccE"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="aR4-yk-bWc" firstAttribute="leading" secondItem="AmG-si-LKy" secondAttribute="leading" id="JJ7-Zy-suA"/>
+                                    <constraint firstAttribute="trailing" secondItem="aR4-yk-bWc" secondAttribute="trailing" id="ao8-di-W8F"/>
+                                    <constraint firstAttribute="bottom" secondItem="aR4-yk-bWc" secondAttribute="bottom" id="niQ-6W-6XL"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="AmG-si-LKy" firstAttribute="leading" secondItem="VrU-eJ-4JG" secondAttribute="leading" id="4my-YE-ugC"/>
+                            <constraint firstItem="aR4-yk-bWc" firstAttribute="width" secondItem="VrU-eJ-4JG" secondAttribute="width" id="6vd-ka-pzY"/>
+                            <constraint firstItem="aR4-yk-bWc" firstAttribute="top" secondItem="913-mS-8G4" secondAttribute="bottom" id="ZLt-Wb-bdb"/>
+                            <constraint firstItem="W7A-fw-l53" firstAttribute="top" secondItem="AmG-si-LKy" secondAttribute="bottom" id="eeW-Oc-bur"/>
+                            <constraint firstItem="AmG-si-LKy" firstAttribute="top" secondItem="913-mS-8G4" secondAttribute="bottom" id="k23-vK-PgM"/>
+                            <constraint firstAttribute="trailing" secondItem="AmG-si-LKy" secondAttribute="trailing" id="kH6-77-cd1"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="CareKit Test ACL Setup" id="mSN-HX-dF7"/>
+                    <connections>
+                        <outlet property="emailTextField" destination="tkb-ab-xNI" id="DdD-qA-BPk"/>
+                        <outlet property="genACLTextField" destination="h6J-JR-lDf" id="8jf-l6-0q7"/>
+                        <outlet property="passwordTextField" destination="thI-6L-ytQ" id="pF1-eX-qOO"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="udg-tS-PIQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1549.5999999999999" y="32.833583208395808"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="VUp-jB-Dkl">
+            <objects>
+                <viewController id="Skv-v1-nSe" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="FaJ-QJ-Zyd"/>
+                        <viewControllerLayoutGuide type="bottom" id="RsI-ED-6IH"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="LEq-O4-b9S">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tc2-Qw-aMS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pwf-vm-jsJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="305" y="433"/>
+            <point key="canvasLocation" x="1550" y="753"/>
         </scene>
     </scenes>
 </document>

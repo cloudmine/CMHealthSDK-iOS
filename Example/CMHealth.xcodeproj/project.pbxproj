@@ -13,7 +13,6 @@
 		6003F598195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F596195388D20070C39A /* InfoPlist.strings */; };
 		6003F59A195388D20070C39A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F599195388D20070C39A /* main.m */; };
 		6003F59E195388D20070C39A /* CMHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F59D195388D20070C39A /* CMHAppDelegate.m */; };
-		6003F5A7195388D20070C39A /* CMHViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5A6195388D20070C39A /* CMHViewController.m */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -32,6 +31,7 @@
 		B447ED681C98755500DC6208 /* Test-Consent-PDF.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */; };
 		B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */; };
 		B4498CE31E802741006F2514 /* CMHCareIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CE21E802741006F2514 /* CMHCareIntegrationTests.m */; };
+		B4498CE61E803C66006F2514 /* CMHNewACLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CE51E803C66006F2514 /* CMHNewACLViewController.m */; };
 		B4508D371CA452A300A95BC2 /* CMHBundleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4508D361CA452A300A95BC2 /* CMHBundleTests.m */; };
 		B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */; };
 		CCB9C20EB82A466AF455F60A /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACFFEE579378187005AF449 /* Pods_CMHealth_Tests.framework */; };
@@ -63,8 +63,6 @@
 		6003F59B195388D20070C39A /* CMHealth-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CMHealth-Prefix.pch"; sourceTree = "<group>"; };
 		6003F59C195388D20070C39A /* CMHAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMHAppDelegate.h; sourceTree = "<group>"; };
 		6003F59D195388D20070C39A /* CMHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMHAppDelegate.m; sourceTree = "<group>"; };
-		6003F5A5195388D20070C39A /* CMHViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMHViewController.h; sourceTree = "<group>"; };
-		6003F5A6195388D20070C39A /* CMHViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMHViewController.m; sourceTree = "<group>"; };
 		6003F5AE195388D20070C39A /* CMHealth_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CMHealth_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
@@ -75,7 +73,7 @@
 		875D4682DE34D4BD73920712 /* Pods-CMHealth_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Example/Pods-CMHealth_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		9B8848021EAD16D813BECEAA /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		9FA9A5D4D3F1EEF37D195428 /* Pods-CMHealth_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMHealth_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-CMHealth_Example/Pods-CMHealth_Example.release.xcconfig"; sourceTree = "<group>"; };
-		B447ED4E1C8DED1500DC6208 /* CMHTest-Secrets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CMHTest-Secrets.h"; sourceTree = "<group>"; };
+		B447ED4E1C8DED1500DC6208 /* CMHTest-Secrets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CMHTest-Secrets.h"; path = "../Tests/CMHTest-Secrets.h"; sourceTree = "<group>"; };
 		B447ED4F1C8E215500DC6208 /* Test-Signature-Image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Test-Signature-Image.png"; sourceTree = "<group>"; };
 		B447ED581C8F772800DC6208 /* CMHOnboardingValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHOnboardingValidatorTests.m; sourceTree = "<group>"; };
 		B447ED5A1C91EB3D00DC6208 /* CMHInputValidatorsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHInputValidatorsTests.m; sourceTree = "<group>"; };
@@ -89,6 +87,8 @@
 		B447ED691C98A01D00DC6208 /* CMHTestCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHTestCleaner.h; sourceTree = "<group>"; };
 		B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHTestCleaner.m; sourceTree = "<group>"; };
 		B4498CE21E802741006F2514 /* CMHCareIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHCareIntegrationTests.m; sourceTree = "<group>"; };
+		B4498CE41E803C66006F2514 /* CMHNewACLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHNewACLViewController.h; sourceTree = "<group>"; };
+		B4498CE51E803C66006F2514 /* CMHNewACLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHNewACLViewController.m; sourceTree = "<group>"; };
 		B4508D361CA452A300A95BC2 /* CMHBundleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHBundleTests.m; sourceTree = "<group>"; };
 		B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHRegistrationDataTests.m; sourceTree = "<group>"; };
 		BA608B4FEDC37041B69ACBD6 /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -170,9 +170,10 @@
 			children = (
 				6003F59C195388D20070C39A /* CMHAppDelegate.h */,
 				6003F59D195388D20070C39A /* CMHAppDelegate.m */,
+				B4498CE41E803C66006F2514 /* CMHNewACLViewController.h */,
+				B4498CE51E803C66006F2514 /* CMHNewACLViewController.m */,
+				B447ED4E1C8DED1500DC6208 /* CMHTest-Secrets.h */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
-				6003F5A5195388D20070C39A /* CMHViewController.h */,
-				6003F5A6195388D20070C39A /* CMHViewController.m */,
 				B447ED4F1C8E215500DC6208 /* Test-Signature-Image.png */,
 				B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */,
 				6003F594195388D20070C39A /* Supporting Files */,
@@ -217,7 +218,6 @@
 				B447ED631C926FC100DC6208 /* CMHWrapperTestFactory.m */,
 				B447ED691C98A01D00DC6208 /* CMHTestCleaner.h */,
 				B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */,
-				B447ED4E1C8DED1500DC6208 /* CMHTest-Secrets.h */,
 				6003F5B7195388D20070C39A /* Tests-Info.plist */,
 				6003F5B8195388D20070C39A /* InfoPlist.strings */,
 				606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */,
@@ -434,7 +434,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* CMHAppDelegate.m in Sources */,
-				6003F5A7195388D20070C39A /* CMHViewController.m in Sources */,
+				B4498CE61E803C66006F2514 /* CMHNewACLViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
