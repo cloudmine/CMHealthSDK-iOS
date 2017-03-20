@@ -31,6 +31,7 @@
 		B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED651C92710400DC6208 /* CMHConsentTests.m */; };
 		B447ED681C98755500DC6208 /* Test-Consent-PDF.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */; };
 		B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */; };
+		B4498CE31E802741006F2514 /* CMHCareIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CE21E802741006F2514 /* CMHCareIntegrationTests.m */; };
 		B4508D371CA452A300A95BC2 /* CMHBundleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4508D361CA452A300A95BC2 /* CMHBundleTests.m */; };
 		B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */; };
 		CCB9C20EB82A466AF455F60A /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACFFEE579378187005AF449 /* Pods_CMHealth_Tests.framework */; };
@@ -87,6 +88,7 @@
 		B447ED671C98755500DC6208 /* Test-Consent-PDF.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Test-Consent-PDF.pdf"; sourceTree = "<group>"; };
 		B447ED691C98A01D00DC6208 /* CMHTestCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHTestCleaner.h; sourceTree = "<group>"; };
 		B447ED6A1C98A01D00DC6208 /* CMHTestCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHTestCleaner.m; sourceTree = "<group>"; };
+		B4498CE21E802741006F2514 /* CMHCareIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHCareIntegrationTests.m; sourceTree = "<group>"; };
 		B4508D361CA452A300A95BC2 /* CMHBundleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHBundleTests.m; sourceTree = "<group>"; };
 		B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHRegistrationDataTests.m; sourceTree = "<group>"; };
 		BA608B4FEDC37041B69ACBD6 /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -194,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				6003F5BB195388D20070C39A /* CMHIntegrationTests.m */,
+				B4498CE21E802741006F2514 /* CMHCareIntegrationTests.m */,
 				B447ED581C8F772800DC6208 /* CMHOnboardingValidatorTests.m */,
 				B447ED5A1C91EB3D00DC6208 /* CMHInputValidatorsTests.m */,
 				B447ED5C1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m */,
@@ -446,6 +449,7 @@
 				B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */,
 				B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */,
 				B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */,
+				B4498CE31E802741006F2514 /* CMHCareIntegrationTests.m in Sources */,
 				B447ED591C8F772800DC6208 /* CMHOnboardingValidatorTests.m in Sources */,
 				B4508D371CA452A300A95BC2 /* CMHBundleTests.m in Sources */,
 				B447ED611C9220E200DC6208 /* CMHResultTests.m in Sources */,
