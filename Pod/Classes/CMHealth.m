@@ -18,11 +18,7 @@
     credentials.appIdentifier = identifier;
     credentials.appSecret = secret;
     
-    if (nil == snippetName) {
-        return;
-    }
-    
-    NSAssert(snippetName.length > 0, @"Please provide a valid Shared Object Update Snippet Name, not an empty string");
+    NSAssert(nil == snippetName || snippetName.length > 0, @"Please provide a valid Shared Object Update Snippet Name, not an empty string");
     
     [CMHConfiguration sharedConfiguration].sharedObjectUpdateSnippetName = snippetName;
 }
