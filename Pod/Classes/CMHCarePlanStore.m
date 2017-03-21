@@ -485,7 +485,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     noLimitSharedOption.shared = YES;
     
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.eventLastSyncStamp];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.eventLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
     [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
@@ -560,7 +560,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     noLimitSharedOption.shared = YES;
     
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ > \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.activityLastSyncStamp];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.activityLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
     [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
