@@ -2,6 +2,7 @@
 #import "CMHTest-Secrets.h"
 #import "CMHCareTestFactory.h"
 #import <CMHealth/CMHCareActivity.h>
+#import <CMHealth/CMHCareEvent.h>
 #import <CMHealth/CMHInternalUser.h>
 #import <CMHealth/CMHCareObjectSaver.h>
 
@@ -76,6 +77,13 @@ describe(@"CMHCareIntegration", ^{
         });
         
         expect(signupError).to.beNil();
+    });
+    
+    it(@"should create a store for the current user and always return the same instance for that store", ^{
+        CMHCarePlanStore *storeOne = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        CMHCarePlanStore *storeTwo = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        
+        expect(storeOne == storeTwo).to.beTruthy();
     });
     
     it(@"should push and pull activities to/from the store/server", ^{
@@ -165,12 +173,137 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentActivity).to.equal(CMHCareTestFactory.assessmentActivity);
         expect(asssessmentError).to.beNil();
     });
-       
-    it(@"should create a store for the current user and always return the same instance for that store", ^{
-        CMHCarePlanStore *storeOne = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
-        CMHCarePlanStore *storeTwo = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+    
+    it(@"should push and pull events to and from the backend", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         
-        expect(storeOne == storeTwo).to.beTruthy();
+        __block OCKCarePlanEvent *interventionEvent = nil;
+        __block NSError *interventionEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.interventionActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error) {
+                interventionEvent = events.firstObject;
+                interventionEventError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionEventError).to.beNil();
+        expect(interventionEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateInitial == interventionEvent.state).to.beTruthy();
+        
+        __block BOOL interventionUpdateSuccess = NO;
+        __block OCKCarePlanEvent *interventionUpdateEvent = nil;
+        __block NSError *interventionUpdateError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store updateEvent:interventionEvent withResult:nil state:OCKCarePlanEventStateCompleted completion:^(BOOL success, OCKCarePlanEvent *event, NSError *error){
+                interventionUpdateSuccess = success;
+                interventionUpdateEvent = event;
+                interventionUpdateError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionUpdateSuccess).to.beTruthy();
+        expect(interventionUpdateError).to.beNil();
+        expect(interventionUpdateEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateCompleted == interventionUpdateEvent.state).to.beTruthy();
+        
+        __block OCKCarePlanEvent *assessmentEvent = nil;
+        __block NSError *assessmentEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.assessmentActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error){
+                assessmentEvent = events.firstObject;
+                assessmentEventError = error;
+                done();
+            }];
+        });
+        
+        expect(assessmentEventError).to.beNil();
+        expect(assessmentEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateInitial == assessmentEvent.state).to.beTruthy();
+        expect(assessmentEvent.result).to.beNil();
+        
+        NSAssert([assessmentEvent respondsToSelector:@selector(setResult:)] && [assessmentEvent respondsToSelector:@selector(setState:)], @"Internal API of OCKCarePlanEvent used for testing has changed");
+        
+        [assessmentEvent performSelector:@selector(setResult:) withObject:CMHCareTestFactory.assessmentEventResult];
+        
+        NSMethodSignature *signature = [[assessmentEvent class] instanceMethodSignatureForSelector:@selector(setState:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+        invocation.target = assessmentEvent;
+        invocation.selector = @selector(setState:);
+        OCKCarePlanEventState completeState = OCKCarePlanEventStateCompleted;
+        [invocation setArgument:&completeState atIndex:2];
+        [invocation invoke];
+        
+        NSAssert(nil != assessmentEvent.result && OCKCarePlanEventStateCompleted == assessmentEvent.state, @"Failed to set assessment event result using internal API");
+        
+        CMHCareEvent *careEvent = [[CMHCareEvent alloc] initWithEvent:assessmentEvent andUserId:[CMHInternalUser currentUser].objectId];
+        
+        __block NSString *saveStatus = nil;
+        __block NSError *saveError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [CMHCareObjectSaver saveCMHCareObject:careEvent withCompletion:^(NSString *status, NSError *error) {
+                saveStatus = status;
+                saveError = error;
+                done();
+            }];
+        });
+        
+        expect(saveError).to.beNil();
+        expect(saveStatus).to.equal(@"created");
+        
+        __block BOOL syncSuccess = NO;
+        __block NSArray *syncErrors = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                syncSuccess = success;
+                syncErrors = errors;
+                done();
+            }];
+        });
+        
+        expect(syncSuccess).to.beTruthy();
+        expect(0 == syncErrors.count).to.beTruthy();
+        
+        interventionEvent = nil;
+        interventionEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.interventionActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error) {
+                interventionEvent = events.firstObject;
+                interventionEventError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionEventError).to.beNil();
+        expect(interventionEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateCompleted == interventionEvent.state).to.beTruthy();
+        
+       assessmentEvent = nil;
+       assessmentEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.assessmentActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error){
+                assessmentEvent = events.firstObject;
+                assessmentEventError = error;
+                done();
+            }];
+        });
+        
+        expect(assessmentEventError).to.beNil();
+        expect(assessmentEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateCompleted == assessmentEvent.state).to.beTruthy();
+        expect(assessmentEvent.result).notTo.beNil();
+        expect(assessmentEvent.result.valueString).to.equal(CMHCareTestFactory.assessmentEventResult.valueString);
+        expect(assessmentEvent.result.unitString).to.equal(CMHCareTestFactory.assessmentEventResult.unitString);
+        //expect(assessmentEvent.result.creationDate.timeIntervalSince1970 == CMHCareTestFactory.assessmentEventResult.creationDate.timeIntervalSince1970).to.beTruthy();
+        expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
     });
     
     afterAll(^{
@@ -179,6 +312,5 @@ describe(@"CMHCareIntegration", ^{
         [[CMHUser currentUser] logoutWithCompletion:nil];
     });
 });
-
 
 SpecEnd

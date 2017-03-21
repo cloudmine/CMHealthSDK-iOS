@@ -1,9 +1,9 @@
 #import "CMHCareTestFactory.h"
 
 static NSString *const CMHIdentifierExerciseInterventionsGroup   = @"CMHExerciseInterventions";
-static NSString *const CMHIdentifierMedicationInterventionsGroup = @"CMHMedicationInterventions";
 static NSString *const CMHIdentifierInterventionHamstringStretch = @"CMHHamstringStretch";
-static NSString *const CMHIdentifierInterventionPainKiller       = @"CMHPainKiller";
+static NSString *const CMHIdentifierSubjectiveAssessmentsGroup   = @"CMHSubjectiveAssessments";
+static NSString *const CMHIdentifierAssessmentPainTrack          = @"CMHPainTrack";
 
 @implementation CMHCareTestFactory
 
@@ -29,25 +29,29 @@ static NSString *const CMHIdentifierInterventionPainKiller       = @"CMHPainKill
 
 + (OCKCarePlanActivity *)assessmentActivity
 {
-    OCKCareSchedule *schedule = [OCKCareSchedule dailyScheduleWithStartDate:[self weekAgoComponents]
-                                                          occurrencesPerDay:2
-                                                                 daysToSkip:1
-                                                                    endDate:nil];
-    NSString *instructions = NSLocalizedString(@"Take a 200 mg dose of Ibuprofen two times a day, "
-                                               "once in the morning and another in the evening.", nil);
+    OCKCareSchedule *schedule = [OCKCareSchedule dailyScheduleWithStartDate:[self weekAgoComponents] occurrencesPerDay:1];
     
-    
-    return [[OCKCarePlanActivity alloc] initWithIdentifier:CMHIdentifierInterventionPainKiller
-                                           groupIdentifier:CMHIdentifierMedicationInterventionsGroup
-                                                      type:OCKCarePlanActivityTypeIntervention
-                                                     title:NSLocalizedString(@"Ibuprofen", nil)
-                                                      text:NSLocalizedString(@"200 mg, Morning/Evening", nil)
+    return [[OCKCarePlanActivity alloc] initWithIdentifier:CMHIdentifierAssessmentPainTrack
+                                           groupIdentifier:CMHIdentifierSubjectiveAssessmentsGroup
+                                                      type:OCKCarePlanActivityTypeAssessment
+                                                     title:NSLocalizedString(@"Pain", nil)
+                                                      text:NSLocalizedString(@"Lower Back", nil)
                                                  tintColor:[UIColor redColor]
-                                              instructions:instructions
+                                              instructions:nil
                                                   imageURL:nil
                                                   schedule:schedule
                                           resultResettable:YES
                                                   userInfo:nil];
+}
+
++ (OCKCarePlanEventResult *)assessmentEventResult
+{
+    return [[OCKCarePlanEventResult alloc] initWithValueString:@"10" unitString:@"Pain Units" userInfo:@{@"Hello": @[@"World", @42]}];
+}
+
++ (NSDateComponents *)todayComponents
+{
+    return [[NSDateComponents alloc] initWithDate:[NSDate new] calendar:[NSCalendar currentCalendar]];
 }
 
 + (NSDateComponents *_Nonnull)weekAgoComponents
