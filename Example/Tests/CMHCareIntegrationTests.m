@@ -306,6 +306,142 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
     });
     
+    it(@"should maintain data integrity after logout, login and resync", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        NSString *email = [CMHUser currentUser].userData.email;
+        
+        expect(email).notTo.beNil();
+        
+        __block NSError *logoutError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] logoutWithCompletion:^(NSError * error) {
+                logoutError = error;
+                [store clearLocalStore];
+                done();
+            }];
+        });
+        
+        expect(logoutError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beFalsy();
+        
+        __block BOOL clearedActivitiesSuccess = NO;
+        __block NSArray *clearedActivities = nil;
+        __block NSError *clearedActivitiesError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> *activities, NSError  *error) {
+                clearedActivitiesSuccess = success;
+                clearedActivities = activities;
+                error = clearedActivitiesError;
+                done();
+            }];
+        });
+        
+        expect(clearedActivitiesSuccess).to.beTruthy();
+        expect(clearedActivitiesError).to.beNil();
+        expect(0 == clearedActivities.count).to.beTruthy();
+        
+        __block NSError *loginError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] loginWithEmail:email password:CareTestPassword andCompletion:^(NSError * error) {
+                loginError = error;
+                done();
+            }];
+        });
+        
+        expect(loginError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        
+        __block BOOL syncSuccess = NO;
+        __block NSArray *syncErrors = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                syncSuccess = success;
+                syncErrors = errors;
+                done();
+            }];
+        });
+        
+        expect(syncSuccess).to.beTruthy();
+        expect(0 == syncErrors.count).to.beTruthy();
+        
+        __block BOOL interventionSuccess = NO;
+        __block OCKCarePlanActivity *interventionActivity = nil;
+        __block NSError *interventionError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activityForIdentifier:CMHCareTestFactory.interventionActivity.identifier completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+                interventionSuccess = success;
+                interventionActivity = activity;
+                interventionError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionSuccess).to.beTruthy();
+        expect(interventionActivity).notTo.beNil();
+        expect(interventionActivity == CMHCareTestFactory.interventionActivity).to.beFalsy();
+        expect(interventionActivity).to.equal(CMHCareTestFactory.interventionActivity);
+        expect(interventionError).to.beNil();
+        
+        __block BOOL assessmentSucces = NO;
+        __block OCKCarePlanActivity *assessmentActivity = nil;
+        __block NSError *asssessmentError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activityForIdentifier:CMHCareTestFactory.assessmentActivity.identifier completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+                assessmentSucces = success;
+                assessmentActivity = activity;
+                asssessmentError = error;
+                done();
+            }];
+        });
+        
+        expect(assessmentSucces).to.beTruthy();
+        expect(assessmentActivity).notTo.beNil();
+        expect(assessmentActivity == CMHCareTestFactory.assessmentActivity).to.beFalsy();
+        expect(assessmentActivity).to.equal(CMHCareTestFactory.assessmentActivity);
+        expect(asssessmentError).to.beNil();
+        
+        __block OCKCarePlanEvent *interventionEvent = nil;
+        __block NSError *interventionEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.interventionActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error) {
+                interventionEvent = events.firstObject;
+                interventionEventError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionEventError).to.beNil();
+        expect(interventionEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateCompleted == interventionEvent.state).to.beTruthy();
+        
+        __block OCKCarePlanEvent *assessmentEvent = nil;
+        __block NSError *assessmentEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:CMHCareTestFactory.assessmentActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error){
+                assessmentEvent = events.firstObject;
+                assessmentEventError = error;
+                done();
+            }];
+        });
+        
+        expect(assessmentEventError).to.beNil();
+        expect(assessmentEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateCompleted == assessmentEvent.state).to.beTruthy();
+        expect(assessmentEvent.result).notTo.beNil();
+        expect(assessmentEvent.result.valueString).to.equal(CMHCareTestFactory.assessmentEventResult.valueString);
+        expect(assessmentEvent.result.unitString).to.equal(CMHCareTestFactory.assessmentEventResult.unitString);
+        //expect(assessmentEvent.result.creationDate.timeIntervalSince1970 == CMHCareTestFactory.assessmentEventResult.creationDate.timeIntervalSince1970).to.beTruthy();
+        expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
+    });
+    
     afterAll(^{
         CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         [store clearLocalStore];
