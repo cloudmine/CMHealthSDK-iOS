@@ -1,4 +1,5 @@
 #import <CMHealth/CMHealth.h>
+#import <CloudMine/CMUser.h>
 #import "CMHTest-Secrets.h"
 #import "CMHCareTestFactory.h"
 #import <CMHealth/CMHCareActivity.h>
@@ -440,6 +441,88 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentEvent.result.unitString).to.equal(CMHCareTestFactory.assessmentEventResult.unitString);
         //expect(assessmentEvent.result.creationDate.timeIntervalSince1970 == CMHCareTestFactory.assessmentEventResult.creationDate.timeIntervalSince1970).to.beTruthy();
         expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
+    });
+    
+    it(@"it should sync the user's data when fetched by an admin user", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        NSString *email = [CMHUser currentUser].userData.email;
+        
+        expect(email).notTo.beNil();
+        
+        __block NSError *logoutError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] logoutWithCompletion:^(NSError * error) {
+                logoutError = error;
+                [store clearLocalStore];
+                done();
+            }];
+        });
+        
+        expect(logoutError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beFalsy();
+        
+        __block CMUserAccountResult adminLoginResultCode = CMUserAccountUnknownResult;
+        __block NSArray *adminLoginMessages = nil;
+        
+        CMUser *adminUser = [[CMUser alloc] initWithEmail:CMHTestsCareAdminEmail andPassword:CMHTestsCareAdminPassword];
+        
+        waitUntil(^(DoneCallback done) {
+            [adminUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+                adminLoginResultCode = resultCode;
+                adminLoginMessages = messages;
+                done();
+            }];
+        });
+        
+        expect(CMUserAccountOperationSuccessful(adminLoginResultCode)).to.beTruthy();
+        expect(adminUser.isLoggedIn).to.beTruthy();
+        
+        __block BOOL fetchSuccess = NO;
+        __block NSArray *fetchPatients = nil;
+        __block NSArray *fetchErrors = nil;
+        
+        // TODO: Fetch Tests
+        waitUntil(^(DoneCallback done) {
+            [CMHCarePlanStore fetchAllPatientsWithCompletion:^(BOOL success, NSArray<OCKPatient *> *patients, NSArray<NSError *> *errors) {
+                fetchSuccess = success;
+                fetchPatients = patients;
+                fetchErrors = errors;
+                done();
+            }];
+        });
+        
+        expect(fetchSuccess).to.beTruthy();
+        expect(fetchPatients).notTo.beNil();
+        expect(fetchPatients.count > 0).to.beTruthy();
+        expect(fetchErrors).notTo.beNil();
+        expect(0 == fetchErrors.count).to.beTruthy();
+        
+        __block CMUserAccountResult adminLogoutResultCode = CMUserAccountUnknownResult;
+        __block NSArray *adminLogoutMessages = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [adminUser logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages){
+                adminLogoutResultCode = resultCode;
+                adminLogoutMessages = messages;
+                done();
+            }];
+        });
+        
+        expect(CMUserAccountOperationSuccessful(adminLogoutResultCode)).to.beTruthy();
+        expect(adminUser.isLoggedIn).to.beFalsy();
+        
+        __block NSError *loginError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] loginWithEmail:email password:CareTestPassword andCompletion:^(NSError * error) {
+                loginError = error;
+                done();
+            }];
+        });
+        
+        expect(loginError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
     });
     
     afterAll(^{
