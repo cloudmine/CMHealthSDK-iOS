@@ -452,6 +452,8 @@ describe(@"CMHCareIntegration", ^{
         expect(email).notTo.beNil();
         expect(userObjectId).notTo.beNil();
         
+        // Logout of the patient user's account
+        
         __block NSError *logoutError = nil;
         
         waitUntil(^(DoneCallback done) {
@@ -465,6 +467,8 @@ describe(@"CMHCareIntegration", ^{
         
         expect(logoutError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beFalsy();
+        
+        // Login to the admin user's account
         
         __block CMUserAccountResult adminLoginResultCode = CMUserAccountUnknownResult;
         __block NSArray *adminLoginMessages = nil;
@@ -482,6 +486,8 @@ describe(@"CMHCareIntegration", ^{
         
         expect(CMUserAccountOperationSuccessful(adminLoginResultCode)).to.beTruthy();
         expect(adminUser.isLoggedIn).to.beTruthy();
+        
+        // Fectch all patients as an admin
         
         __block BOOL fetchSuccess = NO;
         __block NSArray *fetchPatients = nil;
@@ -502,6 +508,8 @@ describe(@"CMHCareIntegration", ^{
         expect(fetchErrors).notTo.beNil();
         expect(0 == fetchErrors.count).to.beTruthy();
         
+        // Find our original test patient amongst those fetched
+        
         OCKPatient *testPatient = nil;
         
         for(OCKPatient *patient in fetchPatients) {
@@ -512,6 +520,8 @@ describe(@"CMHCareIntegration", ^{
         }
         
         expect(testPatient).notTo.beNil();
+        
+        // Ensure the assessement activity matches that added as a patient
         
         __block BOOL assessmentSuccess = NO;
         __block OCKCarePlanActivity *assessmentActivity = nil;
@@ -530,6 +540,8 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentActivity).notTo.beNil();
         expect(assessmentActivity).to.equal(CMHCareTestFactory.assessmentActivity);
         expect(asssessmentError).to.beNil();
+        
+        // Ensure the intervention activity matches that added as a patient
         
         __block BOOL interventionSuccess = NO;
         __block OCKCarePlanActivity *interventionActivity = nil;
@@ -550,6 +562,8 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionActivity).to.equal(CMHCareTestFactory.interventionActivity);
         expect(interventionError).to.beNil();
         
+        // Update the end date for the intervention activity as an admin
+        
         __block BOOL endDateSuccess = NO;
         __block OCKCarePlanActivity *endDateActivity = nil;
         __block NSError *endDateError = nil;
@@ -569,6 +583,8 @@ describe(@"CMHCareIntegration", ^{
         expect(endDateActivity.schedule.endDate).notTo.beNil();
         expect(endDateActivity.schedule.endDate).to.equal(CMHCareTestFactory.weekInTheFutureComponents);
         
+        // Ensure today's intervention event matches that recorded as a patient
+        
         __block OCKCarePlanEvent *interventionEvent = nil;
         __block NSError *interventionEventError = nil;
         
@@ -583,6 +599,8 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionEventError).to.beNil();
         expect(interventionEvent).notTo.beNil();
         expect(OCKCarePlanEventStateCompleted == interventionEvent.state).to.beTruthy();
+        
+        // Ensure today's assessement event matches that recorded as a patient
         
         __block OCKCarePlanEvent *assessmentEvent = nil;
         __block NSError *assessmentEventError = nil;
@@ -603,6 +621,8 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentEvent.result.unitString).to.equal(CMHCareTestFactory.assessmentEventResult.unitString);
         expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
         
+        // Remove the assessment activity as an admin
+        
         __block BOOL removeSuccess = NO;
         __block NSError *removeError = nil;
         
@@ -618,11 +638,14 @@ describe(@"CMHCareIntegration", ^{
         expect(removeError).to.beNil();
         
         // Wait until sync completes to ensure all *pushes* have also cleared
+        
         waitUntil(^(DoneCallback done) {
             [(CMHCarePlanStore *)testPatient.store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
                 done();
             }];
         });
+        
+        // Log out of admin account, clear & forget stores
         
         __block CMUserAccountResult adminLogoutResultCode = CMUserAccountUnknownResult;
         __block NSArray *adminLogoutMessages = nil;
@@ -640,6 +663,8 @@ describe(@"CMHCareIntegration", ^{
         expect(CMUserAccountOperationSuccessful(adminLogoutResultCode)).to.beTruthy();
         expect(adminUser.isLoggedIn).to.beFalsy();
         
+        // Login as original patient user
+        
         __block NSError *loginError = nil;
         
         waitUntil(^(DoneCallback done) {
@@ -651,6 +676,8 @@ describe(@"CMHCareIntegration", ^{
         
         expect(loginError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        
+        // Sync store as patient user
         
         __block BOOL syncSuccess = NO;
         __block NSArray *syncErrors = nil;
@@ -665,6 +692,8 @@ describe(@"CMHCareIntegration", ^{
         
         expect(syncSuccess).to.beTruthy();
         expect(0 == syncErrors.count).to.beTruthy();
+        
+        // TODO: ensure activity/event data matches that updated by admin user
     });
     
     afterAll(^{
