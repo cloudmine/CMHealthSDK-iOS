@@ -640,9 +640,11 @@ describe(@"CMHealthIntegration", ^{
          waitUntil(^(DoneCallback done) {
              CMHTestCleaner *cleaner = [CMHTestCleaner new];
              [cleaner deleteConsent:consentToClean andResultsWithDescriptor:TestDescriptor withCompletion:^ {
-                 done();
+                 [[CMHUser currentUser] logoutWithCompletion:^(NSError *error){
+                     done();
+                 }];
              }];
-         });
+         });        
     });
 });
 
