@@ -601,8 +601,28 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentEvent.result).notTo.beNil();
         expect(assessmentEvent.result.valueString).to.equal(CMHCareTestFactory.assessmentEventResult.valueString);
         expect(assessmentEvent.result.unitString).to.equal(CMHCareTestFactory.assessmentEventResult.unitString);
-        //expect(assessmentEvent.result.creationDate.timeIntervalSince1970 == CMHCareTestFactory.assessmentEventResult.creationDate.timeIntervalSince1970).to.beTruthy();
         expect(assessmentEvent.result.userInfo).to.equal(CMHCareTestFactory.assessmentEventResult.userInfo);
+        
+        __block BOOL removeSuccess = NO;
+        __block NSError *removeError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [testPatient.store removeActivity:assessmentActivity completion:^(BOOL success, NSError *error) {
+                removeSuccess = success;
+                removeError = error;
+                done();
+            }];
+        });
+        
+        expect(removeSuccess).to.beTruthy();
+        expect(removeError).to.beNil();
+        
+        // Wait until sync completes to ensure all *pushes* have also cleared
+        waitUntil(^(DoneCallback done) {
+            [(CMHCarePlanStore *)testPatient.store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                done();
+            }];
+        });
         
         __block CMUserAccountResult adminLogoutResultCode = CMUserAccountUnknownResult;
         __block NSArray *adminLogoutMessages = nil;
