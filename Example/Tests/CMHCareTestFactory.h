@@ -5,6 +5,7 @@
 + (OCKCarePlanActivity *)interventionActivity;
 + (OCKCarePlanActivity *)assessmentActivity;
 + (NSDateComponents *)todayComponents;
++ (NSDateComponents *)weekInTheFutureComponents;
 + (OCKCarePlanEventResult *)assessmentEventResult;
 
 @end

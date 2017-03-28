@@ -54,6 +54,12 @@ static NSString *const CMHIdentifierAssessmentPainTrack          = @"CMHPainTrac
     return [[NSDateComponents alloc] initWithDate:[NSDate new] calendar:[NSCalendar currentCalendar]];
 }
 
++ (NSDateComponents *_Nonnull)weekInTheFutureComponents
+{
+    NSDate *weekAgoIsh = [NSDate dateWithTimeIntervalSinceNow:-(7*24*60*60)];
+    return [[NSDateComponents alloc] initWithDate:weekAgoIsh calendar:[NSCalendar currentCalendar]];
+}
+
 + (NSDateComponents *_Nonnull)weekAgoComponents
 {
     NSDate *weekAgoIsh = [NSDate dateWithTimeIntervalSinceNow:-(7*24*60*60)];
