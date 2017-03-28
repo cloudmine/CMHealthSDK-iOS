@@ -1,11 +1,13 @@
 #import <CMHealth/CMHealth.h>
 #import <CloudMine/CMUser.h>
+#import <CloudMine/CMStore.h>
 #import "CMHTest-Secrets.h"
 #import "CMHCareTestFactory.h"
 #import <CMHealth/CMHCareActivity.h>
 #import <CMHealth/CMHCareEvent.h>
 #import <CMHealth/CMHInternalUser.h>
 #import <CMHealth/CMHCareObjectSaver.h>
+#import <CMHealth/CMHCarePlanStoreVendor.h>
 
 @interface CMHCareIntegrationTestUtils : NSObject
 + (NSURL *)persistenceDirectory;
@@ -446,8 +448,10 @@ describe(@"CMHCareIntegration", ^{
     it(@"it should sync the user's data when fetched by an admin user", ^{
         CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         NSString *email = [CMHUser currentUser].userData.email;
+        NSString *userObjectId = [CMHInternalUser currentUser].objectId;
         
         expect(email).notTo.beNil();
+        expect(userObjectId).notTo.beNil();
         
         __block NSError *logoutError = nil;
         
@@ -455,6 +459,7 @@ describe(@"CMHCareIntegration", ^{
             [[CMHUser currentUser] logoutWithCompletion:^(NSError * error) {
                 logoutError = error;
                 [store clearLocalStore];
+                [CMHCarePlanStoreVendor.sharedVendor forgetStores];
                 done();
             }];
         });
@@ -469,6 +474,7 @@ describe(@"CMHCareIntegration", ^{
         
         waitUntil(^(DoneCallback done) {
             [adminUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+                [CMStore defaultStore].user = adminUser;
                 adminLoginResultCode = resultCode;
                 adminLoginMessages = messages;
                 done();
@@ -482,7 +488,6 @@ describe(@"CMHCareIntegration", ^{
         __block NSArray *fetchPatients = nil;
         __block NSArray *fetchErrors = nil;
         
-        // TODO: Fetch Tests
         waitUntil(^(DoneCallback done) {
             [CMHCarePlanStore fetchAllPatientsWithCompletion:^(BOOL success, NSArray<OCKPatient *> *patients, NSArray<NSError *> *errors) {
                 fetchSuccess = success;
@@ -498,11 +503,23 @@ describe(@"CMHCareIntegration", ^{
         expect(fetchErrors).notTo.beNil();
         expect(0 == fetchErrors.count).to.beTruthy();
         
+        OCKPatient *testPatient = nil;
+        
+        for(OCKPatient *patient in fetchPatients) {
+            if([patient.identifier isEqualToString:userObjectId]) {
+                testPatient = patient;
+                break;
+            }
+        }
+        
+        expect(testPatient).notTo.beNil();
+        
         __block CMUserAccountResult adminLogoutResultCode = CMUserAccountUnknownResult;
         __block NSArray *adminLogoutMessages = nil;
         
         waitUntil(^(DoneCallback done) {
-            [adminUser logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages){
+            [adminUser logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+                [CMHCarePlanStoreVendor.sharedVendor forgetStores];
                 adminLogoutResultCode = resultCode;
                 adminLogoutMessages = messages;
                 done();
@@ -523,6 +540,20 @@ describe(@"CMHCareIntegration", ^{
         
         expect(loginError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        
+        __block BOOL syncSuccess = NO;
+        __block NSArray *syncErrors = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                syncSuccess = success;
+                syncErrors = errors;
+                done();
+            }];
+        });
+        
+        expect(syncSuccess).to.beTruthy();
+        expect(0 == syncErrors.count).to.beTruthy();
     });
     
     afterAll(^{
