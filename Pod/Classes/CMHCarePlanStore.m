@@ -146,9 +146,22 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         __block NSDictionary *userErrors = nil;
         
         cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-            [CMUser allUsersWithCallback:^(NSArray *users, NSDictionary *errors) {
-                allUsers = users;
-                userErrors = errors;
+            CMStoreOptions *noLimit = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:517]];
+            [CMUser allUserWithOptions:noLimit callback:^(CMObjectFetchResponse *response) {
+                allUsers = response.objects;
+                
+                NSMutableArray *mutableErrors = [NSMutableArray new];
+                
+                if (response.objectErrors.allValues.count > 0) {
+                    [mutableErrors addObjectsFromArray:response.objectErrors.allValues];
+                }
+                
+                if (nil != response.error) {
+                    [mutableErrors addObject:response.error];
+                }
+                
+                userErrors = [mutableErrors copy];
+                
                 done();
             }];
         });
@@ -354,7 +367,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         
         completion(success, activity, error);
         
-        if (!success) {
+        if (!success || nil == activity) {
             return;
         }
         
@@ -371,7 +384,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
         
         completion(success, error);
         
-        if (!success) {
+        if (!success || nil == activity) {
             return;
         }
         
