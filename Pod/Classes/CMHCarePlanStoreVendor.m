@@ -49,4 +49,14 @@
     return newStore;
 }
 
+- (void)forgetStoreWithCMHIdentifier:(NSString *)cmhIdentifier
+{
+    [self.existingStores removeObjectForKey:cmhIdentifier];
+}
+
+- (void)forgetStores
+{
+    self.existingStores = [NSMutableDictionary new];
+}
+
 @end
