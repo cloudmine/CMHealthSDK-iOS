@@ -558,7 +558,6 @@ describe(@"CMHCareIntegration", ^{
         
         expect(interventionSuccess).to.beTruthy();
         expect(interventionActivity).notTo.beNil();
-        expect(interventionActivity == CMHCareTestFactory.interventionActivity).to.beFalsy();
         expect(interventionActivity).to.equal(CMHCareTestFactory.interventionActivity);
         expect(interventionError).to.beNil();
         
@@ -696,6 +695,10 @@ describe(@"CMHCareIntegration", ^{
         
         expect(loginError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+    });
+    
+    it(@"should sync all updates made by the admin user when logged back in as a patient", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         
         // Sync store as patient user
         
@@ -713,7 +716,93 @@ describe(@"CMHCareIntegration", ^{
         expect(syncSuccess).to.beTruthy();
         expect(0 == syncErrors.count).to.beTruthy();
         
-        // TODO: ensure activity/event data matches that updated by admin user
+        // Ensure the intervention activity matches that updated by the admin
+        
+        __block BOOL interventionSuccess = NO;
+        __block OCKCarePlanActivity *interventionActivity = nil;
+        __block NSError *interventionError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activityForIdentifier:CMHCareTestFactory.interventionActivity.identifier completion:^(BOOL success, OCKCarePlanActivity * activity, NSError * error) {
+                interventionSuccess = success;
+                interventionActivity = activity;
+                interventionError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionSuccess).to.beTruthy();
+        expect(interventionActivity).notTo.beNil();
+        expect(interventionActivity.identifier).to.equal(CMHCareTestFactory.interventionActivity.identifier);
+        expect(interventionActivity.groupIdentifier).to.equal(CMHCareTestFactory.interventionActivity.groupIdentifier);
+        expect(interventionActivity.title).to.equal(CMHCareTestFactory.interventionActivity.title);
+        expect(interventionActivity.text).to.equal(CMHCareTestFactory.interventionActivity.text);
+        expect(interventionActivity.tintColor).to.equal(CMHCareTestFactory.interventionActivity.tintColor);
+        expect(interventionActivity.instructions).to.equal(CMHCareTestFactory.interventionActivity.instructions);
+        expect(interventionActivity.type == CMHCareTestFactory.interventionActivity.type).to.beTruthy();
+        expect(interventionError).to.beNil();
+        expect(interventionActivity.schedule.endDate).notTo.beNil();
+        expect(interventionActivity.schedule.endDate).to.equal(CMHCareTestFactory.weekInTheFutureComponents);
+        
+        // Ensure today's intervention event matches that updated by the admin
+        
+        __block OCKCarePlanEvent *interventionEvent = nil;
+        __block NSError *interventionEventError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store eventsForActivity:interventionActivity date:CMHCareTestFactory.todayComponents completion:^(NSArray<OCKCarePlanEvent *> *events, NSError *error) {
+                interventionEvent = events.firstObject;
+                interventionEventError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionEventError).to.beNil();
+        expect(interventionEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateNotCompleted == interventionEvent.state).to.beTruthy();
+        
+        // Ensure the assessement activity has been removed by the admin
+        
+        __block BOOL assessmentSuccess = NO;
+        __block OCKCarePlanActivity *assessmentActivity = nil;
+        __block NSError *asssessmentError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activityForIdentifier:CMHCareTestFactory.assessmentActivity.identifier completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+                assessmentSuccess = success;
+                assessmentActivity = activity;
+                asssessmentError = error;
+                done();
+            }];
+        });
+        
+        expect(assessmentSuccess).to.beTruthy();
+        expect(assessmentActivity).to.beNil();
+        expect(asssessmentError).to.beNil();
+    });
+    
+    it(@"should clear the local store", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        
+        [store clearLocalStore];
+        
+        __block BOOL activitiesSuccess = NO;
+        __block NSArray *allActivities = nil;
+        __block NSError *activitiesError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [store activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> *activities, NSError  *error){
+                activitiesSuccess = success;
+                allActivities = activities;
+                activitiesError = error;
+                done();
+            }];
+        });
+        
+        expect(activitiesSuccess).to.beTruthy();
+        expect(allActivities).notTo.beNil();
+        expect(0 == allActivities.count).to.beTruthy();
+        expect(activitiesError).to.beNil();
     });
     
     afterAll(^{
