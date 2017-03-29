@@ -600,6 +600,26 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionEvent).notTo.beNil();
         expect(OCKCarePlanEventStateCompleted == interventionEvent.state).to.beTruthy();
         
+        // Record a change to an intervention event as an admin
+        
+        __block BOOL interventionUpdateSuccess = NO;
+        __block OCKCarePlanEvent *interventionUpdateEvent = nil;
+        __block NSError *interventionUpdateError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [testPatient.store updateEvent:interventionEvent withResult:nil state:OCKCarePlanEventStateNotCompleted completion:^(BOOL success, OCKCarePlanEvent *event, NSError *error){
+                interventionUpdateSuccess = success;
+                interventionUpdateEvent = event;
+                interventionUpdateError = error;
+                done();
+            }];
+        });
+        
+        expect(interventionUpdateSuccess).to.beTruthy();
+        expect(interventionUpdateError).to.beNil();
+        expect(interventionUpdateEvent).notTo.beNil();
+        expect(OCKCarePlanEventStateNotCompleted == interventionUpdateEvent.state).to.beTruthy();
+        
         // Ensure today's assessement event matches that recorded as a patient
         
         __block OCKCarePlanEvent *assessmentEvent = nil;
