@@ -3,6 +3,7 @@
 #import <CloudMine/CMStore.h>
 #import "CMHTest-Secrets.h"
 #import "CMHCareTestFactory.h"
+#import "CMHTestCleaner.h"
 #import <CMHealth/CMHCareActivity.h>
 #import <CMHealth/CMHCareEvent.h>
 #import <CMHealth/CMHInternalUser.h>
@@ -807,11 +808,14 @@ describe(@"CMHCareIntegration", ^{
     
     afterAll(^{
         CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        CMHTestCleaner *cleaner = [[CMHTestCleaner alloc] init];
         
         waitUntil(^(DoneCallback done) {
-            [[CMHUser currentUser] logoutWithCompletion:^(NSError *error){
-                [store clearLocalStore];
-                done();
+            [cleaner deleteAllUserObjectsWithCompletion:^{
+                [[CMHUser currentUser] logoutWithCompletion:^(NSError *error){
+                    [store clearLocalStore];
+                    done();
+                }];
             }];
         });
     });

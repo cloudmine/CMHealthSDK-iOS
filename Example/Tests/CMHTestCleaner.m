@@ -32,6 +32,19 @@ static const NSInteger MaxRetryCount = 1;
     return self;
 }
 
+- (void)deleteAllUserObjectsWithCompletion:(void (^_Nonnull)())block
+{
+    [CMStore.defaultStore allUserObjectsWithOptions:nil callback:^(CMObjectFetchResponse *response) {
+        // Error?
+        
+        if (nil != response.objects && response.objects.count > 0) {
+            [self.objects addObjectsFromArray:response.objects];
+        }
+        
+        [self deleteAllObjectsWithCompletion:block];
+    }];
+}
+
 - (void)deleteConsent:(CMHConsent *)consent andResultsWithDescriptor:(NSString *)descriptor withCompletion:(void (^)())block
 {
     [self.objects addObject:consent];
