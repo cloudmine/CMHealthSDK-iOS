@@ -34,6 +34,7 @@
 		B4498CE61E803C66006F2514 /* CMHNewACLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CE51E803C66006F2514 /* CMHNewACLViewController.m */; };
 		B4498CE91E8054A2006F2514 /* CMHNewAdminViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CE81E8054A2006F2514 /* CMHNewAdminViewController.m */; };
 		B4498CEC1E818844006F2514 /* CMHCareTestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B4498CEB1E818844006F2514 /* CMHCareTestFactory.m */; };
+		B44A99A51E8D68BF00E0A991 /* CMHSyncStamperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B44A99A41E8D68BF00E0A991 /* CMHSyncStamperTests.m */; };
 		B4508D371CA452A300A95BC2 /* CMHBundleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4508D361CA452A300A95BC2 /* CMHBundleTests.m */; };
 		B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */; };
 		CCB9C20EB82A466AF455F60A /* Pods_CMHealth_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACFFEE579378187005AF449 /* Pods_CMHealth_Tests.framework */; };
@@ -95,6 +96,7 @@
 		B4498CE81E8054A2006F2514 /* CMHNewAdminViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHNewAdminViewController.m; sourceTree = "<group>"; };
 		B4498CEA1E818844006F2514 /* CMHCareTestFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMHCareTestFactory.h; sourceTree = "<group>"; };
 		B4498CEB1E818844006F2514 /* CMHCareTestFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHCareTestFactory.m; sourceTree = "<group>"; };
+		B44A99A41E8D68BF00E0A991 /* CMHSyncStamperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHSyncStamperTests.m; sourceTree = "<group>"; };
 		B4508D361CA452A300A95BC2 /* CMHBundleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHBundleTests.m; sourceTree = "<group>"; };
 		B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMHRegistrationDataTests.m; sourceTree = "<group>"; };
 		BA608B4FEDC37041B69ACBD6 /* Pods_CMHealth_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CMHealth_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -214,6 +216,7 @@
 				B447ED651C92710400DC6208 /* CMHConsentTests.m */,
 				B4CEB1EC1D2EC8B10010AB4B /* CMHRegistrationDataTests.m */,
 				B4508D361CA452A300A95BC2 /* CMHBundleTests.m */,
+				B44A99A41E8D68BF00E0A991 /* CMHSyncStamperTests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
 			path = Tests;
@@ -458,6 +461,7 @@
 				B447ED5F1C920B3A00DC6208 /* CMHCocoaCategoryTests.m in Sources */,
 				B4CEB1ED1D2EC8B10010AB4B /* CMHRegistrationDataTests.m in Sources */,
 				B447ED661C92710400DC6208 /* CMHConsentTests.m in Sources */,
+				B44A99A51E8D68BF00E0A991 /* CMHSyncStamperTests.m in Sources */,
 				B447ED641C926FC100DC6208 /* CMHWrapperTestFactory.m in Sources */,
 				B447ED5D1C91F8C000DC6208 /* CMHErrorUtilitiesTests.m in Sources */,
 				B447ED6B1C98A01D00DC6208 /* CMHTestCleaner.m in Sources */,

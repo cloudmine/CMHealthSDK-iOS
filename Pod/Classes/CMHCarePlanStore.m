@@ -12,10 +12,9 @@
 #import "CMHInternalProfile.h"
 #import "CMHCareSyncQueue.h"
 #import "CMHCarePlanStoreVendor.h"
+#import "CMHSyncStamper.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
-static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
-static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
@@ -26,11 +25,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 @property (nonatomic, nullable) CMHCareEvent *eventBeingUpdated;
 @property (nonatomic) BOOL isUpdatingActivity; // Can only do a flag because delegate callback does not include activity info; could drop 'real' activity updates
 
-@property (nonatomic, nonnull) NSDateFormatter *cmTimestampFormatter;
-@property (nonatomic, nonnull, readonly) NSString *eventSyncKey;
-@property (nonatomic, nonnull, readonly) NSString *eventLastSyncStamp;
-@property (nonatomic, nonnull, readonly) NSString *activitySyncKey;
-@property (nonatomic, nonnull, readonly) NSString *activityLastSyncStamp;
+@property (nonatomic, nonnull) CMHSyncStamper *stamper;
 
 @property (nonatomic, nonnull) CMHCareSyncQueue *syncQueue;
 
@@ -56,6 +51,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     _cmhIdentifier = [cmhIdentifier copy];
     _updateGroup = dispatch_group_create();
     _isUpdatingActivity = NO;
+    _stamper = [[CMHSyncStamper alloc] initWithCMHIdentifier:_cmhIdentifier];
     _syncQueue = [[CMHCareSyncQueue alloc] initWithCMHIdentifier:_cmhIdentifier];
     
     // ensures our subclass is set up as super's delegate
@@ -125,8 +121,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 - (void)clearLocalStore
 {
     NSArray *errors = [self clearLocalStoreDataSynchronously];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.eventSyncKey];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.activitySyncKey];
+    [self.stamper forgetSyncTimes];
     
     if (errors.count > 0) {
         NSLog(@"[CMHEALTH] There were %li errors clearing the local store: %@", (long)errors.count, errors);
@@ -296,52 +291,6 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     _passDelegate = delegate;
 }
 
-- (NSDateFormatter *)cmTimestampFormatter
-{
-    if (nil == _cmTimestampFormatter) {
-        _cmTimestampFormatter = [NSDateFormatter new];
-        _cmTimestampFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZZZZZ";
-        _cmTimestampFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-        _cmTimestampFormatter.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
-    }
-    
-    return _cmTimestampFormatter;
-}
-
-- (NSString *)eventSyncKey
-{
-    return [NSString stringWithFormat:@"%@%@", CMHEventSyncKeyPrefix, self.cmhIdentifier];
-}
-
-- (NSString *)eventLastSyncStamp
-{
-    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.eventSyncKey];
-    
-    if (nil == savedStamp) {
-        NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
-        return [self timestampForDate:longAgo];
-    }
-    
-    return savedStamp;
-}
-
-- (NSString *)activitySyncKey
-{
-    return [NSString stringWithFormat:@"%@%@", CMHActivitySyncKeyPrefix, self.cmhIdentifier];
-}
-
-- (NSString *)activityLastSyncStamp
-{   
-    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.activitySyncKey];
-    
-    if (nil == savedStamp) {
-        NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
-        return [self timestampForDate:longAgo];
-    }
-    
-    return savedStamp;
-}
-
 #pragma mark Overrides
 
 - (void)addActivity:(OCKCarePlanActivity *)activity completion:(void (^)(BOOL, NSError * _Nullable))completion
@@ -472,33 +421,12 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return namedDirURL;
 }
 
-- (NSString *)timestampForDate:(NSDate *)date
-{
-    return [self.cmTimestampFormatter stringFromDate:date];
-}
-
-- (void)saveEventLastSyncTime:(NSDate *)date
-{
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
-    
-    NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
-}
-
-- (void)saveActivityLastSyncTime:(NSDate *)date
-{
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
-    
-    NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.activitySyncKey];
-}
-
 - (void)syncRemoteEventsWithCompletion:(CMHRemoteSyncCompletion)block;
 {
     CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     noLimitSharedOption.shared = YES;
     
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.eventLastSyncStamp];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareEvent class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.stamper.eventLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
     [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
@@ -556,7 +484,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             
             BOOL success = updateErrors.count < 1;
             if (success) {
-                [self saveEventLastSyncTime:syncStartTime];
+                [self.stamper saveEventLastSyncTime:syncStartTime];
             }
             
             if (nil == block) {
@@ -573,7 +501,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     noLimitSharedOption.shared = YES;
     
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.activityLastSyncStamp];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\", %@ >= \"%@\"]", CMInternalClassStorageKey, [CMHCareActivity class], CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.stamper.activityLastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
     [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
@@ -726,7 +654,7 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
             
             BOOL success = updateErrors.count < 1;
             if (success) {
-                [self saveActivityLastSyncTime:syncStartTime];
+                [self.stamper saveActivityLastSyncTime:syncStartTime];
             }
             
             if (nil == block) {
