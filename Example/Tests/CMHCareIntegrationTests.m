@@ -782,6 +782,99 @@ describe(@"CMHCareIntegration", ^{
         expect(asssessmentError).to.beNil();
     });
     
+    it(@"should serialze update and fetch operations", ^{
+        CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
+        
+        __block BOOL addSuccess = NO;
+        __block NSError * addError = nil;
+        __block NSTimeInterval addTime = 0;
+        
+        __block BOOL firstSyncSuccess = NO;
+        __block NSArray *firstSyncErrors = nil;
+        __block NSTimeInterval firstSyncTime = 0;
+        
+        __block BOOL secondSyncSuccess = NO;
+        __block NSArray *secondSyncErrors = nil;
+        __block NSTimeInterval secondSyncTime = 0;
+        
+        waitUntil(^(DoneCallback done) {
+            
+            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+            
+            dispatch_async(backgroundQueue, ^{
+                
+                dispatch_group_t completionGroup = dispatch_group_create();
+                
+                dispatch_group_enter(completionGroup);
+                dispatch_group_enter(completionGroup);
+                dispatch_group_enter(completionGroup);
+                
+                // TODO:
+                // This callback occurs when the activity is successfully persisted, but the operation to
+                // perform the update may not yet be enqueued. This means that the subsequent calls to sync
+                // may actually occur *before* the update is sent to the server. Need to think about whether
+                // this scenario is an issue, but I believe it is. It implies the following scenario is possible
+                // 1) Change to record A is locally persisted in the store
+                // 2) Sync occurs, overwriting change to record A with some other data
+                // 3) Original change to record A is now pushed to the server
+                // This would mean the local store would have out-of-date data that came from the server, while the server
+                // would now have the most up to date record that actually originated locally, but was overwritten.
+                [store addActivity:CMHCareTestFactory.assessmentActivity completion:^(BOOL success, NSError *error) {
+                    addSuccess = success;
+                    addError = error;
+                    addTime = [NSDate new].timeIntervalSince1970;
+                    
+                    dispatch_group_leave(completionGroup);
+                }];
+                
+                [store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                    firstSyncSuccess = success;
+                    firstSyncErrors = errors;
+                    firstSyncTime = [NSDate new].timeIntervalSince1970;
+                    
+                    dispatch_group_leave(completionGroup);
+                }];
+                
+                [store syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> *errors) {
+                    secondSyncSuccess = success;
+                    secondSyncErrors = errors;
+                    secondSyncTime = [NSDate new].timeIntervalSince1970;
+                    
+                    dispatch_group_leave(completionGroup);
+                }];
+                
+                dispatch_group_wait(completionGroup, DISPATCH_TIME_FOREVER);
+                
+                done();
+            });
+        });
+        
+        expect(addSuccess).to.beTruthy();
+        expect(addError).to.beNil();
+        
+        expect(firstSyncSuccess).to.beTruthy();
+        expect(0 == firstSyncErrors.count).to.beTruthy();
+        
+        expect(secondSyncSuccess).to.beTruthy();
+        expect(0 == secondSyncErrors.count).to.beTruthy();
+        
+        expect(addTime > 0 ).to.beTruthy();
+        expect(firstSyncTime > addTime).to.beTruthy();
+        
+        // TODO:
+        // This fails occasionally, because although the sync jobs will *start* in the order they
+        // are added to the queue, via the block callback, they are not guarenteed to *finish*
+        // in the same order, since the block itself performs various asynchronous jobs fetching
+        // and updating all the data from the serve, but the queue considers the operation "complete"
+        // as soon as the block is invoked. We have to decide:
+        // 1) This doesn't matter! Leave it as it is, multiple calls to sync may complete in a different
+        //    order than that in which they were called
+        // 2) This is no bueno. We need to create an actual NSOperation sublcass that performs the syncing
+        //    and does not complete until it is finished, ensuring multiple calls to sync will start
+        //    *and finish* in the order called
+        expect(secondSyncTime > firstSyncTime).to.beTruthy();
+    });
+
     it(@"should clear the local store", ^{
         CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         
