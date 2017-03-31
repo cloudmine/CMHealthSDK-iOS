@@ -115,7 +115,7 @@
     
     if (0 == count) {
         [self suspendAfterQueue];
-    } else if(count > 0 && 0 == self.updateQueue.operationCount) {
+    } else if(self.isAfterQueueWaiting && 0 == self.updateQueue.operationCount) {
         [self emptyAfterQueue];
     }
 }
