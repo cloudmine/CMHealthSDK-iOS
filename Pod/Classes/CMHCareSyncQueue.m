@@ -8,6 +8,8 @@
 @interface CMHCareSyncQueue ()
 
 @property (nonatomic, nonnull) NSOperationQueue *updateQueue;
+@property (nonatomic, nonnull) NSOperationQueue *afterQueue;
+@property (nonatomic, readonly) BOOL isAfterQueueWaiting;
 @property (nonatomic, nonnull) NSString *cmhIdentifier;
 @property (nonatomic, nonnull, readonly) NSString *archiveKey;
 
@@ -26,12 +28,18 @@
     
     _cmhIdentifier = [cmhIdentifer copy];
 
-    _updateQueue = [[NSOperationQueue alloc] init];
-    _updateQueue.name = @"com.cloudemineinc.CMHealth.UpdateQueue";
+    _updateQueue = [NSOperationQueue new];
+    _updateQueue.name = [NSString stringWithFormat:@"com.cloudemineinc.CMHealth.UpdateQueue-%@", _cmhIdentifier];
     _updateQueue.maxConcurrentOperationCount = 1;
     _updateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
-
     [_updateQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
+    
+    _afterQueue = [NSOperationQueue new];
+    _afterQueue.name = [NSString stringWithFormat:@"com.cloudemineinc.CMHealth.AfterQueue-%@", _cmhIdentifier];
+    _afterQueue.maxConcurrentOperationCount = 1;
+    _afterQueue.qualityOfService = NSQualityOfServiceUserInitiated;
+    _afterQueue.suspended = YES;
+    [_afterQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emptyQueueWithAppInBackground) name:UIApplicationWillResignActiveNotification object:nil];
     
@@ -76,15 +84,9 @@
 - (void)runInBackgroundAfterQueueEmpties:(void(^_Nonnull)())block
 {
     NSAssert(nil != block, @"Must provide block to execute to %s", __PRETTY_FUNCTION__);
-
-    dispatch_queue_t gcdQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-    dispatch_async(gcdQueue, ^{
-        NSLog(@"[CMHealth] Waiting for update queu to empty %li operations", self.updateQueue.operationCount);
-        [self.updateQueue waitUntilAllOperationsAreFinished];
-        NSLog(@"[CMHealth] Update queue emptied; proceeding with block");
-        block();
-    });
+    NSLog(@"[CMHealth] Waiting for update queue to empty %li operations", self.updateQueue.operationCount);
+    
+    [self.afterQueue addOperationWithBlock:block];
 }
 
 #pragma mark KVO
@@ -92,13 +94,30 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
     if (object == self.updateQueue && [@"operationCount" isEqualToString:keyPath] ) {
-        [self operationCountChangedTo:self.updateQueue.operationCount];
+        [self updateQueueOperationCountChangedTo:self.updateQueue.operationCount];
+    } else if(object == self.afterQueue && [@"operationCount" isEqualToString:keyPath]) {
+        [self afterQueueOperationCountChangedTo:self.afterQueue.operationCount];
     }
 }
 
-- (void)operationCountChangedTo:(NSUInteger)count
+- (void)updateQueueOperationCountChangedTo:(NSUInteger)count
 {
-    NSLog(@"[CMHealth] Operation count is: %li", (long)count);
+    NSLog(@"[CMHealth] Update Queue Operation count is: %li", (long)count);
+    
+    if (0 == count && self.isAfterQueueWaiting) {
+        [self emptyAfterQueue];
+    }
+}
+
+- (void)afterQueueOperationCountChangedTo:(NSUInteger)count
+{
+    NSLog(@"[CMHealth After Queue Operation count is: %li", (long)count);
+    
+    if (0 == count) {
+        [self suspendAfterQueue];
+    } else if(count > 0 && 0 == self.updateQueue.operationCount) {
+        [self emptyAfterQueue];
+    }
 }
 
 #pragma mark Notificatoin Handlers
@@ -149,7 +168,28 @@
     return [NSString stringWithFormat:@"CMHQueueArchive-%@", _cmhIdentifier];
 }
 
+- (BOOL)isAfterQueueWaiting
+{
+    return self.afterQueue.isSuspended && self.afterQueue.operationCount > 0;
+}
+
 #pragma mark Helpers
+
+- (void)emptyAfterQueue
+{
+    NSLog(@"[CMHealth] Empyting the After-Update queue containing %li operations", (long)self.afterQueue.operationCount);
+    
+    self.updateQueue.suspended = YES;
+    self.afterQueue.suspended = NO;
+}
+
+- (void)suspendAfterQueue
+{
+    NSLog(@"[CMHealth] Suspending the after queue");
+    
+    self.afterQueue.suspended = YES;
+    self.updateQueue.suspended = NO;
+}
 
 - (NSArray *)unarchiveOperations
 {
