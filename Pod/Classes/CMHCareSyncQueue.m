@@ -13,7 +13,7 @@
 @property (nonatomic, readonly) BOOL isThereAnUpdatePending;
 @property (nonatomic, nonnull) NSString *cmhIdentifier;
 @property (nonatomic, nonnull, readonly) NSString *archiveKey;
-@property (nonatomic, nonnull) NSNumber *preQueueCount;
+@property (nonatomic) NSInteger preQueueCount;
 
 @end
 
@@ -30,7 +30,7 @@
     
     _cmhIdentifier = [cmhIdentifer copy];
     
-    _preQueueCount = @0;
+    _preQueueCount = 0;
 
     _updateQueue = [NSOperationQueue new];
     _updateQueue.name = [NSString stringWithFormat:@"com.cloudemineinc.CMHealth.UpdateQueue-%@", _cmhIdentifier];
@@ -72,14 +72,14 @@
 - (void)incrementPreQueueCount
 {
     @synchronized (self) {
-        _preQueueCount = [NSNumber numberWithInteger:(_preQueueCount.integerValue + 1)];
+        _preQueueCount += 1;
     }
 }
 
 - (void)decrementPreQueueCount
 {
     @synchronized (self) {
-        _preQueueCount = [NSNumber numberWithInteger:(_preQueueCount.integerValue - 1)];
+        _preQueueCount -= 1;
     }
 }
 
@@ -191,7 +191,7 @@
 
 - (BOOL)isThereAnUpdatePending
 {
-    return self.updateQueue.operationCount > 0 || self.preQueueCount.integerValue > 0;
+    return self.updateQueue.operationCount > 0 || self.preQueueCount > 0;
 }
 
 #pragma mark Helpers
