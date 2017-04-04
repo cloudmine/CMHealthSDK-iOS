@@ -295,15 +295,17 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 - (void)addActivity:(OCKCarePlanActivity *)activity completion:(void (^)(BOOL, NSError * _Nullable))completion
 {
+    [self.syncQueue incrementPreQueueCount];
+    
     [super addActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
         completion(success, error);
         
         if (!success) {
+            [self.syncQueue decrementPreQueueCount];
             return;
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        
         [self.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
@@ -312,16 +314,18 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
        forActivity:(OCKCarePlanActivity *)activity
         completion:(void (^)(BOOL, OCKCarePlanActivity * _Nullable, NSError * _Nullable))completion
 {
+    [self.syncQueue incrementPreQueueCount];
+    
     [super setEndDate:endDate forActivity:activity completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
         
         completion(success, activity, error);
         
         if (!success || nil == activity) {
+            [self.syncQueue decrementPreQueueCount];
             return;
         }
         
         CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        
         [self.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
@@ -329,11 +333,14 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 - (void)removeActivity:(OCKCarePlanActivity *)activity
             completion:(void (^)(BOOL, NSError * _Nullable))completion
 {
+    [self.syncQueue incrementPreQueueCount];
+    
     [super removeActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
         
         completion(success, error);
         
         if (!success || nil == activity) {
+            [self.syncQueue decrementPreQueueCount];
             return;
         }
         
@@ -349,11 +356,13 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
               state:(OCKCarePlanEventState)state
          completion:(void (^)(BOOL, OCKCarePlanEvent * _Nullable, NSError * _Nullable))completion
 {
+    [self.syncQueue incrementPreQueueCount];
+    
     [super updateEvent:event withResult:result state:state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
-        // Pass results regardless of outcome
         completion(success, event, error);
         
         if (!success) {
+            [self.syncQueue decrementPreQueueCount];
             return;
         }
         

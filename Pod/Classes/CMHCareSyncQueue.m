@@ -10,8 +10,10 @@
 @property (nonatomic, nonnull) NSOperationQueue *updateQueue;
 @property (nonatomic, nonnull) NSOperationQueue *afterQueue;
 @property (nonatomic, readonly) BOOL isAfterQueueWaiting;
+@property (nonatomic, readonly) BOOL isThereAnUpdatePending;
 @property (nonatomic, nonnull) NSString *cmhIdentifier;
 @property (nonatomic, nonnull, readonly) NSString *archiveKey;
+@property (nonatomic, nonnull) NSNumber *preQueueCount;
 
 @end
 
@@ -27,6 +29,8 @@
     if (nil == self || nil == cmhIdentifer) { return nil; }
     
     _cmhIdentifier = [cmhIdentifer copy];
+    
+    _preQueueCount = @0;
 
     _updateQueue = [NSOperationQueue new];
     _updateQueue.name = [NSString stringWithFormat:@"com.cloudemineinc.CMHealth.UpdateQueue-%@", _cmhIdentifier];
@@ -65,12 +69,29 @@
 
 #pragma mark Public API
 
+- (void)incrementPreQueueCount
+{
+    @synchronized (self) {
+        _preQueueCount = [NSNumber numberWithInteger:(_preQueueCount.integerValue + 1)];
+    }
+}
+
+- (void)decrementPreQueueCount
+{
+    @synchronized (self) {
+        _preQueueCount = [NSNumber numberWithInteger:(_preQueueCount.integerValue - 1)];
+    }
+}
+
 - (void)enqueueUpdateEvent:(CMHCareEvent *)event
 {
     NSAssert(nil != event, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareEvent class]);
     
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithEvent:event];
     [self.updateQueue addOperation:updateOperation];
+    
+    [self decrementPreQueueCount];
+    [self toggleQueues];
 }
 
 - (void)enqueueUpdateActivity:(CMHCareActivity *)activity
@@ -79,6 +100,9 @@
 
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithActivity:activity];
     [self.updateQueue addOperation:updateOperation];
+    
+    [self decrementPreQueueCount];
+    [self toggleQueues];
 }
 
 - (void)runInBackgroundAfterQueueEmpties:(void(^_Nonnull)())block
@@ -103,21 +127,13 @@
 - (void)updateQueueOperationCountChangedTo:(NSUInteger)count
 {
     NSLog(@"[CMHealth] Update Queue Operation count is: %li", (long)count);
-    
-    if (0 == count && self.isAfterQueueWaiting) {
-        [self emptyAfterQueue];
-    }
+    [self toggleQueues];
 }
 
 - (void)afterQueueOperationCountChangedTo:(NSUInteger)count
 {
     NSLog(@"[CMHealth After Queue Operation count is: %li", (long)count);
-    
-    if (0 == count) {
-        [self suspendAfterQueue];
-    } else if(self.isAfterQueueWaiting && 0 == self.updateQueue.operationCount) {
-        [self emptyAfterQueue];
-    }
+    [self toggleQueues];
 }
 
 #pragma mark Notificatoin Handlers
@@ -173,7 +189,32 @@
     return self.afterQueue.isSuspended && self.afterQueue.operationCount > 0;
 }
 
+- (BOOL)isThereAnUpdatePending
+{
+    return self.updateQueue.operationCount > 0 || self.preQueueCount.integerValue > 0;
+}
+
 #pragma mark Helpers
+
+- (void)toggleQueues
+{
+    @synchronized (self) {
+        if (self.isAfterQueueWaiting && !self.isThereAnUpdatePending) {
+            [self emptyAfterQueue];
+        } else if(0 == self.afterQueue.operationCount && self.updateQueue.suspended) {
+            [self suspendAfterQueue];
+        }
+    }
+    
+    // update == 0, after == 0, preQ == 0: update NO,  after YES
+    // update > 0, after == 0, preQ == 0:  update NO,  after YES
+    // update == 0, after > 0, preQ == 0:  update YES, after NO
+    // update == 0, after == 0, preQ > 0:  update NO,  after YES
+    // update > 0, after > 0, preQ == 0:   update NO,  after YES
+    // update > 0, after == 0, preQ > 0:   update NO,  after YES
+    // update == 0, after > 0, preQ > 0:   udpate NO,  after YES
+    // update > 0, after > 0, preQ > 0:    update NO,  after YES
+}
 
 - (void)emptyAfterQueue
 {
