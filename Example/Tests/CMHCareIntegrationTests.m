@@ -809,16 +809,6 @@ describe(@"CMHCareIntegration", ^{
                 dispatch_group_enter(completionGroup);
                 dispatch_group_enter(completionGroup);
                 
-                // TODO:
-                // This callback occurs when the activity is successfully persisted, but the operation to
-                // perform the update may not yet be enqueued. This means that the subsequent calls to sync
-                // may actually occur *before* the update is sent to the server. Need to think about whether
-                // this scenario is an issue, but I believe it is. It implies the following scenario is possible
-                // 1) Change to record A is locally persisted in the store
-                // 2) Sync occurs, overwriting change to record A with some other data
-                // 3) Original change to record A is now pushed to the server
-                // This would mean the local store would have out-of-date data that came from the server, while the server
-                // would now have the most up to date record that actually originated locally, but was overwritten.
                 [store addActivity:CMHCareTestFactory.assessmentActivity completion:^(BOOL success, NSError *error) {
                     addSuccess = success;
                     addError = error;
