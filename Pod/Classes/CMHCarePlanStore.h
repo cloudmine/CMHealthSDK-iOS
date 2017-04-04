@@ -1,6 +1,6 @@
 #import <CareKit/CareKit.h>
+#import "CMHCareSyncBlocks.h"
 
-typedef void(^CMHRemoteSyncCompletion)(BOOL success, NSArray<NSError *> *_Nonnull errors);
 typedef void(^CMHFetchPatientsCompletion)(BOOL success, NSArray<OCKPatient *> *_Nonnull patients, NSArray<NSError *> *_Nonnull errors);
 
 @interface CMHCarePlanStore : OCKCarePlanStore

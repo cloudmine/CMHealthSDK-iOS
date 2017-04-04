@@ -851,17 +851,6 @@ describe(@"CMHCareIntegration", ^{
         expect(addTime > 0 ).to.beTruthy();
         expect(firstSyncTime > addTime).to.beTruthy();
         
-        // TODO:
-        // This fails occasionally, because although the sync jobs will *start* in the order they
-        // are added to the queue, via the block callback, they are not guarenteed to *finish*
-        // in the same order, since the block itself performs various asynchronous jobs fetching
-        // and updating all the data from the serve, but the queue considers the operation "complete"
-        // as soon as the block is invoked. We have to decide:
-        // 1) This doesn't matter! Leave it as it is, multiple calls to sync may complete in a different
-        //    order than that in which they were called
-        // 2) This is no bueno. We need to create an actual NSOperation sublcass that performs the syncing
-        //    and does not complete until it is finished, ensuring multiple calls to sync will start
-        //    *and finish* in the order called
         expect(secondSyncTime > firstSyncTime).to.beTruthy();
     });
 

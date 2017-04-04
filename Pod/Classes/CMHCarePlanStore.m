@@ -83,9 +83,7 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 - (void)syncFromRemoteWithCompletion:(CMHRemoteSyncCompletion)block
 {
-    [self.syncQueue runInBackgroundAfterQueueEmpties:^{
-        [self runFetchWithCompletion:block];
-    }];
+    [self.syncQueue enqueueFetchForStore:self completion:block];
 }
 
 - (void)clearLocalStore

@@ -4,6 +4,8 @@
 #import "CMHDisptachUtils.h"
 #import "CMHCareObjectSaver.h"
 #import "CMHCarePushOperation.h"
+#import "CMHCarePlanStore_internal.h"
+#import "CMHCarePullOperation.h"
 
 @interface CMHCareSyncQueue ()
 
@@ -96,7 +98,7 @@
 
 - (void)enqueueUpdateActivity:(CMHCareActivity *)activity
 {
-    NSAssert(nil != activity, @"Cannot call %s without providen a %@", __PRETTY_FUNCTION__, [CMHCareActivity class]);
+    NSAssert(nil != activity, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCareActivity class]);
 
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithActivity:activity];
     [self.updateQueue addOperation:updateOperation];
@@ -105,12 +107,14 @@
     [self toggleQueues];
 }
 
-- (void)runInBackgroundAfterQueueEmpties:(void(^_Nonnull)())block
+- (void)enqueueFetchForStore:(CMHCarePlanStore *)store completion:(CMHRemoteSyncCompletion)block
 {
-    NSAssert(nil != block, @"Must provide block to execute to %s", __PRETTY_FUNCTION__);
+    NSAssert(nil != store, @"Cannot call %s without providing a %@", __PRETTY_FUNCTION__, [CMHCarePlanStore class]);
+    
     NSLog(@"[CMHealth] Waiting for update queue to empty %li operations", self.updateQueue.operationCount);
     
-    [self.afterQueue addOperationWithBlock:block];
+    CMHCarePullOperation *pullOperation = [[CMHCarePullOperation alloc] initWithStore:store completion:block];
+    [self.afterQueue addOperation:pullOperation];
 }
 
 #pragma mark KVO

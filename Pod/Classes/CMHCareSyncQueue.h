@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
+#import "CMHCareSyncBlocks.h"
 
 @class CMHCareEvent;
 @class CMHCareActivity;
+@class CMHCarePlanStore;
 
 @interface CMHCareSyncQueue : NSObject
 
@@ -13,6 +15,6 @@
 - (void)enqueueUpdateActivity:(nonnull CMHCareActivity *)activity;
 - (void)decrementPreQueueCount;
 
-- (void)runInBackgroundAfterQueueEmpties:(void(^_Nonnull)())block;
+- (void)enqueueFetchForStore:(nonnull CMHCarePlanStore *)store completion:(nullable CMHRemoteSyncCompletion)block;
 
 @end

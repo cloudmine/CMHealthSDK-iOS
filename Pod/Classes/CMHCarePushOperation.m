@@ -77,7 +77,7 @@
 
     while(true) { // Retry loop
         if (self.isCancelled) {
-            NSLog(@"[CMHealth] Operation cancelled");
+            NSLog(@"[CMHealth] Push Operation cancelled");
             return;
         }
 
