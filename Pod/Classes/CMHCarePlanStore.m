@@ -83,38 +83,8 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 - (void)syncFromRemoteWithCompletion:(CMHRemoteSyncCompletion)block
 {
-    __weak typeof(self) weakSelf = self;
-
     [self.syncQueue runInBackgroundAfterQueueEmpties:^{
-        [weakSelf syncRemoteActivitiesWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
-            if (!success) {
-                NSLog(@"[CMHEALTH] Error syncing activities: %@", errors);
-
-                if (nil != block) {
-                    block(NO, errors);
-                }
-                return;
-            }
-
-
-            NSLog(@"[CMHEALTH] Successful sync of activities");
-
-            [weakSelf syncRemoteEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
-                if (!success) {
-                    NSLog(@"[CMHEALTH] Error syncing events: %@", errors);
-
-                    if (nil != block) {
-                        block(NO, errors);
-                    }
-                    return;
-                }
-
-                NSLog(@"[CMHEALTH] Successful sync of events");
-                if (nil != block) {
-                    block(YES, @[]);
-                }
-            }];
-        }];
+        [self runFetchWithCompletion:block];
     }];
 }
 
@@ -277,6 +247,43 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
     }
     
     return nil;
+}
+
+#pragma mark Protected API
+
+- (void)runFetchWithCompletion:(nullable CMHRemoteSyncCompletion)block
+{
+    __weak typeof(self) weakSelf = self;
+    
+    [weakSelf syncRemoteActivitiesWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+        if (!success) {
+            NSLog(@"[CMHEALTH] Error syncing activities: %@", errors);
+            
+            if (nil != block) {
+                block(NO, errors);
+            }
+            return;
+        }
+        
+        
+        NSLog(@"[CMHEALTH] Successful sync of activities");
+        
+        [weakSelf syncRemoteEventsWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
+            if (!success) {
+                NSLog(@"[CMHEALTH] Error syncing events: %@", errors);
+                
+                if (nil != block) {
+                    block(NO, errors);
+                }
+                return;
+            }
+            
+            NSLog(@"[CMHEALTH] Successful sync of events");
+            if (nil != block) {
+                block(YES, @[]);
+            }
+        }];
+    }];
 }
 
 #pragma mark Setters/Getters
