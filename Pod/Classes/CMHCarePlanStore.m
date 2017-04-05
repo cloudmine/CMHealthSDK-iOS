@@ -89,7 +89,7 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 - (void)clearLocalStore
 {
     NSArray *errors = [self clearLocalStoreDataSynchronously];
-    [self.stamper forgetSyncTimes];
+    [self.stamper forgetSyncTime];
     
     if (errors.count > 0) {
         NSLog(@"[CMHEALTH] There were %li errors clearing the local store: %@", (long)errors.count, errors);
@@ -254,7 +254,7 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
     CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
     noLimitSharedOption.shared = YES;
     
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ >= \"%@\"]", CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.stamper.activityLastSyncStamp];
+    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ >= \"%@\"]", CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.stamper.lastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
     [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
@@ -291,7 +291,7 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
                 
                 NSLog(@"[CMHEALTH] Successful sync of events");
                 
-                [self.stamper saveActivityLastSyncTime:syncStartTime];
+                [self.stamper saveLastSyncTime:syncStartTime];
                 
                 if (nil != block) {
                     block(YES, @[]);

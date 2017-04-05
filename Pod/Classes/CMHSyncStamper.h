@@ -4,11 +4,9 @@
 
 - (nonnull instancetype)initWithCMHIdentifier:(nonnull NSString *)cmhIdentifier;
 
-- (void)saveEventLastSyncTime:(nonnull NSDate *)date;
-- (void)saveActivityLastSyncTime:(nonnull NSDate *)date;
-- (void)forgetSyncTimes;
+- (void)saveLastSyncTime:(nonnull NSDate *)date;
+- (void)forgetSyncTime;
 
-@property (nonatomic, nonnull, readonly) NSString *eventLastSyncStamp;
-@property (nonatomic, nonnull, readonly) NSString *activityLastSyncStamp;
+@property (nonatomic, nonnull, readonly) NSString *lastSyncStamp;
 
 @end

@@ -1,14 +1,12 @@
 #import "CMHSyncStamper.h"
 
-static NSString * const _Nonnull CMHEventSyncKeyPrefix = @"CMHEventSync-";
-static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
+static NSString * const _Nonnull CMHSyncKeyPrefix = @"CMHSync-";
 
 @interface CMHSyncStamper ()
 
 @property (nonatomic, nonnull) NSString *cmhIdentifier;
 @property (nonatomic, nonnull) NSDateFormatter *cmTimestampFormatter;
-@property (nonatomic, nonnull, readonly) NSString *eventSyncKey;
-@property (nonatomic, nonnull, readonly) NSString *activitySyncKey;
+@property (nonatomic, nonnull, readonly) NSString *syncKey;
 
 @end
 
@@ -30,26 +28,17 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
 
 #pragma mark Public
 
-- (void)saveEventLastSyncTime:(NSDate *)date
+- (void)saveLastSyncTime:(NSDate *)date
 {
     NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
     
     NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.eventSyncKey];
+    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.syncKey];
 }
 
-- (void)saveActivityLastSyncTime:(NSDate *)date
+- (void)forgetSyncTime
 {
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
-    
-    NSString *stamp = [self timestampForDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.activitySyncKey];
-}
-
-- (void)forgetSyncTimes
-{
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.eventSyncKey];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.activitySyncKey];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.syncKey];
 }
 
 #pragma mark Getters-Setters
@@ -66,31 +55,14 @@ static NSString * const _Nonnull CMHActivitySyncKeyPrefix = @"CMHActivitySync-";
     return _cmTimestampFormatter;
 }
 
-- (NSString *)eventSyncKey
+- (NSString *)syncKey
 {
-    return [NSString stringWithFormat:@"%@%@", CMHEventSyncKeyPrefix, self.cmhIdentifier];
+    return [NSString stringWithFormat:@"%@%@", CMHSyncKeyPrefix, self.cmhIdentifier];
 }
 
-- (NSString *)eventLastSyncStamp
+- (NSString *)lastSyncStamp
 {
-    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.eventSyncKey];
-    
-    if (nil == savedStamp) {
-        NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];
-        return [self timestampForDate:longAgo];
-    }
-    
-    return savedStamp;
-}
-
-- (NSString *)activitySyncKey
-{
-    return [NSString stringWithFormat:@"%@%@", CMHActivitySyncKeyPrefix, self.cmhIdentifier];
-}
-
-- (NSString *)activityLastSyncStamp
-{
-    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.activitySyncKey];
+    NSString *savedStamp = [[NSUserDefaults standardUserDefaults] objectForKey:self.syncKey];
     
     if (nil == savedStamp) {
         NSDate *longAgo = [NSDate dateWithTimeIntervalSince1970:0];

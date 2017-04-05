@@ -15,48 +15,33 @@ describe(@"CMHSyncStamper", ^{
     
     beforeAll(^{
         CMHSyncStamper *stamperOne = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
-        [stamperOne forgetSyncTimes];
+        [stamperOne forgetSyncTime];
         
         CMHSyncStamper *stamperTwo = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdTwo];
-        [stamperTwo forgetSyncTimes];
+        [stamperTwo forgetSyncTime];
     });
     
     it(@"should return the Unix Epoch if no sync times have been saved", ^{
         CMHSyncStamper *stamper = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
         
-        expect(stamper.eventLastSyncStamp).to.equal(kCMHEpochStamp);
-        expect(stamper.activityLastSyncStamp).to.equal(kCMHEpochStamp);
+        expect(stamper.lastSyncStamp).to.equal(kCMHEpochStamp);
     });
     
-    it(@"should update the event sync time", ^{
+    it(@"should update the sync time", ^{
         CMHSyncStamper *stamper = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
         NSDate *newDate = [NSDate dateWithTimeIntervalSince1970:kCMHTestDateOne];
         
-        [stamper saveEventLastSyncTime:newDate];
+        [stamper saveLastSyncTime:newDate];
         
-        expect(stamper.eventLastSyncStamp).to.equal(kCMHTestStampOne);
-        expect(stamper.activityLastSyncStamp).to.equal(kCMHEpochStamp);
-    });
-    
-    it(@"should remember the event last sync time and update the activity last sync time", ^{
-        CMHSyncStamper *stamper = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
-        NSDate *newDate = [NSDate dateWithTimeIntervalSince1970:kCMHTestDateTwo];
-        
-        [stamper saveActivityLastSyncTime:newDate];
-        
-        expect(stamper.eventLastSyncStamp).to.equal(kCMHTestStampOne);
-        expect(stamper.activityLastSyncStamp).to.equal(kCMHTestStampTwo);
+        expect(stamper.lastSyncStamp).to.equal(kCMHTestStampOne);
     });
     
     it(@"should remember sync times for one user w/o impacting a new one", ^{
         CMHSyncStamper *stamperOne = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
         CMHSyncStamper *stamperTwo = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdTwo];
         
-        expect(stamperOne.eventLastSyncStamp).to.equal(kCMHTestStampOne);
-        expect(stamperOne.activityLastSyncStamp).to.equal(kCMHTestStampTwo);
-        
-        expect(stamperTwo.eventLastSyncStamp).to.equal(kCMHEpochStamp);
-        expect(stamperTwo.activityLastSyncStamp).to.equal(kCMHEpochStamp);
+        expect(stamperOne.lastSyncStamp).to.equal(kCMHTestStampOne);
+        expect(stamperTwo.lastSyncStamp).to.equal(kCMHEpochStamp);
     });
     
     it(@"should update sync times for a new user w/o impacting the old one", ^{
@@ -64,14 +49,10 @@ describe(@"CMHSyncStamper", ^{
         CMHSyncStamper *stamperTwo = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdTwo];
         NSDate *newDate =  [NSDate dateWithTimeIntervalSince1970:kCMHTestDateTwo];
         
-        [stamperTwo saveEventLastSyncTime:newDate];
-        [stamperTwo saveActivityLastSyncTime:newDate];
+        [stamperTwo saveLastSyncTime:newDate];
         
-        expect(stamperOne.eventLastSyncStamp).to.equal(kCMHTestStampOne);
-        expect(stamperOne.activityLastSyncStamp).to.equal(kCMHTestStampTwo);
-        
-        expect(stamperTwo.eventLastSyncStamp).to.equal(kCMHTestStampTwo);
-        expect(stamperTwo.activityLastSyncStamp).to.equal(kCMHTestStampTwo);
+        expect(stamperOne.lastSyncStamp).to.equal(kCMHTestStampOne);
+        expect(stamperTwo.lastSyncStamp).to.equal(kCMHTestStampTwo);
     });
     
     it(@"should forget sync times for one  user while updating those for another, w/o impacting each other", ^{
@@ -79,22 +60,19 @@ describe(@"CMHSyncStamper", ^{
         CMHSyncStamper *stamperTwo = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdTwo];
         NSDate *newDate =  [NSDate dateWithTimeIntervalSince1970:kCMHTestDateOne];
         
-        [stamperOne forgetSyncTimes];
-        [stamperTwo saveActivityLastSyncTime:newDate];
+        [stamperOne forgetSyncTime];
+        [stamperTwo saveLastSyncTime:newDate];
         
-        expect(stamperOne.eventLastSyncStamp).to.equal(kCMHEpochStamp);
-        expect(stamperOne.activityLastSyncStamp).to.equal(kCMHEpochStamp);
-        
-        expect(stamperTwo.eventLastSyncStamp).to.equal(kCMHTestStampTwo);
-        expect(stamperTwo.activityLastSyncStamp).to.equal(kCMHTestStampOne);
+        expect(stamperOne.lastSyncStamp).to.equal(kCMHEpochStamp);
+        expect(stamperTwo.lastSyncStamp).to.equal(kCMHTestStampOne);
     });
     
     afterAll(^{
         CMHSyncStamper *stamperOne = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdOne];
-        [stamperOne forgetSyncTimes];
+        [stamperOne forgetSyncTime];
         
         CMHSyncStamper *stamperTwo = [[CMHSyncStamper alloc] initWithCMHIdentifier:kCMHFakeIdTwo];
-        [stamperTwo forgetSyncTimes];
+        [stamperTwo forgetSyncTime];
     });
 });
 
