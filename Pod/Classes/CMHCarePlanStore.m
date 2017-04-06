@@ -13,6 +13,7 @@
 #import "CMHCareSyncQueue.h"
 #import "CMHCarePlanStoreVendor.h"
 #import "CMHSyncStamper.h"
+#import "CMHAutoPager.h"
 
 static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
@@ -109,22 +110,9 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
         __block NSDictionary *userErrors = nil;
         
         cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-            CMStoreOptions *noLimit = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:517]];
-            [CMUser allUserWithOptions:noLimit callback:^(CMObjectFetchResponse *response) {
-                allUsers = response.objects;
-                
-                NSMutableArray *mutableErrors = [NSMutableArray new];
-                
-                if (response.objectErrors.allValues.count > 0) {
-                    [mutableErrors addObjectsFromArray:response.objectErrors.allValues];
-                }
-                
-                if (nil != response.error) {
-                    [mutableErrors addObject:response.error];
-                }
-                
-                userErrors = [mutableErrors copy];
-                
+            [CMHAutoPager fetchAllUsersWithCompletion:^(NSArray<CMUser *> *users, NSArray<NSError *> *errors) {
+                allUsers = users;
+                userErrors = errors;
                 done();
             }];
         });
