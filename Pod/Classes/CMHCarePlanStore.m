@@ -126,13 +126,9 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
         __block NSError *profilesError = nil;
         
         cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-            CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-            noLimitSharedOption.shared = YES;
-            
-            NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\"]", CMInternalClassStorageKey, [CMHInternalProfile class]];
-            [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
-                profilesError = [CMHErrorUtilities errorForFetchWithResponse:response];
-                allProfiles = response.objects;
+            [CMHAutoPager fetchAllUserProfilesWithCompletion:^(NSArray<CMHInternalProfile *> *profiles, NSError *error) {
+                allProfiles = profiles;
+                profilesError = error;
                 done();
             }];
         });

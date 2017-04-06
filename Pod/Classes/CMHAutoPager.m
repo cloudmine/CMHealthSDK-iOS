@@ -1,12 +1,14 @@
 #import "CMHAutoPager.h"
 #import <CloudMine/CloudMine.h>
 #import "CMHDisptachUtils.h"
+#import "CMHInternalProfile.h"
+#import "CMHErrorUtilities.h"
 
 static const NSInteger kCMHAutoPagerLimit = 25;
 
 @implementation CMHAutoPager
 
-+ (void)fetchAllUsersWithCompletion:(nonnull CMHAllUserCompletion)block
++ (void)fetchAllUsersWithCompletion:(nonnull CMHAllUsersCompletion)block
 {
     dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     
@@ -49,7 +51,47 @@ static const NSInteger kCMHAutoPagerLimit = 25;
         
         block([mutableAllUsers copy], [mutableAllErrors copy]);
     });
+}
 
++ (void)fetchAllUserProfilesWithCompletion:(nonnull CMHAllProfilesCompletion)block
+{
+    dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(highQueue, ^{
+        NSMutableArray *mutableAllProfiles =  [NSMutableArray new];
+        __block NSError *fetchError = nil;
+        __block NSUInteger lastFetchCount = 0;
+        NSInteger skipCount = 0;
+        
+        do {
+            NSLog(@"[CMHealth] Fetching user profiles with page count: %li", (long)skipCount);
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                CMStoreOptions *limitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:kCMHAutoPagerLimit skip:(skipCount * kCMHAutoPagerLimit)]];
+                limitSharedOption.shared = YES;
+                
+                NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\"]", CMInternalClassStorageKey, [CMHInternalProfile class]];
+                [[CMStore defaultStore] searchUserObjects:query additionalOptions:limitSharedOption callback:^(CMObjectFetchResponse *response) {
+                    NSError *error = [CMHErrorUtilities errorForFetchWithResponse:response];
+                    if (nil != error) {
+                        fetchError = error;
+                    }
+                    
+                    if (nil != response.objects) {
+                        [mutableAllProfiles addObjectsFromArray:response.objects];
+                        lastFetchCount = response.objects.count;
+                    }
+                    
+                    done();
+                }];
+            });
+            
+            skipCount += 1;
+            
+        } while (lastFetchCount >= kCMHAutoPagerLimit && nil == fetchError);
+        
+        block([mutableAllProfiles copy], fetchError);
+    });
 }
 
 @end

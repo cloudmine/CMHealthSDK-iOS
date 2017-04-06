@@ -644,7 +644,9 @@ describe(@"CMHealthIntegration", ^{
                      done();
                  }];
              }];
-         });        
+         });
+        
+        [NSThread sleepForTimeInterval:0.5]; // Apparently, sometimes the app will quit before the NSUserDefaults internal to CMUser synchronizes
     });
 });
 
