@@ -1,12 +1,10 @@
-#import "CMHCarePlanStore.h"
-#import "OCKCarePlanEvent+CMHealth.h"
 #import "CMHCarePlanStore_internal.h"
+#import "OCKCarePlanEvent+CMHealth.h"
 #import "CMHInternalUser.h"
 #import "CMHCareActivity.h"
 #import "CMHCareEvent.h"
 #import "CMHErrorUtilities.h"
 #import "CMHDisptachUtils.h"
-#import "CMHConstants_internal.h"
 #import "CMHCareObjectSaver.h"
 #import "CMHConfiguration.h"
 #import "CMHInternalProfile.h"
@@ -14,8 +12,6 @@
 #import "CMHCarePlanStoreVendor.h"
 #import "CMHSyncStamper.h"
 #import "CMHAutoPager.h"
-
-static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
@@ -27,7 +23,6 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 @property (nonatomic) BOOL isUpdatingActivity; // Can only do a flag because delegate callback does not include activity info; could drop 'real' activity updates
 
 @property (nonatomic, nonnull) CMHSyncStamper *stamper;
-
 @property (nonatomic, nonnull) CMHCareSyncQueue *syncQueue;
 
 @end
@@ -235,14 +230,9 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 - (void)runFetchWithCompletion:(nullable CMHRemoteSyncCompletion)block
 {
-    CMStoreOptions *noLimitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:-1]];
-    noLimitSharedOption.shared = YES;
-    
-    NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ >= \"%@\"]", CMHOwningUserKey, self.cmhIdentifier, CMInternalUpdatedKey, self.stamper.lastSyncStamp];
     NSDate *syncStartTime = [NSDate new];
     
-    [[CMStore defaultStore] searchUserObjects:query additionalOptions:noLimitSharedOption callback:^(CMObjectFetchResponse *response) {
-        NSError *fetchError = [CMHErrorUtilities errorForFetchWithResponse:response];
+    [CMHAutoPager fetchObjectsWithOwningUser:self.cmhIdentifier updatedAfter:self.stamper.lastSyncStamp withCompletion:^(NSArray<CMObject *> *allObjects, NSError *fetchError) {
         if (nil != fetchError) {
             if (nil != block) {
                 block(NO, @[fetchError]);
@@ -250,8 +240,8 @@ static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
             return;
         }
         
-        NSArray<CMHCareActivity *> *fetchedActivities = [self.class objectsOfClass:[CMHCareActivity class] from:response.objects];
-        NSArray<CMHCareEvent *> *fetchedEvents = [self.class objectsOfClass:[CMHCareEvent class] from:response.objects];
+        NSArray<CMHCareActivity *> *fetchedActivities = [self.class objectsOfClass:[CMHCareActivity class] from:allObjects];
+        NSArray<CMHCareEvent *> *fetchedEvents = [self.class objectsOfClass:[CMHCareEvent class] from:allObjects];
         
         [self insertActivities:fetchedActivities completion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
             if (!success) {

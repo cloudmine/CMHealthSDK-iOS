@@ -3,13 +3,17 @@
 #import "CMHDisptachUtils.h"
 #import "CMHInternalProfile.h"
 #import "CMHErrorUtilities.h"
+#import "CMHConstants_internal.h"
 
 static const NSInteger kCMHAutoPagerLimit = 25;
+static NSString * const _Nonnull CMInternalUpdatedKey = @"__updated__";
 
 @implementation CMHAutoPager
 
 + (void)fetchAllUsersWithCompletion:(nonnull CMHAllUsersCompletion)block
 {
+    NSAssert(nil != block, @"Cannot call %s without completion block", __PRETTY_FUNCTION__);
+    
     dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     
     dispatch_async(highQueue, ^{
@@ -55,6 +59,8 @@ static const NSInteger kCMHAutoPagerLimit = 25;
 
 + (void)fetchAllUserProfilesWithCompletion:(nonnull CMHAllProfilesCompletion)block
 {
+    NSAssert(nil != block, @"Cannot call %s without completion block", __PRETTY_FUNCTION__);
+    
     dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     
     dispatch_async(highQueue, ^{
@@ -91,6 +97,52 @@ static const NSInteger kCMHAutoPagerLimit = 25;
         } while (lastFetchCount >= kCMHAutoPagerLimit && nil == fetchError);
         
         block([mutableAllProfiles copy], fetchError);
+    });
+}
+
++ (void)fetchObjectsWithOwningUser:(NSString *)owningUserIdentifier updatedAfter:(NSString *)updateAfterStamp withCompletion:(CMHFetchObjectsCompletion)block
+{
+    NSAssert(nil != owningUserIdentifier, @"Cannot call %s without providing owning user identifier", __PRETTY_FUNCTION__);
+    NSAssert(nil != updateAfterStamp, @"Cannot call %s without providing update-after stamp", __PRETTY_FUNCTION__);
+    NSAssert(nil != block, @"Cannot call %s without completion block", __PRETTY_FUNCTION__);
+    
+    dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(highQueue, ^{
+        NSMutableArray *mutableAllObjects = [NSMutableArray new];
+        __block NSError *fetchError = nil;
+        __block NSUInteger lastFetchCount = 0;
+        NSInteger skipCount = 0;
+        
+        do {
+            NSLog(@"[CMHealth] Fetching user objects with page count: %li", (long)skipCount);
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                CMStoreOptions *limitSharedOption = [[CMStoreOptions alloc] initWithPagingDescriptor:[[CMPagingDescriptor alloc] initWithLimit:kCMHAutoPagerLimit skip:(skipCount * kCMHAutoPagerLimit)]];
+                limitSharedOption.shared = YES;
+                
+                NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ >= \"%@\"]", CMHOwningUserKey, owningUserIdentifier, CMInternalUpdatedKey, updateAfterStamp];
+                
+                [[CMStore defaultStore] searchUserObjects:query additionalOptions:limitSharedOption callback:^(CMObjectFetchResponse *response) {
+                    NSError *error = [CMHErrorUtilities errorForFetchWithResponse:response];
+                    if (nil != error) {
+                        fetchError = error;
+                    }
+                    
+                    if (nil != response.objects) {
+                        [mutableAllObjects addObjectsFromArray:response.objects];
+                        lastFetchCount = response.objects.count;
+                    }
+                    
+                    done();
+                }];
+            });
+            
+            skipCount += 1;
+            
+        } while (lastFetchCount >= kCMHAutoPagerLimit && nil == fetchError);
+        
+        block([mutableAllObjects copy], fetchError);
     });
 }
 
