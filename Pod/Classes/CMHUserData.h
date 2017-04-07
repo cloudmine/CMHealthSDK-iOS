@@ -34,9 +34,11 @@
 @property (nonatomic, nullable, readonly) NSDate *dateOfBirth;
 
 /**
- * Save any additional properties to the user's profile
+ * Dictionary saving any additional properties to the user's profile.
+ * Use this to extend `CMHUserData` with data appropriate to your
+ * domain.
  *
- * @warning Elements are restricted to _JSON-COMPATIBLE TYPES ONLY_
+ * @warning Elements are restricted to JSON-COMPATIBLE TYPES ONLY
  */
 @property (nonatomic, nonnull, readonly) NSDictionary<NSString *, id<NSCoding>> *userInfo;
 
