@@ -10,7 +10,7 @@
 #import "ORKConsentSection+CMHealth.h"
 #import "CMHLoginViewController.h"
 #import "CMHCarePlanStore.h"
-#import "OCKCarePlanEvent+CMHealth.h"
+#import "CMHCareSyncBlocks.h"
 
 /**
  *  CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage and user
