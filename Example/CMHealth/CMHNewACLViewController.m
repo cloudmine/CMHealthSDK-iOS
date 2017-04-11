@@ -1,6 +1,7 @@
 #import "CMHNewACLViewController.h"
 #import "CMHTest-Secrets.h"
 
+
 @interface CMHNewACLViewController ()<UITextFieldDelegate>
 @property (strong, nonatomic) IBOutlet UITextField *emailTextField;
 @property (strong, nonatomic) IBOutlet UITextField *passwordTextField;
@@ -19,24 +20,25 @@
 
 - (IBAction)didPressCreateButton:(UIButton *)sender
 {
-    CMUser *newUser = [[CMUser alloc] initWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text];
-    [newUser createAccountWithCallback:^(CMUserAccountResult createCode, NSArray *createMessages) {
-        if (CMUserAccountOperationFailed(createCode)) {
-            NSLog(@"[CMHealth] Failed to create new admin user, with code %li, messages: %@", (long)createCode, createMessages);
+    [[CMHUser currentUser] signUpWithEmail:self.emailTextField.text password:self.passwordTextField.text andCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
+            NSLog(@"[CMHealth] Failed to create new admin user, %@", error.localizedDescription);
             return;
         }
         
-        [newUser loginWithCallback:^(CMUserAccountResult loginCode, NSArray *loginMessages) {
-            if (CMUserAccountOperationFailed(createCode)) {
-                NSLog(@"[CMHealth] Failed to log new admin user in, with code %li, messages: %@", (long)loginCode, loginMessages);
+        
+        CMHMutableUserData *userData = [[CMHUser currentUser].userData mutableCopy];
+        userData.isAdmin = YES; // TODO: Update encode with coder so this is actually saved
+        
+        [[CMHUser currentUser] updateUserData:[userData copy] withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
+            if (nil != error) {
+                NSLog(@"[CMHealth] Failed to tag new user as admin %@", error.localizedDescription);
                 return;
             }
             
-            [CMStore defaultStore].user = newUser;
-        
             CMACL *newACL = [CMACL new];
             newACL.permissions = [NSSet setWithObjects:CMACLReadPermission, CMACLUpdatePermission, CMACLDeletePermission, nil];
-            newACL.members = [NSSet setWithObjects:newUser.objectId, nil];
+            newACL.members = [NSSet setWithObjects:userData.userId, nil];
             
             [newACL save:^(CMObjectUploadResponse *response) {
                 if (nil != response.error) {

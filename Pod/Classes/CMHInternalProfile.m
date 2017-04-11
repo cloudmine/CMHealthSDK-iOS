@@ -9,6 +9,7 @@
     if (nil == self) return nil;
 
     _email = [aDecoder decodeObjectForKey:@"email"];
+    _isAdmin = [aDecoder decodeBoolForKey:@"isAdmin"];
     _givenName = [aDecoder decodeObjectForKey:@"givenName"];
     _familyName = [aDecoder decodeObjectForKey:@"familyName"];
     _gender = [aDecoder decodeObjectForKey:@"gender"];
@@ -23,6 +24,7 @@
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.email forKey:@"email"];
+    [aCoder encodeBool:self.isAdmin forKey:@"isAdmin"];
     [aCoder encodeObject:self.cmhOwnerId forKey:CMHOwningUserKey];
     [aCoder encodeObject:self.givenName forKey:@"givenName"];
     [aCoder encodeObject:self.familyName forKey:@"familyName"];

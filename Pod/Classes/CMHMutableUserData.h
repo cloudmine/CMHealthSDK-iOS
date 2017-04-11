@@ -9,6 +9,8 @@
  */
 @interface CMHMutableUserData : CMHUserData
 
+@property (nonatomic, readwrite) BOOL isAdmin;
+
 /**
  *  Family name, if available, or `nil`.
  */

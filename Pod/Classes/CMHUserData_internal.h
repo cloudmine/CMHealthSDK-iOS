@@ -7,7 +7,7 @@
 #define CMHUserData_internal_h
 
 @interface CMHUserData ()
-- (_Nullable instancetype)initWithInternalProfile:(CMHInternalProfile *_Nullable)profile;
+- (_Nullable instancetype)initWithInternalProfile:(CMHInternalProfile *_Nullable)profile userId:(NSString *_Nullable)userId;
 @end
 
 #endif

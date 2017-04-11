@@ -122,6 +122,7 @@ describe(@"CMHealthIntegration", ^{
         });
 
         expect([CMHUser currentUser].isLoggedIn).to.equal(YES);
+        expect([CMHUser currentUser].userData.isAdmin).to.equal(NO);
         expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
         expect([CMHUser currentUser].userData.gender).to.equal(CMHIntegrationTestFactory.genderString);
         expect([CMHUser currentUser].userData.dateOfBirth).to.equal(CMHIntegrationTestFactory.dateOfBirth);
@@ -238,6 +239,7 @@ describe(@"CMHealthIntegration", ^{
         __block NSError *updateError = nil;
         
         CMHMutableUserData *mutableUserData = [[CMHUser currentUser].userData mutableCopy];
+        mutableUserData.isAdmin = YES;
         mutableUserData.gender = CMHIntegrationTestFactory.updateGenderString;
         mutableUserData.dateOfBirth = CMHIntegrationTestFactory.updateDateOfBirth;
         mutableUserData.userInfo = CMHIntegrationTestFactory.updateUserInfo;
@@ -252,6 +254,7 @@ describe(@"CMHealthIntegration", ^{
         
         expect(updateError).to.beNil();
         expect(updateUserData == [CMHUser currentUser].userData).to.beTruthy();
+        expect(updateUserData.isAdmin).to.equal(YES);
         expect(updateUserData.gender).to.equal(CMHIntegrationTestFactory.updateGenderString);
         expect(updateUserData.dateOfBirth).to.equal(CMHIntegrationTestFactory.updateDateOfBirth);
         expect(updateUserData.userInfo).to.equal(CMHIntegrationTestFactory.updateUserInfo);

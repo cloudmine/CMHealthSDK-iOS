@@ -24,6 +24,7 @@
     CMHInternalUser *newUser = [[CMHInternalUser alloc] initWithEmail:regData.email andPassword:regData.password];
     newUser.profile = [CMHInternalProfile new];
     newUser.profile.email = regData.email;
+    newUser.profile.isAdmin = NO;
     newUser.profileId = newUser.profile.objectId;
     newUser.profile.familyName = regData.familyName;
     newUser.profile.givenName = regData.givenName;
@@ -113,6 +114,7 @@
 - (void)updateProfileWithUserData:(CMHUserData *)userData withCompletion:(void(^)(NSError *error))block;
 {
     self.profile.email = userData.email;
+    self.profile.isAdmin = userData.isAdmin;
     self.profile.givenName = userData.givenName;
     self.profile.familyName = userData.familyName;
     self.profile.gender = userData.gender;
@@ -126,7 +128,7 @@
 
 - (CMHUserData *)generateCurrentUserData
 {
-    return [[CMHUserData alloc] initWithInternalProfile:self.profile];
+    return [[CMHUserData alloc] initWithInternalProfile:self.profile userId:self.objectId];
 }
 
 - (BOOL)hasName

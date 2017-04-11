@@ -4,6 +4,7 @@
 
 @interface CMHUserData ()
 @property (nonatomic, nonnull, copy, readwrite) NSString *email;
+@property (nonatomic, readwrite) BOOL isAdmin;
 @property (nonatomic, nullable, copy, readwrite) NSString *familyName;
 @property (nonatomic, nullable, copy, readwrite) NSString *givenName;
 @property (nonatomic, nullable, copy, readwrite) NSString *gender;
@@ -13,12 +14,14 @@
 
 @implementation CMHUserData
 
-- (_Nullable instancetype)initWithInternalProfile:(CMHInternalProfile *_Nullable)profile
+- (_Nullable instancetype)initWithInternalProfile:(CMHInternalProfile *_Nullable)profile userId:(NSString *_Nullable)userId;
 {
     self = [super init];
-    if (nil == self || nil == profile) return nil;
+    if (nil == self || nil == profile || nil == userId) return nil;
 
     _email = profile.email;
+    _userId = [userId copy];
+    _isAdmin = profile.isAdmin;
     _givenName = profile.givenName;
     _familyName = profile.familyName;
     _gender = profile.gender;
@@ -38,6 +41,7 @@
     newUserData.givenName = self.givenName;
     newUserData.gender = self.gender;
     newUserData.dateOfBirth = self.dateOfBirth;
+    newUserData.isAdmin = self.isAdmin;
     
     return newUserData;
 }
@@ -52,6 +56,7 @@
     mutableUserData.givenName = self.givenName;
     mutableUserData.gender = self.gender;
     mutableUserData.dateOfBirth = self.dateOfBirth;
+    mutableUserData.isAdmin = self.isAdmin;
     
     return mutableUserData;
 }

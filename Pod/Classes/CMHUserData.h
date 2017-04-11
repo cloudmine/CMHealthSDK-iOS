@@ -13,6 +13,10 @@
  */
 @property (nonatomic, nonnull, readonly) NSString *email;
 
+@property (nonatomic, nonnull, readonly) NSString *userId;
+
+@property (nonatomic, readonly) BOOL isAdmin;
+
 /**
  *  Family name, if available, or `nil`.
  */
