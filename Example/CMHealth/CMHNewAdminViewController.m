@@ -43,47 +43,43 @@ void na_wait_until(_Nonnull NAWaitBlock block)
     dispatch_async(runQueue, ^{
         [self logoutCurrentUser];
         
-        CMUser *newUser = [[CMUser alloc] initWithEmail:self.createAdminEmailTextField.text andPassword:self.createAdminPasswordTextField.text];
-        
-        __block CMUserAccountResult createCode = CMUserAccountUnknownResult;
-        __block NSArray *createMessages = nil;
+        __block NSError *signupError = nil;
         
         na_wait_until(^(NADoneBlock  _Nonnull done) {
-            [newUser createAccountWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-                createCode = resultCode;
-                createMessages = messages;
+            [[CMHUser currentUser] signUpWithEmail:self.createAdminEmailTextField.text password:self.createAdminPasswordTextField.text andCompletion:^(NSError * _Nullable error) {
+                signupError = error;
                 done();
             }];
         });
         
-        if (CMUserAccountOperationFailed(createCode)) {
-            NSLog(@"[CMHealth] Failed to create new Admin Account. Code: %li, messages: %@", (long)createCode, createMessages);
+        if (nil != signupError) {
+            NSLog(@"[CMHealth] Failed to create new Admin Account %@", signupError.localizedDescription);
             return;
         }
         
-        NSLog(@"[CMHealth] Created new admin user with id: %@", newUser.objectId);
+        NSLog(@"[CMHealth] Created new admin user with id: %@", [CMHUser currentUser].userData.userId);
+        NSString *newUserId = [CMHUser currentUser].userData.userId;
         
         [self logoutCurrentUser];
         
-        CMUser *aclOwner = [[CMUser alloc] initWithEmail:self.aclOwnerEmailTextField.text andPassword:self.aclOwnerPasswordTextField.text];
+        __block NSError *ownerLoginError = nil;
         
-        __block CMUserAccountResult loginCode = CMUserAccountUnknownResult;
         
         na_wait_until(^(NADoneBlock  _Nonnull done) {
-            [aclOwner loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-                loginCode = resultCode;
+            [[CMHUser currentUser] loginWithEmail:self.aclOwnerEmailTextField.text password:self.aclOwnerPasswordTextField.text andCompletion:^(NSError *error) {
+                ownerLoginError = error;
                 done();
             }];
         });
         
-        if (CMUserAccountOperationFailed(loginCode)) {
-            NSLog(@"[CMHealth] Failed Logging into existing admin user account, code: %li", (long)loginCode);
+        if (nil != ownerLoginError) {
+            NSLog(@"[CMHealth] Failed Logging into existing admin user account, %@", ownerLoginError.localizedDescription);
             return;
         }
         
         NSLog(@"[CMHealth] Logged into existing admin user account");
         
-        [CMStore defaultStore].user = aclOwner;
+        [CMStore defaultStore].user = [CMUser currentUser];
         
         __block CMACL *existingACL = nil;
         
@@ -116,7 +112,7 @@ void na_wait_until(_Nonnull NAWaitBlock block)
         }
         
         NSMutableSet *memberSet = [existingACL.members mutableCopy];
-        [memberSet addObject:newUser.objectId];
+        [memberSet addObject:newUserId];
         existingACL.members = [memberSet copy];
         
         [existingACL save:^(CMObjectUploadResponse *response) {
@@ -133,18 +129,18 @@ void na_wait_until(_Nonnull NAWaitBlock block)
 
 - (void)logoutCurrentUser
 {
-    if ([CMUser currentUser].isLoggedIn) {
-        __block CMUserAccountResult logoutCode = CMUserAccountUnknownResult;
+    if ([CMHUser currentUser].isLoggedIn) {
         
+        __block NSError *logoutError = nil;
         na_wait_until(^(NADoneBlock  _Nonnull done) {
-            [[CMUser currentUser] logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-                logoutCode = resultCode;
+            [[CMHUser currentUser] logoutWithCompletion:^(NSError * _Nullable error) {
+                logoutError = error;
                 done();
             }];
         });
         
-        if (CMUserAccountOperationFailed(logoutCode)) {
-            NSLog(@"[CMHealth] Failed to log user out, code: %li", (long)logoutCode);
+        if (nil != logoutError) {
+            NSLog(@"[CMHealth] Failed to log user out, %@", logoutError.localizedDescription);
             return;
         }
         
