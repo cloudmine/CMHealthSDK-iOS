@@ -471,23 +471,18 @@ describe(@"CMHCareIntegration", ^{
         
         // Login to the admin user's account
         
-        __block CMUserAccountResult adminLoginResultCode = CMUserAccountUnknownResult;
-        __block NSArray *adminLoginMessages = nil;
-        
-        CMUser *adminUser = [[CMUser alloc] initWithEmail:CMHTestsCareAdminEmail andPassword:CMHTestsCareAdminPassword];
+        __block NSError *adminLoginError = nil;
         
         waitUntil(^(DoneCallback done) {
-            [adminUser loginWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
-                [CMStore defaultStore].user = adminUser;
-                adminLoginResultCode = resultCode;
-                adminLoginMessages = messages;
+            [[CMHUser currentUser] loginWithEmail:CMHTestsCareAdminEmail password:CMHTestsCareAdminPassword andCompletion:^(NSError *error) {
+                adminLoginError = error;
                 done();
             }];
         });
         
-        expect(CMUserAccountOperationSuccessful(adminLoginResultCode)).to.beTruthy();
-        expect(adminUser.isLoggedIn).to.beTruthy();
-        
+        expect(adminLoginError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+
         // Fectch all patients as an admin
         
         __block BOOL fetchSuccess = NO;
@@ -667,21 +662,19 @@ describe(@"CMHCareIntegration", ^{
         
         // Log out of admin account, clear & forget stores
         
-        __block CMUserAccountResult adminLogoutResultCode = CMUserAccountUnknownResult;
-        __block NSArray *adminLogoutMessages = nil;
+        __block NSError *adminLogoutError = nil;
         
         waitUntil(^(DoneCallback done) {
-            [adminUser logoutWithCallback:^(CMUserAccountResult resultCode, NSArray *messages) {
+            [[CMHUser currentUser] logoutWithCompletion:^(NSError *error) {
                 [CMHCarePlanStoreVendor.sharedVendor forgetStores];
                 [(CMHCarePlanStore *)testPatient.store clearLocalStore];
-                adminLogoutResultCode = resultCode;
-                adminLogoutMessages = messages;
+                adminLogoutError = error;
                 done();
             }];
         });
         
-        expect(CMUserAccountOperationSuccessful(adminLogoutResultCode)).to.beTruthy();
-        expect(adminUser.isLoggedIn).to.beFalsy();
+        expect(adminLogoutError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beFalsy();
         
         // Login as original patient user
         
