@@ -141,7 +141,28 @@
                 continue;
             }
             
-            // TODO: CMH Users? Filter admins
+            NSString *patientName = user.email;
+            NSString *patientDetail = nil;
+            CMHInternalProfile *profile = [CMHCarePlanStore profileForUser:(CMHInternalUser *)user from:allProfiles];
+            
+            if (nil == profile || profile.isAdmin) {
+                continue;
+            }
+
+            NSString *fullName = nil;
+            
+            if (nil != profile.givenName && nil != profile.familyName) {
+                fullName = [NSString stringWithFormat:@"%@ %@", profile.givenName, profile.familyName];
+            } else if (nil != profile.familyName) {
+                fullName = profile.familyName;
+            } else if (nil != profile.givenName) {
+                fullName = profile.givenName;
+            }
+            
+            if (nil != fullName) {
+                patientName = fullName;
+                patientDetail = user.email;
+            }
             
             NSURL *patientDir = [CMHCarePlanStore persistenceDirectoryNamed:user.objectId];
             __block CMHCarePlanStore *patientStore = nil;
@@ -169,27 +190,6 @@
                 }
                 
                 return;
-            }
-            
-            NSString *patientName = user.email;
-            NSString *patientDetail = nil;
-            CMHInternalProfile *profile = [CMHCarePlanStore profileForUser:(CMHInternalUser *)user from:allProfiles];
-            
-            if (nil != profile) {
-                NSString *fullName = nil;
-                
-                if (nil != profile.givenName && nil != profile.familyName) {
-                    fullName = [NSString stringWithFormat:@"%@ %@", profile.givenName, profile.familyName];
-                } else if (nil != profile.familyName) {
-                    fullName = profile.familyName;
-                } else if (nil != profile.givenName) {
-                    fullName = profile.givenName;
-                }
-                
-                if (nil != fullName) {
-                    patientName = fullName;
-                    patientDetail = user.email;
-                }
             }
             
             OCKPatient *patient = [[OCKPatient alloc] initWithIdentifier:user.objectId

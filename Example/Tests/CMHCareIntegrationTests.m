@@ -482,6 +482,7 @@ describe(@"CMHCareIntegration", ^{
         
         expect(adminLoginError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        expect([CMHUser currentUser].userData.userId).notTo.beNil();
 
         // Fectch all patients as an admin
         
@@ -516,6 +517,19 @@ describe(@"CMHCareIntegration", ^{
         }
         
         expect(testPatient).notTo.beNil();
+        
+        // Ensure this admin user is not included in the patients returned
+        
+        OCKPatient *adminPatient = nil;
+        
+        for(OCKPatient *patient in fetchPatients) {
+            if([patient.identifier isEqualToString:[CMHUser currentUser].userData.userId]) {
+                adminPatient = patient;
+                break;
+            }
+        }
+        
+        expect(adminPatient).to.beNil();
         
         // Ensure the assessement activity matches that added as a patient
         

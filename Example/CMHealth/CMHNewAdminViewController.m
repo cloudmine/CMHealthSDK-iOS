@@ -60,6 +60,25 @@ void na_wait_until(_Nonnull NAWaitBlock block)
         NSLog(@"[CMHealth] Created new admin user with id: %@", [CMHUser currentUser].userData.userId);
         NSString *newUserId = [CMHUser currentUser].userData.userId;
         
+        __block NSError *updateUserDataError = nil;
+        
+        CMHMutableUserData *mutableUserData = [[CMHUser currentUser].userData mutableCopy];
+        mutableUserData.isAdmin = YES;
+        
+        na_wait_until(^(NADoneBlock  _Nonnull done) {
+            [[CMHUser currentUser] updateUserData:mutableUserData withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
+                updateUserDataError = error;
+                done();
+            }];
+        });
+        
+        if (nil != updateUserDataError) {
+            NSLog(@"[CMHealth] Failed to update new user to admin status, %@", updateUserDataError.localizedDescription);
+            return;
+        }
+        
+        NSLog(@"[CMHealth] Marked new user as admin");
+        
         [self logoutCurrentUser];
         
         __block NSError *ownerLoginError = nil;
