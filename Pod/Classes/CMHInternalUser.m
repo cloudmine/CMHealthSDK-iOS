@@ -126,6 +126,76 @@
     }];
 }
 
+- (void)uploadProfileImage:(UIImage *)image withCompletion:(CMHUploadProfileImageCompletion)block
+{
+    NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    
+    if (nil == imageData) {
+        if (nil != block) {
+            block(NO, nil); // TODO: send a custom error?
+        }
+        return;
+    }
+    
+    [[CMStore defaultStore] saveUserFileWithData:imageData additionalOptions:nil callback:^(CMFileUploadResponse *response) {
+        if (nil != response.error) {
+            if (nil != block) {
+                block(NO, response.error);
+            }
+            return;
+        }
+        
+        if (!(CMFileCreated == response.result || CMFileUpdated == response.result) || nil == response.key) {
+            if (nil != block) {
+                block(NO, nil); // TODO: send a custom error?
+            }
+            return;
+        }
+        
+        self.profile.photoId = response.key;
+        
+        [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable error) {
+            if (nil != block) {
+                BOOL success = nil == error;
+                block(success, error);
+            }
+        }];
+    }];
+}
+
+- (void)fetchProfileImageWithCompletion:(CMHFetchProfileImageCompletion)block
+{
+    if (nil == self.profile.photoId) {
+        if (nil != block) {
+            block(YES, nil, nil);
+        }
+        
+        return;
+    }
+    
+    [[CMStore defaultStore] userFileWithName:self.profile.photoId additionalOptions:nil callback:^(CMFileFetchResponse *response) {
+        if (nil != response.error) {
+            if (nil != block) {
+                block(NO, nil, response.error);
+            }
+            return;
+        }
+        
+        if (nil == response.file.fileData) {
+            if (nil != block) {
+                block(YES, nil, nil);
+            }
+            return;
+        }
+        
+        UIImage *profileImage = [UIImage imageWithData:response.file.fileData];
+        
+        if (nil != block) {
+            block(YES, profileImage, nil);
+        }
+    }];
+}
+
 - (CMHUserData *)generateCurrentUserData
 {
     return [[CMHUserData alloc] initWithInternalProfile:self.profile userId:self.objectId];

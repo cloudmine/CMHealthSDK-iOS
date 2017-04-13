@@ -99,6 +99,31 @@
     }];
 }
 
+- (void)loginWithEmail:(NSString *_Nonnull)email
+              password:(NSString *_Nonnull)password
+         andCompletion:(_Nullable CMHUserAuthCompletion)block
+{
+    NSAssert(nil != email, @"CMHUser: Attempted to login with nil email");
+    NSAssert(nil != password, @"CMHUser: Attempted to login with nil password");
+    
+    self.userData = nil;
+    
+    [CMHInternalUser loginAndLoadProfileWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
+        if (nil != error) {
+            if (nil != block) {
+                block(error);
+            }
+            return;
+        }
+        
+        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
+        
+        if (nil != block) {
+            block(nil);
+        }
+    }];
+}
+
 - (void)uploadUserConsent:(ORKTaskResult *)consentResult withCompletion:(CMHUploadConsentCompletion)block
 {
     [self uploadUserConsent:consentResult forStudyWithDescriptor:nil andCompletion:block];
@@ -204,32 +229,7 @@
     }];
 }
 
-- (void)loginWithEmail:(NSString *_Nonnull)email
-              password:(NSString *_Nonnull)password
-         andCompletion:(_Nullable CMHUserAuthCompletion)block
-{
-    NSAssert(nil != email, @"CMHUser: Attempted to login with nil email");
-    NSAssert(nil != password, @"CMHUser: Attempted to login with nil password");
-
-    self.userData = nil;
-
-    [CMHInternalUser loginAndLoadProfileWithEmail:email password:password andCompletion:^(NSError * _Nullable error) {
-        if (nil != error) {
-            if (nil != block) {
-                block(error);
-            }
-            return;
-        }
-
-        self.userData = [CMHInternalUser.currentUser generateCurrentUserData];
-
-        if (nil != block) {
-            block(nil);
-        }
-    }];
-}
-
--(void)updateUserData:(CMHUserData *)userData
+- (void)updateUserData:(CMHUserData *)userData
        withCompletion:(CMHUpdateUserDataCompletion)block
 {
     NSAssert(nil != userData, @"Attempted to update user data without providing an instance of %@", [CMHUserData class]);
@@ -257,6 +257,21 @@
             block(self.userData, nil);
         }
     }];
+}
+
+- (void)uploadProfileImage:(UIImage *)image withCompletion:(CMHUploadProfileImageCompletion)block
+{
+    NSAssert(nil != image, @"Must provide image when calling %s", __PRETTY_FUNCTION__);
+    NSAssert(self.isLoggedIn, @"Calling method while user is logged out is forbidden %s", __PRETTY_FUNCTION__);
+    
+    [[CMHInternalUser currentUser] uploadProfileImage:image withCompletion:block];
+}
+
+- (void)fetchProfileImageWithCompletion:(CMHFetchProfileImageCompletion)block
+{
+    NSAssert(self.isLoggedIn, @"Calling method while user is logged out is forbidden %s", __PRETTY_FUNCTION__);
+    
+    [[CMHInternalUser currentUser] fetchProfileImageWithCompletion:block];
 }
 
 - (void)resetPasswordForAccountWithEmail:(NSString *_Nonnull)email

@@ -234,6 +234,47 @@ describe(@"CMHealthIntegration", ^{
         expect(pdfData).to.equal(localPDFData);
     });
     
+    it(@"should upload a user's profile photo", ^{
+        UIImage *image = [UIImage imageNamed:@"Test-Signature-Image.png"];
+
+        expect(image).notTo.beNil();
+        
+        __block BOOL uploadSuccess = NO;
+        __block NSError *uploadError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] uploadProfileImage:image withCompletion:^(BOOL success, NSError *error) {
+                uploadSuccess = success;
+                uploadError = error;
+                done();
+            }];
+        });
+        
+        expect(uploadSuccess).to.beTruthy();
+        expect(uploadError).to.beNil();
+    });
+    
+    it(@"should fetch a user's profile photo", ^{
+        __block BOOL fetchSuccess = NO;
+        __block UIImage *profileImage = nil;
+        __block NSError *fetchError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] fetchProfileImageWithCompletion:^(BOOL success, UIImage *image, NSError *error) {
+                fetchSuccess = success;
+                profileImage = image;
+                fetchError = error;
+                done();
+            }];
+        });
+        
+        expect(fetchSuccess).to.beTruthy();
+        expect(fetchError).to.beNil();
+        expect(profileImage).notTo.beNil();
+        expect(profileImage.size.width).to.equal(1.0f);
+        expect(profileImage.size.height).to.equal(1.0f);
+    });
+    
     it(@"should let us update the user's profile data", ^{
         __block CMHUserData *updateUserData = nil;
         __block NSError *updateError = nil;

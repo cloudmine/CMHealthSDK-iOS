@@ -11,6 +11,8 @@
 
 - (void)loadProfileWithCompletion:(CMHUserAuthCompletion)block;
 - (void)updateProfileWithUserData:(CMHUserData *)userData withCompletion:(void(^)(NSError *error))block;
+- (void)uploadProfileImage:(UIImage *)image withCompletion:(CMHUploadProfileImageCompletion)block;
+- (void)fetchProfileImageWithCompletion:(CMHFetchProfileImageCompletion)block;
 - (CMHUserData *)generateCurrentUserData;
 
 @property (nonatomic) NSString *profileId;

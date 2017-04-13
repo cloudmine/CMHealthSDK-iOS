@@ -15,6 +15,7 @@
     _gender = [aDecoder decodeObjectForKey:@"gender"];
     _dateOfBirth = [aDecoder decodeObjectForKey:@"dateOfBirth"];
     _cmhOwnerId = [aDecoder decodeObjectForKey:CMHOwningUserKey];
+    _photoId = [aDecoder decodeObjectForKey:@"photoId"];
     _userInfo = [aDecoder decodeObjectForKey:@"userInfo"];
 
     return self;
@@ -30,6 +31,7 @@
     [aCoder encodeObject:self.familyName forKey:@"familyName"];
     [aCoder encodeObject:self.gender forKey:@"gender"];
     [aCoder encodeObject:self.dateOfBirth forKey:@"dateOfBirth"];
+    [aCoder encodeObject:self.photoId forKey:@"photoId"];
     [aCoder encodeObject:self.userInfo forKey:@"userInfo"];
 }
 

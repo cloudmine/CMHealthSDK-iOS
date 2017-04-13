@@ -9,6 +9,8 @@ typedef void(^CMHResetPasswordCompletion)(NSError *_Nullable error);
 typedef void(^CMHUploadConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 typedef void(^CMHFetchConsentCompletion)(CMHConsent *_Nullable consent, NSError *_Nullable error);
 typedef void(^CMHUpdateUserDataCompletion)(CMHUserData *_Nullable userData, NSError *_Nullable error);
+typedef void(^CMHUploadProfileImageCompletion)(BOOL success, NSError *_Nullable error);
+typedef void(^CMHFetchProfileImageCompletion)(BOOL success, UIImage *_Nullable image, NSError *_Nullable error);
 
 /**
  *  `CMHUser` is a singleton class representing the current user. It represents
@@ -62,6 +64,21 @@ typedef void(^CMHUpdateUserDataCompletion)(CMHUserData *_Nullable userData, NSEr
 - (void)signUpWithEmail:(NSString *_Nonnull)email
                password:(NSString *_Nonnull)password
           andCompletion:(_Nullable CMHUserAuthCompletion)block;
+
+/**
+ *  Logs into an existing account. Fails with an error if it doesn't exist or
+ *  credentials are incorrect.
+ *
+ *  @warning The behavior of this method if the current user is logged in should
+ *  be considered undefined. Log the current user out before calling this method.
+ *
+ *  @param email Email of an exisiting account.
+ *  @param password Password for the given account.
+ *  @param block Executes when authentication succeeds or fails with an error
+ */
+- (void)loginWithEmail:(NSString *_Nonnull)email
+              password:(NSString *_Nonnull)password
+         andCompletion:(_Nullable CMHUserAuthCompletion)block;
 
 /**
  *  Convenience method for uploading user consent with an empty study descriptor.
@@ -137,20 +154,10 @@ typedef void(^CMHUpdateUserDataCompletion)(CMHUserData *_Nullable userData, NSEr
 - (void)updateUserData:(CMHUserData *_Nonnull)userData
         withCompletion:(_Nullable CMHUpdateUserDataCompletion)block;
 
-/**
- *  Logs into an existing account. Fails with an error if it doesn't exist or
- *  credentials are incorrect.
- *
- *  @warning The behavior of this method if the current user is logged in should
- *  be considered undefined. Log the current user out before calling this method.
- *
- *  @param email Email of an exisiting account.
- *  @param password Password for the given account.
- *  @param block Executes when authentication succeeds or fails with an error
- */
-- (void)loginWithEmail:(NSString *_Nonnull)email
-              password:(NSString *_Nonnull)password
-         andCompletion:(_Nullable CMHUserAuthCompletion)block;
+- (void)uploadProfileImage:(UIImage *_Nonnull)image
+            withCompletion:(_Nullable CMHUploadProfileImageCompletion)block;
+
+- (void)fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block;
 
 /**
  *  Resets the password for an existing account and notifies the user via email.
