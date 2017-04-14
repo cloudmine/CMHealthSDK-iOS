@@ -34,6 +34,10 @@ static const NSInteger MaxRetryCount = 1;
 
 - (void)deleteAllUserObjectsWithCompletion:(void (^_Nonnull)())block
 {
+    if (nil != [CMHInternalUser currentUser].profile.photoId) {
+        [self.filenames addObject:[CMHInternalUser currentUser].profile.photoId];
+    }
+    
     [CMStore.defaultStore allUserObjectsWithOptions:nil callback:^(CMObjectFetchResponse *response) {
         // Error?
         
@@ -41,7 +45,7 @@ static const NSInteger MaxRetryCount = 1;
             [self.objects addObjectsFromArray:response.objects];
         }
         
-        [self deleteAllObjectsWithCompletion:block];
+        [self deleteAllObjectsAndFilesWithCompletion:block];
     }];
 }
 
@@ -51,6 +55,10 @@ static const NSInteger MaxRetryCount = 1;
     [self.objects addObject:CMHInternalUser.currentUser.profile];
     [self.filenames addObject:consent.signatureImageFilename];
     [self.filenames addObject:consent.pdfFileName];
+    
+    if (nil != [CMHInternalUser currentUser].profile.photoId) {
+        [self.filenames addObject:[CMHInternalUser currentUser].profile.photoId];
+    }
 
     NSString *query = [NSString stringWithFormat:@"[%@ = \"%@\", %@ = \"%@\"]", CMInternalClassStorageKey, [CMHResult class], CMHStudyDescriptorKey, descriptor];
 
@@ -110,6 +118,10 @@ static const NSInteger MaxRetryCount = 1;
 
 - (void)deleteAllFilesWithCompletion:(void (^)())block
 {
+    if (self.filenames.count <= 0) {
+        block();
+    }
+    
     [self deleteAllFilesWithRetryCount:0 andCompletion:block];
 }
 
