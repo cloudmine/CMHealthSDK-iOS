@@ -70,10 +70,10 @@ describe(@"CMHCareIntegration", ^{
     it(@"should create and login a user with email and password", ^{
         __block NSError *signupError = nil;
         
+        NSString *unixTime = [NSNumber numberWithInt:(int)[NSDate new].timeIntervalSince1970].stringValue;
+        NSString *emailAddress = [NSString stringWithFormat:@"cmcare+%@@cloudmineinc.com", unixTime];
+        
         waitUntil(^(DoneCallback done) {
-            NSString *unixTime = [NSNumber numberWithInt:(int)[NSDate new].timeIntervalSince1970].stringValue;
-            NSString *emailAddress = [NSString stringWithFormat:@"cmcare+%@@cloudmineinc.com", unixTime];
-            
             [[CMHUser currentUser] signUpWithEmail:emailAddress password:CareTestPassword andCompletion:^(NSError * _Nullable error) {
                 signupError = error;
                 done();
@@ -81,6 +81,10 @@ describe(@"CMHCareIntegration", ^{
         });
         
         expect(signupError).to.beNil();
+        expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
+        expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
+        expect([CMHUser currentUser].userData.userId).notTo.beNil();
+        expect([CMHUser currentUser].userData.isAdmin).to.beFalsy();
     });
     
     it(@"should create a store for the current user and always return the same instance for that store", ^{
@@ -483,6 +487,8 @@ describe(@"CMHCareIntegration", ^{
         expect(adminLoginError).to.beNil();
         expect([CMHUser currentUser].isLoggedIn).to.beTruthy();
         expect([CMHUser currentUser].userData.userId).notTo.beNil();
+        expect([CMHUser currentUser].userData.email).to.equal(CMHTestsCareAdminEmail);
+        expect([CMHUser currentUser].userData.isAdmin).to.beTruthy();
 
         // Fectch all patients as an admin
         
