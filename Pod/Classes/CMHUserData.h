@@ -13,8 +13,19 @@
  */
 @property (nonatomic, nonnull, readonly) NSString *email;
 
+/**
+ *  The unique identifier for this user in CloudMine.
+ */
 @property (nonatomic, nonnull, readonly) NSString *userId;
 
+/**
+ *  A boolean flag denoting this user as an administrator or
+ *  not. In and of itself, this flag does not confer any
+ *  additional capabilities to the user. In CareKit
+ *  apps, any Care Provider accounts should have this property
+ *  marked as `true` so they can be filtered from the set of
+ *  accounts filtered from the Care Provider Dashboard.
+ */
 @property (nonatomic, readonly) BOOL isAdmin;
 
 /**
