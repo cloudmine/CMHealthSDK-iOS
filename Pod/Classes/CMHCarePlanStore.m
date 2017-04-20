@@ -102,7 +102,7 @@
     
     dispatch_async(highQueue, ^{
         __block NSArray *allUsers = nil;
-        __block NSDictionary *userErrors = nil;
+        __block NSArray *userErrors = nil;
         
         cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
             [CMHAutoPager fetchAllUsersWithCompletion:^(NSArray<CMUser *> *users, NSArray<NSError *> *errors) {
@@ -113,7 +113,7 @@
         });
         
         if (nil != userErrors && userErrors.count > 0) {
-            block(NO, @[], userErrors.allValues);
+            block(NO, @[], userErrors);
             return;
         }
         
@@ -434,7 +434,7 @@
     return namedDirURL;
 }
 
-+ (nonnull NSArray<CMObject *> *)objectsOfClass:(Class)klass from:(nonnull NSArray<CMObject *> *)allObjects
++ (nonnull NSArray*)objectsOfClass:(Class)klass from:(nonnull NSArray<CMObject *> *)allObjects
 {
     NSMutableArray *mutableObjectsOfClass = [NSMutableArray new];
     
@@ -608,7 +608,7 @@
                 NSLog(@"[CMHEALTH] Skipping fetched activity that is already in store: %@", wrappedActivity.ckActivity);
                 continue;
             } else if(![wrappedActivity.ckActivity.schedule isEqual:storeActivity.schedule]) {
-                __block updateStoreSuccess = NO;
+                __block BOOL updateStoreSuccess = NO;
                 __block NSError *updateStoreError = nil;
                 
                 dispatch_group_enter(self.updateGroup);
