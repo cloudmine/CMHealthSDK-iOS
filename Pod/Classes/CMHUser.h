@@ -154,9 +154,21 @@ typedef void(^CMHFetchProfileImageCompletion)(BOOL success, UIImage *_Nullable i
 - (void)updateUserData:(CMHUserData *_Nonnull)userData
         withCompletion:(_Nullable CMHUpdateUserDataCompletion)block;
 
+/**
+ * Upload the provided image to serve as the user's profile photo. Will be cropped
+ * to a 200x200 square.
+ *
+ * @param image The image to be cropped, scaled, and uploaded.
+ * @param block Executes when the photo uploads successfully or fails with an error.
+ */
 - (void)uploadProfileImage:(UIImage *_Nonnull)image
             withCompletion:(_Nullable CMHUploadProfileImageCompletion)block;
 
+/**
+ * Fetch the user's profile image, if one exists, or nil if not.
+ *
+ * @param block Executes when image has been fetched successfully or fails with an error.
+ */
 - (void)fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block;
 
 /**
