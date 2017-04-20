@@ -96,7 +96,7 @@
 
 + (void)fetchAllPatientsWithCompletion:(CMHFetchPatientsCompletion)block
 {
-    NSAssert(nil != block, @"Cannot call %@ without completion block parameter", __PRETTY_FUNCTION__);
+    NSAssert(nil != block, @"Cannot call %s without completion block parameter", __PRETTY_FUNCTION__);
     
     dispatch_queue_t highQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     
@@ -210,7 +210,7 @@
 
 + (nullable CMHInternalProfile *)profileForUser:(nonnull CMHInternalUser *)user from:(nonnull NSArray<CMHInternalProfile *> *)profiles
 {
-    NSAssert(nil != user && nil != profiles, @"%@ called without a user and profiles array", __PRETTY_FUNCTION__);
+    NSAssert(nil != user && nil != profiles, @"%s called without a user and profiles array", __PRETTY_FUNCTION__);
     
     for (CMHInternalProfile *profile in profiles) {
         if (![profile isKindOfClass:[CMHInternalProfile class]]) {

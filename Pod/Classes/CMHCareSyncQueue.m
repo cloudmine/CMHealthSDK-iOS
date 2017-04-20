@@ -25,7 +25,7 @@
 
 - (instancetype)initWithCMHIdentifier:(NSString *)cmhIdentifer
 {
-    NSAssert(nil != cmhIdentifer, @"Cannot instantiate %@ without a cmhIdentifier");
+    NSAssert(nil != cmhIdentifer, @"Cannot instantiate %@ without a cmhIdentifier", [CMHCareSyncQueue class]);
     
     self = [super init];
     if (nil == self || nil == cmhIdentifer) { return nil; }

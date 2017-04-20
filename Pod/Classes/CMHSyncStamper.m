@@ -30,7 +30,7 @@ static NSString * const _Nonnull CMHSyncKeyPrefix = @"CMHSync-";
 
 - (void)saveLastSyncTime:(NSDate *)date
 {
-    NSAssert(nil != date, @"Must provide NSDate to %@", __PRETTY_FUNCTION__);
+    NSAssert(nil != date, @"Must provide NSDate to %s", __PRETTY_FUNCTION__);
     
     NSString *stamp = [self timestampForDate:date];
     [[NSUserDefaults standardUserDefaults] setObject:stamp forKey:self.syncKey];

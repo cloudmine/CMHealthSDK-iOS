@@ -13,9 +13,9 @@ static NSString *_Nonnull const CMHSaveResultSuccessKey      = @"success";
 
 + (void)saveCMHCareObject:(nonnull CMObject *)careObject withCompletion:(nonnull CMHCareSaveCompletion)block
 {
-    NSAssert(nil != careObject, @"Cannot call %@ without a care object parameter", __PRETTY_FUNCTION__);
-    NSAssert(nil != block, @"Cannot call %@ without a completion block", __PRETTY_FUNCTION__);
-    NSAssert([CMUser currentUser].isLoggedIn, @"Cannot invoke %@ without a logged in user", __PRETTY_FUNCTION__);
+    NSAssert(nil != careObject, @"Cannot call %s without a care object parameter", __PRETTY_FUNCTION__);
+    NSAssert(nil != block, @"Cannot call %s without a completion block", __PRETTY_FUNCTION__);
+    NSAssert([CMUser currentUser].isLoggedIn, @"Cannot invoke %s without a logged in user", __PRETTY_FUNCTION__);
     
     NSDictionary *encodingResult = [CMObjectEncoder encodeObjects:@[careObject]];
     NSDictionary *encodedCareObject = encodingResult[careObject.objectId];
