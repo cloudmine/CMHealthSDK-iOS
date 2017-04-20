@@ -293,16 +293,18 @@
 {
     [self.syncQueue incrementPreQueueCount];
     
+    __weak typeof(self) weakSelf = self;
+    
     [super addActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
         completion(success, error);
         
         if (!success) {
-            [self.syncQueue decrementPreQueueCount];
+            [weakSelf.syncQueue decrementPreQueueCount];
             return;
         }
         
-        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [self.syncQueue enqueueUpdateActivity:cmhActivity];
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:weakSelf.cmhIdentifier];
+        [weakSelf.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -312,17 +314,19 @@
 {
     [self.syncQueue incrementPreQueueCount];
     
+    __weak typeof(self) weakSelf = self;
+    
     [super setEndDate:endDate forActivity:activity completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
         
         completion(success, activity, error);
         
         if (!success || nil == activity) {
-            [self.syncQueue decrementPreQueueCount];
+            [weakSelf.syncQueue decrementPreQueueCount];
             return;
         }
         
-        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
-        [self.syncQueue enqueueUpdateActivity:cmhActivity];
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:weakSelf.cmhIdentifier];
+        [weakSelf.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -331,19 +335,21 @@
 {
     [self.syncQueue incrementPreQueueCount];
     
+    __weak typeof(self) weakSelf = self;
+    
     [super removeActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
         
         completion(success, error);
         
         if (!success || nil == activity) {
-            [self.syncQueue decrementPreQueueCount];
+            [weakSelf.syncQueue decrementPreQueueCount];
             return;
         }
         
-        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:self.cmhIdentifier];
+        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:weakSelf.cmhIdentifier];
         cmhActivity.isDeleted = YES;
         
-        [self.syncQueue enqueueUpdateActivity:cmhActivity];
+        [weakSelf.syncQueue enqueueUpdateActivity:cmhActivity];
     }];
 }
 
@@ -354,17 +360,19 @@
 {
     [self.syncQueue incrementPreQueueCount];
     
+    __weak typeof(self) weakSelf = self;
+    
     [super updateEvent:event withResult:result state:state completion:^(BOOL success, OCKCarePlanEvent * _Nullable event, NSError * _Nullable error) {
         completion(success, event, error);
         
         if (!success) {
-            [self.syncQueue decrementPreQueueCount];
+            [weakSelf.syncQueue decrementPreQueueCount];
             return;
         }
         
-        CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:self.cmhIdentifier];
+        CMHCareEvent *cmhEvent = [[CMHCareEvent alloc] initWithEvent:event andUserId:weakSelf.cmhIdentifier];
         
-        [self.syncQueue enqueueUpdateEvent:cmhEvent];
+        [weakSelf.syncQueue enqueueUpdateEvent:cmhEvent];
     }];
 }
 
