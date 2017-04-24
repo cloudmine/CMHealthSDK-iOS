@@ -72,16 +72,15 @@ CareKit app's local device store and  the
 
 ### Patient Apps
 
-Integrating CMHealth with your CareKit patient app is straightforward. Your app can be
-built using all native CareKit components, with very little deviation from a standard
-CareKit app. Simply replace the `OCKCarePlanStore` with an instance of our custom
-subclass, `CMHCarePlanStore`, and your user's data will be automatically pushed to
-CloudMine.
+Your patient app can be built using all native CareKit components and very little 
+deviation from a standard CareKit app. Simply replace the `OCKCarePlanStore` with an 
+instance of our custom subclass, `CMHCarePlanStore`, and your user's data will be 
+automatically pushed to CloudMine.
 
 ```Objective-C
 #import <CMHealth/CMHealth.>
 
-// Here, carePlanStore is assumed to be a @property of type CMHCarePlanStore
+// `self.carePlanStore` is assumed to be a @property of type CMHCarePlanStore
 self.carePlanStore = [CMHCarePlanStore storeWithPersistenceDirectoryURL:BCMStoreUtils.persistenceDirectory];
 self.carePlanStore.delegate = self;
 ```
@@ -94,23 +93,12 @@ For example, adding a new activity to the store will result in a representation 
 being pushed to CloudMine's backend for the current user.
 
 ```Objective-C
-OCKCareSchedule *schedule = [OCKCareSchedule dailyScheduleWithStartDate:[NSDateComponents weekAgoComponents] occurrencesPerDay:3];
+#import <CMHealth/CMHealth.h>
 
-NSString *instructions = NSLocalizedString(@"With your feet spread shoulder width apart, gently bend at the waist reaching toward"
-                                                "your feet until you feel tension. Stop and hold for 10-16 seconds.", nil);
+// Create a standard OCKCarePlanActivity instance somewhere in your app
+OCKCarePlanActivity *activity = [self activityGenerator];
 
- OCKCarePlanActivity *activity =  [[OCKCarePlanActivity alloc] initWithIdentifier:@"BCMHamstringStretch"
-                                                                     groupIdentifier:@"BCMExercisesGroup"
-                                                                                type:OCKCarePlanActivityTypeIntervention
-                                                                               title:NSLocalizedString(@"Hamstring Stretch", nil)
-                                                                                text:NSLocalizedString(@"5 minutes", nil)
-                                                                           tintColor:[UIColor bcmBlueColor]
-                                                                        instructions:instructions
-                                                                            imageURL:nil
-                                                                            schedule:schedule
-                                                                    resultResettable:YES
-                                                                            userInfo:nil];
-
+// Add this activity to the store as you would in a standard CareKit app
 [self.carePlanStore addActivity:activity completion:^(BOOL success, NSError * _Nullable error) {
     if (!success) {
 		NSLog(@"Failed to add activity to store: %@", error.localizedDescription);
@@ -122,18 +110,21 @@ NSString *instructions = NSLocalizedString(@"With your feet spread shoulder widt
 ```
 
 Note the above code is no different from what you would write for a standard, local-only, CareKit app.
+No additional consideration is required to push `CMHCarePlanStore` entries to CloudMine!
 
-Fetching updates *from* the cloud is similiarly simple. A single method allows you to synchronize the local store 
-with all data that has been added remotely since the last time it was synchronized.
+Fetching updates _from_ the cloud is similiarly simple. A single method allows you to synchronize the local store 
+with all data that has been added remotely since the last time it was called successfully.
 
 ```Objective-C
+#import <CMHealth/CMHealth.h>
+
 [self.carePlanStore syncFromRemoteWithCompletion:^(BOOL success, NSArray<NSError *> * _Nonnull errors) {
     if (!success) {
-        NSLog(@"[CMHEALTH] Error syncing remote data %@", errors);
+        NSLog(@"Error(s) syncing remote data %@", errors);
         return;
     }
         
-    NSLog(@"[CMHEALTH] Successful sync of remote data");
+    NSLog(@"Successful sync of remote data");
  }];
 ```
 
@@ -141,9 +132,7 @@ This allows your app to sync across devices and sessions with minimal effort.
 
 ### Care Provider Apps
 
-CareKit 2.0 provides UI elements for building Care Provider apps on iPad for use by
-doctors or other health care professionals. To fetch a list of OCKPatients for use
-with the `OCKCareTeamDashboardViewController`, simply call the
+To fetch a list of `OCKPatient` instances for use with the `OCKCareTeamDashboardViewController`, call the
 `fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`.
 
 ```Objective-C
@@ -158,13 +147,11 @@ with the `OCKCareTeamDashboardViewController`, simply call the
 ```
 
 Subsequent calls to this class method will return a list of updated patients, but will
-intelligently sync _only_ new data added or updated since the
+intelligently sync _only_ data added or updated since the
 last time it was called.
 
-Each `OCKPatient` instance returned by this method has a preconfigured
-instance of `CMHCarePlanStore` assigned to it. This means any changes made by the 
-Care Provider to the patient's data, using the Care Team Dashboard, will be automatically
-pushed to CloudMine's backend.
+Any changes made by the Care Provider to the patient's data using the Care Team Dashboard 
+will be automatically pushed to CloudMine's backend.
 
 ## Registration
 
