@@ -20,6 +20,9 @@ target 'MyHealthApp' do
 end
 ```
 
+Once intalled, the SDK must be imported and configured in your `AppDelegate` class. See the section on
+[Configuration](#configuration) for more information.
+
 ## ResearchKit
 
 The SDK provides category methods on standard ResearchKit classes, allowing you
@@ -281,6 +284,44 @@ To ensure your participants have a valid consent on file before allowing them to
 
 ```
 
+## Configuration
+
+The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
+to provide proper credentials to the CloudMine backend.
+
+For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is needed:
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key"];	
+	return YES;
+}
+```
+
+App's utilizing CareKit require some additional configuration on CloudMine's platform. 
+The app must be configured with:
+
+ * The Auto Timestamping feature enabled
+ * A server-side snippet deployed for secure shared data saving
+
+Once these features have been enabled on the CloudMine platform, the configuration in your
+`AppDelegate` is simple:
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key" sharedUpdateSnippetName:@"My-Deployed-Shared-Snippet-Name"];
+	return YES;
+}
+```
+ 
+For help with this one-time configuration on CloudMine's platform, please contact support@cloudmineinc.com.
+ 
 ## Using the CloudMine iOS SDK with CMHealth
 
 [CMHealth](https://cocoapods.org/pods/CMHealth) includes and extends the [CloudMine iOS SDK](https://cocoapods.org/pods/CloudMine), so you
@@ -300,7 +341,7 @@ To see an example of CMHealth working in tandem with CareKit, you can check out 
 
 ## Support
 
-For general [CMHealth](https://cocoapods.org/pods/CMHealth) support, please email support@cloudmine.me - we are here to help!
+For general [CMHealth](https://cocoapods.org/pods/CMHealth) support, please email support@cloudmineinc.com - we are here to help!
 
 For the more advantageous, we encourage getting directly involved via standard GitHub
 fork, issue tracker, and pull request pathways.  See the [CONTRIBUTING](CONTRIBUTING.md)
