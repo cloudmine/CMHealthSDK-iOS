@@ -75,4 +75,10 @@ typedef void(^CMHFetchPatientsCompletion)(BOOL success, NSArray<OCKPatient *> *_
  */
 - (void)clearLocalStore;
 
+- (_Null_unspecified instancetype)initWithPersistenceDirectoryURL:(NSURL *_Null_unspecified)URL NS_UNAVAILABLE;
+
+- (_Null_unspecified instancetype)initWithPersistenceDirectoryURL:(NSURL *_Null_unspecified)URL
+                                     identifier:(NSString *_Null_unspecified)identifier
+                                                          patient:(OCKPatient *_Null_unspecified)patient NS_UNAVAILABLE;
+
 @end

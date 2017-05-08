@@ -33,7 +33,7 @@
 
 - (instancetype)initWithPersistenceDirectoryURL:(NSURL *)URL
 {
-    NSAssert(false, @"-initWithPerasistenceDirectoryURL: is unavailable for CMHCarePlanStore, use +storeWithPersistenceDirectoryURL:");
+    NSAssert(false, @"-initWithPerasistenceDirectoryURL: is unavailable for CMHCarePlanStore, use +cloudMineStoreWithPersistenceDirectoryURL:");
     return nil;
 }
 
