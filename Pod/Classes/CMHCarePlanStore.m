@@ -200,7 +200,8 @@
                                                                tintColor:nil
                                                                 monogram:nil
                                                                    image:nil
-                                                              categories:nil];
+                                                              categories:nil
+                                                                userInfo:nil];
             [mutablePatients addObject:patient];
         }
         
