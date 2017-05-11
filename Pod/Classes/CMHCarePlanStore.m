@@ -334,7 +334,8 @@
 - (void)removeActivity:(OCKCarePlanActivity *)activity
             completion:(void (^)(BOOL, NSError * _Nullable))completion
 {
-    [self.syncQueue incrementPreQueueCount];
+    [self.syncQueue incrementPreQueueCount]; // Archive
+    [self.syncQueue incrementPreQueueCount]; // Delete
     
     __weak typeof(self) weakSelf = self;
     
@@ -344,13 +345,15 @@
         
         if (!success || nil == activity) {
             [weakSelf.syncQueue decrementPreQueueCount];
+            [weakSelf.syncQueue decrementPreQueueCount];
             return;
         }
         
-        CMHCareActivity *cmhActivity = [[CMHCareActivity alloc] initWithActivity:activity andUserId:weakSelf.cmhIdentifier];
-        cmhActivity.isDeleted = YES;
+        CMHCareActivity *cmhArchiveActivity = [[CMHCareActivity alloc] initWithActivity:activity userId:weakSelf.cmhIdentifier isDeleted:YES];
+        [weakSelf.syncQueue enqueueUpdateActivity:cmhArchiveActivity];
         
-        [weakSelf.syncQueue enqueueUpdateActivity:cmhActivity];
+        CMHCareActivity *cmhRemoveActivity = [[CMHCareActivity alloc] initWithActivity:activity userId:weakSelf.cmhIdentifier isDeleted:NO];
+        [weakSelf.syncQueue enqueueDeleteActivity:cmhRemoveActivity];
     }];
 }
 
@@ -408,17 +411,6 @@
 
 # pragma mark Helpers
 
-+ (nullable OCKCarePlanActivity *)activityWithIdentifier:(nonnull NSString *)identifier from:(nonnull NSArray<OCKCarePlanActivity *>*)activities
-{
-    for (OCKCarePlanActivity *activity in activities) {
-        if ([activity.identifier isEqualToString:identifier]) {
-            return activity;
-        }
-    }
-    
-    return nil;
-}
-
 + (nonnull NSURL *)persistenceDirectoryNamed:(nonnull NSString *)name
 {
     NSURL *appDirURL = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
@@ -446,6 +438,19 @@
     }
     
     return [mutableObjectsOfClass copy];
+}
+
++ (nonnull NSArray<CMHCareActivity *> *)activitiesWhichAreDeleted:(BOOL)shouldReturnDeleted from:(nonnull NSArray<CMHCareActivity *> *)allActivities
+{
+    NSMutableArray<CMHCareActivity *> *mutableActivies = [NSMutableArray new];
+    
+    for (CMHCareActivity *activity in allActivities) {
+        if (activity.isDeleted == shouldReturnDeleted) {
+            [mutableActivies addObject:activity];
+        }
+    }
+    
+    return [mutableActivies copy];
 }
 
 - (void)insertEvents:(nonnull NSArray<CMHCareEvent *> *)wrappedEvents completion:(CMHRemoteSyncCompletion)block
@@ -509,72 +514,85 @@
     dispatch_async(updateQueue, ^{
         NSMutableArray<NSError *> *updateErrors = [NSMutableArray new];
         
-        __block BOOL storeSuccess = NO;
-        __block NSArray<OCKCarePlanActivity *> *storeActivities = nil;
-        __block NSError *storeError = nil;
+        NSArray<CMHCareActivity *> *deletedActivities = [self.class activitiesWhichAreDeleted:YES from:wrappedActivities];
         
-        cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-            [super activitiesWithCompletion:^(BOOL success, NSArray<OCKCarePlanActivity *> * _Nonnull activities, NSError * _Nullable error) {
-                storeSuccess = success;
-                storeActivities = activities;
-                storeError = error;
+        for (CMHCareActivity *wrappedActivity in deletedActivities) {
+            NSAssert(wrappedActivity.isDeleted, @"Attempted to deleted an activity not marked as such; ID: %@",  wrappedActivity.objectId);
+            
+            BOOL storeSuccess = NO;
+            NSError *storeError = nil;
+            OCKCarePlanActivity *storeActivity = [self serialActivityForIdentifier:wrappedActivity.ckActivity.identifier success:&storeSuccess error:&storeError];
+            
+            if (!storeSuccess) {
+                if (nil != storeError) {
+                    [updateErrors addObject:storeError];
+                }
                 
-                done();
-            }];
-        });
-        
-        if (!storeSuccess) {
-            if (nil != storeError) {
-                [updateErrors addObject:storeError];
+                if (nil != block) {
+                    block(NO, [updateErrors copy]);
+                }
+                
+                return;
             }
             
-            if (nil != block) {
-                block(NO, [updateErrors copy]);
+            if (nil == storeActivity) {
+                NSLog(@"[CMHealth] Skipping fetched activity that is deleted and is not in store: %@", wrappedActivity.ckActivity);
+                continue;
             }
             
-            return;
+            __block BOOL deleteSuccess = NO;
+            __block NSError *deleteError = nil;
+            
+            dispatch_group_enter(self.updateGroup);
+            self.isUpdatingActivity = YES;
+            
+            cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+                [super removeActivity:storeActivity completion:^(BOOL success, NSError * _Nullable error) {
+                    deleteSuccess = success;
+                    deleteError = error;
+                    done();
+                }];
+            });
+            
+            if (!deleteSuccess) {
+                if (nil != deleteError) {
+                    [updateErrors addObject:deleteError];
+                }
+                
+                NSLog(@"[CMHealth] Error removing deleted activity %@ from local store: %@", wrappedActivity.ckActivity, deleteError);
+                dispatch_group_leave(self.updateGroup);
+                self.isUpdatingActivity = NO;
+                continue;
+            }
+            
+            dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
+            
+            self.isUpdatingActivity = NO;
+            NSLog(@"[CMHealth] Fetched deleted activity and removed it from local store: %@", storeActivity);
         }
         
-        for (CMHCareActivity *wrappedActivity in wrappedActivities) {
-            OCKCarePlanActivity *storeActivity = [CMHCarePlanStore activityWithIdentifier:wrappedActivity.ckActivity.identifier from:storeActivities];
+        NSArray<CMHCareActivity *> *currentActivities = [self.class activitiesWhichAreDeleted:NO from:wrappedActivities];
+        
+        for (CMHCareActivity *wrappedActivity in currentActivities) {
+            NSAssert(!wrappedActivity.isDeleted, @"Attempted to insert an activity that is marked as deleted; ID: %@",  wrappedActivity.objectId);
             
-            if (wrappedActivity.isDeleted) {
-                if (nil == storeActivity) {
-                    NSLog(@"[CMHealth] Skipping fetched activity that is deleted and is not in store: %@", wrappedActivity.ckActivity);
-                    continue;
+            BOOL storeSuccess = NO;
+            NSError *storeError = nil;
+            OCKCarePlanActivity *storeActivity = [self serialActivityForIdentifier:wrappedActivity.ckActivity.identifier success:&storeSuccess error:&storeError];
+            
+            if (!storeSuccess) {
+                if (nil != storeError) {
+                    [updateErrors addObject:storeError];
                 }
                 
-                __block BOOL deleteSuccess = NO;
-                __block NSError *deleteError = nil;
-                
-                dispatch_group_enter(self.updateGroup);
-                self.isUpdatingActivity = YES;
-                
-                cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
-                    [super removeActivity:storeActivity completion:^(BOOL success, NSError * _Nullable error) {
-                        deleteSuccess = success;
-                        deleteError = error;
-                        done();
-                    }];
-                });
-                
-                if (!deleteSuccess) {
-                    if (nil != deleteError) {
-                        [updateErrors addObject:deleteError];
-                    }
-                    
-                    NSLog(@"[CMHealth] Error removing deleted activity %@ from local store: %@", wrappedActivity.ckActivity, deleteError);
-                    dispatch_group_leave(self.updateGroup);
-                    self.isUpdatingActivity = NO;
-                    continue;
+                if (nil != block) {
+                    block(NO, [updateErrors copy]);
                 }
                 
-                dispatch_group_wait(self.updateGroup, DISPATCH_TIME_FOREVER);
-                
-                self.isUpdatingActivity = NO;
-                NSLog(@"[CMHealth] Fetched deleted activity and removed it from local store: %@", storeActivity);
-                
-            } else if (nil == storeActivity) {
+                return;
+            }
+
+            if (nil == storeActivity) {
                 __block BOOL updateStoreSuccess = NO;
                 __block NSError *updateStoreError = nil;
                 
@@ -649,6 +667,29 @@
         
         block(success, [updateErrors copy]);
     });
+}
+
+- (nullable OCKCarePlanActivity *)serialActivityForIdentifier:(nonnull NSString *)identifier
+                                                      success:(BOOL *)successPtr
+                                                        error:(NSError * __autoreleasing *)errorPtr
+{
+    __block BOOL storeSuccess = NO;
+    __block OCKCarePlanActivity *storeActivity = nil;
+    __block NSError *storeError = nil;
+    
+    cmh_wait_until(^(CMHDoneBlock  _Nonnull done) {
+        [super activityForIdentifier:identifier completion:^(BOOL success, OCKCarePlanActivity * _Nullable activity, NSError * _Nullable error) {
+            storeSuccess = success;
+            storeActivity = activity;
+            storeError = error;
+            done();
+        }];
+    });
+    
+    *successPtr = storeSuccess;
+    *errorPtr = storeError;
+    
+    return storeActivity;
 }
 
 - (NSArray<NSError *> *_Nonnull)clearLocalStoreDataSynchronously

@@ -6,6 +6,7 @@
 #import "CMHCarePushOperation.h"
 #import "CMHCarePlanStore_internal.h"
 #import "CMHCarePullOperation.h"
+#import "CMHCareDeleteOperation.h"
 
 @interface CMHCareSyncQueue ()
 
@@ -102,6 +103,17 @@
 
     CMHCarePushOperation *updateOperation = [[CMHCarePushOperation alloc] initWithActivity:activity];
     [self.updateQueue addOperation:updateOperation];
+    
+    [self decrementPreQueueCount];
+    [self toggleQueues];
+}
+
+- (void)enqueueDeleteActivity:(CMHCareActivity *)activity
+{
+    NSAssert(nil != activity, @"Cannot call %s without providing a", __PRETTY_FUNCTION__, [CMHCareActivity class]);
+    
+    CMHCareDeleteOperation *deleteOperation = [[CMHCareDeleteOperation alloc] initWithActivity:activity];
+    [self.updateQueue addOperation:deleteOperation];
     
     [self decrementPreQueueCount];
     [self toggleQueues];

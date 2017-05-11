@@ -13,6 +13,7 @@
 - (void)incrementPreQueueCount;
 - (void)enqueueUpdateEvent:(nonnull CMHCareEvent *)event;
 - (void)enqueueUpdateActivity:(nonnull CMHCareActivity *)activity;
+- (void)enqueueDeleteActivity:(nonnull CMHCareActivity *)activity;
 - (void)decrementPreQueueCount;
 
 - (void)enqueueFetchForStore:(nonnull CMHCarePlanStore *)store completion:(nullable CMHRemoteSyncCompletion)block;
