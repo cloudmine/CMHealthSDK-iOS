@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name              = "CMHealth"
-  s.version           = "0.5.0"
+  s.version           = "0.6.0"
   s.summary           = "A HIPAA compliant data storage interface for ResearchKit and CareKit, from CloudMine."
   s.description       = <<-DESC
                         CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage
@@ -24,6 +24,6 @@ Pod::Spec.new do |s|
   }
 
   s.dependency 'ResearchKit', '~> 1.3'
-  s.dependency 'CareKit', '~> 2.0.0'
+  s.dependency 'CareKit', '~> 1.2.0'
   s.dependency 'CloudMine', '~> 1.7'
 end
