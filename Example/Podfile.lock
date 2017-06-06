@@ -21,10 +21,10 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - CareKit (1.2.0)
-  - CloudMine (1.7.15):
+  - CloudMine (1.7.16):
     - AFNetworking (~> 2.6.3)
-    - CloudMine/no-arc (= 1.7.15)
-  - CloudMine/no-arc (1.7.15):
+    - CloudMine/no-arc (= 1.7.16)
+  - CloudMine/no-arc (1.7.16):
     - AFNetworking (~> 2.6.3)
   - CMHealth (0.6.0):
     - CareKit (~> 1.2.0)
@@ -36,6 +36,7 @@ PODS:
 
 DEPENDENCIES:
   - CareKit (from `../../CareKit-1.2`)
+  - CloudMine (from `../../cloudmine-ios`)
   - CMHealth (from `../`)
   - Expecta
   - Specta
@@ -43,18 +44,20 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   CareKit:
     :path: ../../CareKit-1.2
+  CloudMine:
+    :path: ../../cloudmine-ios
   CMHealth:
     :path: ../
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   CareKit: 94c2322c43a138c5334bd41853d009cf1b8fefb5
-  CloudMine: a465ed5e1d37385bd076aad15407afef3c686041
+  CloudMine: aa3a609ab22eec132ff446839da0f97072d6b4ec
   CMHealth: 94b0feb3821c2504cfe4ccbd69d981f4edf8ce80
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: 3533ea3a2270e4ed7ff830e19755dc959fdfd430
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
 
-PODFILE CHECKSUM: 77b05468b8fdeb6d0766bc79746e3689782ecd11
+PODFILE CHECKSUM: ffb57e2850c32ea4ba753c4ad7b9d3b378dd6363
 
 COCOAPODS: 1.2.1
