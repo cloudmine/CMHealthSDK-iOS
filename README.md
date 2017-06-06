@@ -228,7 +228,7 @@ To ensure your participants have a valid consent on file before allowing them to
 
 # CareKit
 
-The SDK provides the ability to synchronize data between your
+The `CMHealth` SDK provides the ability to synchronize data between your
 CareKit app's local device store and  the 
 [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
 
