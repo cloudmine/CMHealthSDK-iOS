@@ -205,6 +205,8 @@ describe(@"CMHCareIntegration", ^{
     it(@"should push and pull events to and from the backend", ^{
         CMHCarePlanStore *store = [CMHCarePlanStore storeWithPersistenceDirectoryURL:CMHCareIntegrationTestUtils.persistenceDirectory];
         
+        // Ensure Intervention Event is in initial State
+        
         __block OCKCarePlanEvent *interventionEvent = nil;
         __block NSError *interventionEventError = nil;
         
@@ -219,6 +221,8 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionEventError).to.beNil();
         expect(interventionEvent).notTo.beNil();
         expect(OCKCarePlanEventStateInitial == interventionEvent.state).to.beTruthy();
+        
+        // Update Intervention Event through the store
         
         __block BOOL interventionUpdateSuccess = NO;
         __block OCKCarePlanEvent *interventionUpdateEvent = nil;
@@ -238,6 +242,8 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionUpdateEvent).notTo.beNil();
         expect(OCKCarePlanEventStateCompleted == interventionUpdateEvent.state).to.beTruthy();
         
+        // Ensure Assessment Event is in intial state
+        
         __block OCKCarePlanEvent *assessmentEvent = nil;
         __block NSError *assessmentEventError = nil;
         
@@ -253,6 +259,8 @@ describe(@"CMHCareIntegration", ^{
         expect(assessmentEvent).notTo.beNil();
         expect(OCKCarePlanEventStateInitial == assessmentEvent.state).to.beTruthy();
         expect(assessmentEvent.result).to.beNil();
+        
+        // Manually update the Assessment Event record on the backend
         
         NSAssert([assessmentEvent respondsToSelector:@selector(setResult:)] && [assessmentEvent respondsToSelector:@selector(setState:)], @"Internal API of OCKCarePlanEvent used for testing has changed");
         
@@ -284,6 +292,8 @@ describe(@"CMHCareIntegration", ^{
         expect(saveError).to.beNil();
         expect(saveStatus).to.equal(@"created");
         
+        // Sync remote data into the local store
+        
         __block BOOL syncSuccess = NO;
         __block NSArray *syncErrors = nil;
         
@@ -297,6 +307,8 @@ describe(@"CMHCareIntegration", ^{
         
         expect(syncSuccess).to.beTruthy();
         expect(0 == syncErrors.count).to.beTruthy();
+        
+        // Ensure Intervention Event is in expected state
         
         interventionEvent = nil;
         interventionEventError = nil;
@@ -312,6 +324,8 @@ describe(@"CMHCareIntegration", ^{
         expect(interventionEventError).to.beNil();
         expect(interventionEvent).notTo.beNil();
         expect(OCKCarePlanEventStateCompleted == interventionEvent.state).to.beTruthy();
+        
+        // Ensure Assessment event is in expected state
         
        assessmentEvent = nil;
        assessmentEventError = nil;

@@ -1,5 +1,6 @@
 #import "CMHCarePlanStore_internal.h"
 #import "OCKCarePlanEvent+CMHealth.h"
+#import "OCKCarePlanActivity+CMHealth.h"
 #import "CMHInternalUser.h"
 #import "CMHCareActivity.h"
 #import "CMHCareEvent.h"
@@ -467,6 +468,9 @@
             
             if (nil == storeActivity || !activityStoreSuccess) {
                 NSLog(@"[CMHealth] Skipping update to event whose activity is not in local store, and is assumed to be part of a deleted activity %@", wrappedEvent.ckEvent);
+                continue;
+            } else if (![wrappedEvent.ckEvent.activity isEqualExceptEndDate:storeActivity]) {
+                NSLog(@"[CMHealth] Skipping update to event whose activity is different from the one now in the store- it must have been deleted & replaced %@", wrappedEvent.ckEvent);
                 continue;
             }
             
