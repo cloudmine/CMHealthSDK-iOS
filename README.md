@@ -73,10 +73,70 @@ The SDK provides the ability to synchronize data between your
 CareKit app's local device store and  the 
 [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
 
-### Patient Apps
+### Overview
 
-Your patient app can be built using all native CareKit components and very little 
-deviation from a standard CareKit app. Simply replace the `OCKCarePlanStore` with an 
+CloudMine's platform offers a robust [`Snippet`](https://cloudmine.io/docs/#/server_code#logic-engine) and [`ACL`](https://cloudmine.io/docs/#/rest_api#user-data-security) framework, which are dependencies of the CMHealth framework when using CareKit. The CareKit SDK will automatically store `OCKCarePlanActivity` and `OCKCarePlanEvent` objects in the logged-in user-level data store. In order to grant a CareProvider access to this data, the `ACL` framework and a server-side `Logic Engine Snippet` is required to properly attach the appropriate `acl_id`. 
+
+### Configuration 
+
+The below steps are pre-requisites to using the CareKit framework with CloudMine. For assistance with this one-time configuration on CloudMine's platform, please contact [support@cloudmineinc.com](mailto:support@cloudmineinc.com).
+
+#### Enable Automatic Timestamping 
+
+The automatic timestamping (`auto_ts`) feature must be enabled for your `app_id`. This feature can be enabled by running the following `cURL` request:
+
+```
+some example
+```
+
+*Note: the `Master API Key` is required in order to execute this cURL. It is strongly recommended to cycle the Master API Key or to ensure that it is safeguarded when being used client side to prevent unauthorized access to your application's data.*
+
+Once `auto_ts` is enabled, all application and user-level objects will automatically be updated with `__updated__` and `__created__` key-value pairs, which will automatically be maintained by the CloudMine platform. 
+
+#### Create the Admin User and ACL
+
+```
+some examples here
+```
+
+#### Develop and Upload the Administrative Snippet
+
+```
+some examples here
+```
+
+#### Update `BCMSecrets.h` and configure the `AppDelegate`
+
+```
+some example here
+```
+
+Finally, the configuration in your
+`AppDelegate` is simple:
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key" sharedUpdateSnippetName:@"My-Deployed-Shared-Snippet-Name"];
+	return YES;
+}
+```
+Congrats! You are now ready to begin building your application using the `CMHealth` SDK and CloudMine. 
+
+### Patient Context 
+
+Your patient-facing app can be built using all native CareKit components with very little 
+deviation from a standard CareKit app. 
+
+#### TODO: Creating a patient? 
+
+Maybe something goes here? 
+
+#### Creating the `CMHCarePlanStore`
+
+Simply replace the `OCKCarePlanStore` with an 
 instance of our custom subclass, `CMHCarePlanStore`, and your user's data will be 
 automatically pushed to CloudMine.
 
@@ -91,6 +151,8 @@ self.carePlanStore.delegate = self;
 As long as your patient user is logged in and your CloudMine account is properly configured,
 your CareKit app will now automatically push changes made in the local store up to
 the cloud.
+
+#### Creating a New Activity 
 
 For example, adding a new activity to the store will result in a representation of that activity
 being pushed to CloudMine's backend for the current user.
@@ -115,6 +177,8 @@ OCKCarePlanActivity *activity = [self activityGenerator];
 Note the above code is no different from what you would write for a standard, local-only, CareKit app.
 No additional consideration is required to push `CMHCarePlanStore` entries to CloudMine!
 
+#### Fetching Updates from CloudMine for the local `CMHCarePlanStore`
+
 Fetching updates _from_ the cloud is similiarly simple. A single method allows you to synchronize the local store 
 with all data that has been added remotely since the last time it was called successfully.
 
@@ -133,9 +197,13 @@ with all data that has been added remotely since the last time it was called suc
 
 This allows your app to sync across devices and sessions with minimal effort.
 
-### Care Provider Apps
+### Provider Context
 
-To fetch a list of `OCKPatient` instances for use with the `OCKCareTeamDashboardViewController`, call the
+To help organizations access the patient-generated data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. 
+
+#### Fetching All Patients
+
+To fetch a list of `OCKPatient` instances for use within your application, call the
 `fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`.
 
 ```Objective-C
@@ -147,14 +215,21 @@ To fetch a list of `OCKPatient` instances for use with the `OCKCareTeamDashboard
         
     self.patients = patients;
 }];
+
 ```
 
 Subsequent calls to this class method will return a list of updated patients, but will
 intelligently sync _only_ data added or updated since the
 last time it was called.
 
-Any changes made by the Care Provider to the patient's data using the Care Team Dashboard 
-will be automatically pushed to CloudMine's backend.
+*TODO: Any changes made to the patient's data using the Care Team Dashboard 
+will be automatically pushed to CloudMine's backend.*
+
+#### Adding New Administrative Users
+
+```
+some stuff here
+```
 
 ## Registration
 
@@ -301,26 +376,6 @@ For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is 
 }
 ```
 
-App's utilizing CareKit require some additional configuration on CloudMine's platform. 
-The app must be configured with:
-
- * The Auto Timestamping feature enabled
- * A server-side snippet deployed for secure shared data saving
-
-Once these features have been enabled on the CloudMine platform, the configuration in your
-`AppDelegate` is simple:
-
-```Objective-C
-#import <CMHealth/CMHealth.h>
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key" sharedUpdateSnippetName:@"My-Deployed-Shared-Snippet-Name"];
-	return YES;
-}
-```
- 
-For help with this one-time configuration on CloudMine's platform, please contact support@cloudmineinc.com.
  
 ## Using the CloudMine iOS SDK with CMHealth
 
