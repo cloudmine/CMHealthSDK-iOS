@@ -83,21 +83,103 @@ The below steps are pre-requisites to using the CareKit framework with CloudMine
 
 #### Enable Automatic Timestamping 
 
-The automatic timestamping (`auto_ts`) feature must be enabled for your `app_id`. This feature can be enabled by running the following `cURL` request:
-
-```
-some example
-```
-
-*Note: the `Master API Key` is required in order to execute this cURL. It is strongly recommended to cycle the Master API Key or to ensure that it is safeguarded when being used client side to prevent unauthorized access to your application's data.*
+The automatic timestamping (`auto_ts`) feature must be enabled for your `app_id`. This feature can be enabled by running the following `cURL` request. 
 
 Once `auto_ts` is enabled, all application and user-level objects will automatically be updated with `__updated__` and `__created__` key-value pairs, which will automatically be maintained by the CloudMine platform. 
 
-#### Create the Admin User and ACL
+##### Request
+```http
+curl -X POST \
+  https://api.cloudmine.io/admin/app/:app_id/prefs \
+  -H 'content-type: application/json' \
+  -H 'x-cloudmine-apikey: :master_api_key' \
+  -d '{
+	"auto_ts":true
+}'
+```
+1. `app_id`: Required. App identifier from the Compass dashboard.
+2. `master_api_key`: Required. Available within the Compass Dashboard. 
 
+##### Response
+
+The expected response is `200 OK`. If a `4xx` error code is observed, please ensure that the `Master API Key` is being used to execute the request. 
+
+*Note: the `Master API Key` is required in order to execute this cURL. It is strongly recommended to cycle the Master API Key or to ensure that it is safeguarded when being used client side to prevent unauthorized access to your application's data.*
+
+#### Preparing the Admin User
+
+An initial administrative user is required in order to retrieve patient-level data using CloudMine's `ACL` framework. To create the administrative user, the below `cURL` may be used: 
+
+###### Request
+```http
+curl -X POST \
+  https://api.cloudmine.io/v1/app/:app_id/account/create \
+  -H 'content-type: application/json' \
+  -H 'x-cloudmine-apikey: :api_key' \
+  -d '
+{
+    "credentials": {
+        "email": "admin@example.com",
+        "password": "the-password"
+    },
+    "profile": {
+        "name": "Admin User",
+        "email":"admin@example.com"
+    }
+}'
 ```
-some examples here
+1. `app_id`: Required. App identifier from the Compass dashboard.
+2. `api_key`: Required. Available within the Compass Dashboard.
+3. `credentials.email`: Required. Refers to the administrative user's email address. 
+4. `credentials.password`: Required. Sets the initial administrative password. 
+5. TODO: `profile.email`: Required. Refers to the administrative user's email address. 
+
+###### Response
+```http
+HTTP/1.1 201 OK
+{
+	"name": "Admin User",
+	"email": "admin@example.com",
+	"__type__": "user",
+	"__id__": "54e952dd255e42ada66f04bd1d938325"
+}
 ```
+
+Please take note of the user `__id__` value returned -- it will be required in the future step when creating the admin `ACL`. 
+
+##### Create the Admin Profile
+
+In some cases, the admin profile may contain sensitive information. To account for this, the admin profile should be created as a user-level object and referenced by `__id__` on the public profile. 
+
+###### Request
+```http
+some request
+```
+###### Response
+```http
+some response
+```
+
+##### Reference the Admin Profile 
+
+Once the private profile has been created, the CareKit framework will expect to find a reference to it on the public profile. We need to update the public profile so as to ensure the profile data is found on the client:
+
+###### Request
+
+```http
+some request
+```
+
+###### Response
+```http
+some response
+```
+
+Congrats! The first admin user has been successfully prepared. 
+
+#### Create the Admin ACL
+
+
 
 #### Develop and Upload the Administrative Snippet
 
