@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [CMHealth](#cmhealth)
   - [Installation](#installation)
@@ -19,9 +19,15 @@
     - [Create the Admin `ACL`](#create-the-admin-acl)
     - [Develop and Upload the Administrative Snippet](#develop-and-upload-the-administrative-snippet)
     - [Update `BCMSecrets.h` and configure the `AppDelegate`](#update-bcmsecretsh-and-configure-the-appdelegate)
-    - [Patient Context](#patient-context)
-    - [Provider Context](#provider-context)
-- [Configuration](#configuration-1)
+  - [Patient Context](#patient-context)
+    - [TODO: Creating a patient?](#todo-creating-a-patient)
+    - [Creating the `CMHCarePlanStore`](#creating-the-cmhcareplanstore)
+    - [Creating a New Activity](#creating-a-new-activity)
+    - [Fetching Updates from CloudMine for the local `CMHCarePlanStore`](#fetching-updates-from-cloudmine-for-the-local-cmhcareplanstore)
+  - [Provider Context](#provider-context)
+    - [Fetching All Patients](#fetching-all-patients)
+    - [Adding New Administrative Users](#adding-new-administrative-users)
+- [Configuring your App Secrets with CMHealth](#configuring-your-app-secrets-with-cmhealth)
 - [Using the CloudMine iOS SDK with CMHealth](#using-the-cloudmine-ios-sdk-with-cmhealth)
 - [CMHealth Examples](#cmhealth-examples)
 - [Support](#support)
@@ -451,16 +457,16 @@ Congrats! You are now ready to begin building your application using the `CMHeal
 
 *Note: the `Master API Key` is required in order to execute many of the above cURLs. It is strongly recommended to cycle the Master API Key after completing configuration or to ensure that it is safeguarded when used client side to prevent unauthorized access to your application's data.*
 
-### Patient Context 
+## Patient Context 
 
 Your patient-facing app can be built using all native CareKit components with very little 
 deviation from a standard CareKit app. 
 
-#### TODO: Creating a patient? 
+### TODO: Creating a patient? 
 
 Maybe something goes here? 
 
-#### Creating the `CMHCarePlanStore`
+### Creating the `CMHCarePlanStore`
 
 Simply replace the `OCKCarePlanStore` with an 
 instance of our custom subclass, `CMHCarePlanStore`, and your user's data will be 
@@ -478,7 +484,7 @@ As long as your patient user is logged in and your CloudMine account is properly
 your CareKit app will now automatically push changes made in the local store up to
 the cloud.
 
-#### Creating a New Activity 
+### Creating a New Activity 
 
 For example, adding a new activity to the store will result in a representation of that activity
 being pushed to CloudMine's backend for the current user.
@@ -503,7 +509,7 @@ OCKCarePlanActivity *activity = [self activityGenerator];
 Note the above code is no different from what you would write for a standard, local-only, CareKit app.
 No additional consideration is required to push `CMHCarePlanStore` entries to CloudMine!
 
-#### Fetching Updates from CloudMine for the local `CMHCarePlanStore`
+### Fetching Updates from CloudMine for the local `CMHCarePlanStore`
 
 Fetching updates _from_ the cloud is similiarly simple. A single method allows you to synchronize the local store 
 with all data that has been added remotely since the last time it was called successfully.
@@ -523,11 +529,11 @@ with all data that has been added remotely since the last time it was called suc
 
 This allows your app to sync across devices and sessions with minimal effort.
 
-### Provider Context
+## Provider Context
 
 To help organizations access the patient-generated data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. 
 
-#### Fetching All Patients
+### Fetching All Patients
 
 To fetch a list of `OCKPatient` instances for use within your application, call the
 `fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`.
@@ -551,13 +557,13 @@ last time it was called.
 *TODO: Any changes made to the patient's data using the Care Team Dashboard 
 will be automatically pushed to CloudMine's backend.*
 
-#### Adding New Administrative Users
+### Adding New Administrative Users
 
 ```
 some stuff here
 ```
 
-# Configuration
+# Configuring your App Secrets with CMHealth
 
 The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
 to provide proper credentials to the CloudMine backend.
