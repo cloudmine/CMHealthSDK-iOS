@@ -4,12 +4,7 @@ use_frameworks!
 
 target 'CMHealth_Example' do
   pod 'CMHealth', :path => '../'
-  pod 'CareKit', :git => 'git@github.com:apbendi/CareKit.git', :branch => 'dir-fix'
-  #pod 'CareKit', :path => '../../carekit-20-beta-4.5'
-  #pod 'CareKit', :path => '../../carekit-internal-beta-3'
-  #pod 'CareKit', :path => '../../carekit-internal-20'
-  #pod 'CareKit', :path => '../../carekit-beta-private'
-  #pod "CareKit", "~> 1.0"
+  pod 'CareKit', :git => 'git@github.com:cloudmine/CareKit.git', :branch => 'cm-patched'
 
   target 'CMHealth_Tests' do
     inherit! :search_paths

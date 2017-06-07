@@ -35,22 +35,22 @@ PODS:
   - Specta (1.0.6)
 
 DEPENDENCIES:
-  - CareKit (from `git@github.com:apbendi/CareKit.git`, branch `dir-fix`)
+  - CareKit (from `git@github.com:cloudmine/CareKit.git`, branch `cm-patched`)
   - CMHealth (from `../`)
   - Expecta
   - Specta
 
 EXTERNAL SOURCES:
   CareKit:
-    :branch: dir-fix
-    :git: git@github.com:apbendi/CareKit.git
+    :branch: cm-patched
+    :git: git@github.com:cloudmine/CareKit.git
   CMHealth:
     :path: ../
 
 CHECKOUT OPTIONS:
   CareKit:
-    :commit: a16bcaaea7584136ca725cdc2d91a74f5023ecb8
-    :git: git@github.com:apbendi/CareKit.git
+    :commit: 65e9d2c9489f0f7cdf415e906b844dc355b2a160
+    :git: git@github.com:cloudmine/CareKit.git
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
@@ -61,6 +61,6 @@ SPEC CHECKSUMS:
   ResearchKit: 3533ea3a2270e4ed7ff830e19755dc959fdfd430
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
 
-PODFILE CHECKSUM: 5770ba38f39d46a0d39ad1b03c09ac9c67c4c31a
+PODFILE CHECKSUM: b6a10da165d0e9373799523164e121fe33889e90
 
 COCOAPODS: 1.2.1
