@@ -634,7 +634,7 @@ Check out the [AsthmaHealthSwift](https://github.com/cloudmine/AsthmaHealthSwift
 see an all-Swift app enabled by CMHealth.
 
 To see an example of CMHealth working in tandem with CareKit, you can check out the CloudMine
-[BackTrack](https://github.com/cloudmine/BackTrack) demo application.
+[BackTrack](https://github.com/cloudmine/BackTrack-CareKitSampleApp) demo application.
 
 # Support
 
