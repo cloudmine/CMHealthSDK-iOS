@@ -568,7 +568,7 @@ Adding new Administrative Users requires 3 steps:
 
 1. create the admin user
 2. toggle the `isAdmin` field to `true` within the object's `CMHUserData` property,
-3. add the admin `user_id` to the `[members]` field on the `acl_id` as described in the [Create the Admin `ACL`](#Create the Admin `ACL`) section. 
+3. add the admin `user_id` to the `[members]` field on the `acl_id` as described in the [Create the Admin `ACL`](#create-the-Admin-`ACL`) section. 
 
 #### Creating the Admin User
 
