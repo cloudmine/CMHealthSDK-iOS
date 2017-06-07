@@ -519,7 +519,7 @@ OCKCarePlanActivity *activity = [self activityGenerator];
 Note the above code is no different from what you would write for a standard, local-only, CareKit app.
 No additional consideration is required to push `CMHCarePlanStore` entries to CloudMine!
 
-### Fetching Updates from CloudMine for the local `CMHCarePlanStore`
+### Synchronizing from the Server
 
 Fetching updates _from_ the cloud is similiarly simple. A single method allows you to synchronize the local store 
 with all data that has been added remotely since the last time it was called successfully.

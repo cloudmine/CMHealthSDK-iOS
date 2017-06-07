@@ -1,4 +1,4 @@
-### Consent
+# Consent
 
 The SDK provides specific methods for archiving and fetching participant consent.
 In ResearchKit, user consent is collected in any `ORKTask` with special consent and signature

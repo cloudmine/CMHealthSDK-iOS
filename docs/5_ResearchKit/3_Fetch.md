@@ -1,4 +1,4 @@
-### Fetch
+# Fetch
 
 ```Objective-C
 #import <CMHealth/CMHealth.h>
