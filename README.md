@@ -545,10 +545,10 @@ This allows your app to sync across devices and sessions with minimal effort.
 
 ### Fetching All Patients
 
-To help organizations access the patient-generated CareKit data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. 
+To help organizations access the patient-generated CareKit data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. This method requires that an admin CareKit user is signed-in. 
 
 To fetch a list of `OCKPatient` instances for use within your application, call the
-`fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`.
+`fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`:
 
 ```Objective-C
 [CMHCarePlanStore fetchAllPatientsWithCompletion:^(BOOL success, NSArray<OCKPatient *> * _Nonnull patients, NSArray<NSError *> * _Nonnull errors) {
