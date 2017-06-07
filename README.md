@@ -1,15 +1,15 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
 
 - [CMHealth](#cmhealth)
   - [Installation](#installation)
+  - [Registering a User](#registering-a-user)
+  - [Maintaining Consent](#maintaining-consent)
 - [ResearchKit](#researchkit)
     - [Configuring your CloudMine App Secrets](#configuring-your-cloudmine-app-secrets)
     - [Save](#save)
     - [Fetch](#fetch)
-    - [Registering a User](#registering-a-user)
-    - [Maintaining Consent](#maintaining-consent)
 - [CareKit](#carekit)
   - [Overview](#overview)
   - [Configuration](#configuration)
@@ -59,67 +59,7 @@ end
 Once intalled, the SDK must be imported and configured in your `AppDelegate` class. See the section on
 [Configuration](#configuration) for more information.
 
-# ResearchKit
-
-The SDK provides category methods on standard ResearchKit classes, allowing you
-to save and fetch `ORKTaskResult` objects to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
-
-You can see the full documentation and class references on [CocoaPods](http://cocoadocs.org/docsets/CMHealth/)
-or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
-
-### Configuring your CloudMine App Secrets
-
-The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
-to provide proper credentials to the CloudMine backend.
-
-For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is needed:
-
-```Objective-C
-#import <CMHealth/CMHealth.h>
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key"];	
-	return YES;
-}
-```
-
-### Save
-
-```Objective-C
-#import <CMHealth/CMHealth.h>
-
-// surveyResult is an instance of ORKTaskResult, or any ORKResult subclass
-[surveyResult cmh_saveToStudyWithDescriptor:@"MyClinicalStudy" withCompletion:^(NSString *uploadStatus, NSError *error) {
-        if (nil == uploadStatus) {
-            // handle error
-            return;
-        }
-        if ([uploadStatus isEqualToString:@"created"]) {
-            // A new research kit result was saved
-        } else if ([uploadStatus isEqualToString:@"updated"]) {
-            // An existing research kit result was updated
-        }
-    }];
-```
-
-### Fetch
-
-```Objective-C
-#import <CMHealth/CMHealth.h>
-
-[ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:@"MyClinicalStudy" withCompletion:^(NSArray *results, NSError *error) {
-        if (nil == results) {
-            // handle error
-            return;
-        }
-
-        for (ORKTaskResult *result in results) {
-            // use your result
-        }
-    }];
-```
-### Registering a User
+## Registering a User
 
 The SDK provides a user abstraction for managing your participant accounts, with straightforward
 methods for user authentication.
@@ -205,7 +145,7 @@ be instantiated and presented; the result is returned via a delegate callback.
 }
 ```
 
-### Maintaining Consent
+## Maintaining Consent
 
 The SDK provides specific methods for archiving and fetching participant consent.
 In ResearchKit, user consent is collected in any `ORKTask` with special consent and signature
@@ -247,6 +187,67 @@ To ensure your participants have a valid consent on file before allowing them to
 
 ```
 
+
+# ResearchKit
+
+The SDK provides category methods on standard ResearchKit classes, allowing you
+to save and fetch `ORKTaskResult` objects to and from the [CloudMine Connected Health Cloud](http://cloudmineinc.com/platform/developer-tools/).
+
+You can see the full documentation and class references on [CocoaPods](http://cocoadocs.org/docsets/CMHealth/)
+or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
+
+### Configuring your CloudMine App Secrets
+
+The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
+to provide proper credentials to the CloudMine backend.
+
+For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is needed:
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key"];	
+	return YES;
+}
+```
+
+### Save
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+// surveyResult is an instance of ORKTaskResult, or any ORKResult subclass
+[surveyResult cmh_saveToStudyWithDescriptor:@"MyClinicalStudy" withCompletion:^(NSString *uploadStatus, NSError *error) {
+        if (nil == uploadStatus) {
+            // handle error
+            return;
+        }
+        if ([uploadStatus isEqualToString:@"created"]) {
+            // A new research kit result was saved
+        } else if ([uploadStatus isEqualToString:@"updated"]) {
+            // An existing research kit result was updated
+        }
+    }];
+```
+
+### Fetch
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+[ORKTaskResult cmh_fetchUserResultsForStudyWithDescriptor:@"MyClinicalStudy" withCompletion:^(NSArray *results, NSError *error) {
+        if (nil == results) {
+            // handle error
+            return;
+        }
+
+        for (ORKTaskResult *result in results) {
+            // use your result
+        }
+    }];
+```
 
 # CareKit
 
@@ -602,3 +603,4 @@ document to get started.
 # License
 
 CMHealth is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
+s
