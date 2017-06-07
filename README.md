@@ -5,10 +5,11 @@
 - [CMHealth](#cmhealth)
   - [Installation](#installation)
 - [ResearchKit](#researchkit)
+    - [Configuring your CloudMine App Secrets](#configuring-your-cloudmine-app-secrets)
     - [Save](#save)
     - [Fetch](#fetch)
-  - [Registration](#registration)
-  - [Consent](#consent)
+    - [Registering a User](#registering-a-user)
+    - [Maintaining Consent](#maintaining-consent)
 - [CareKit](#carekit)
   - [Overview](#overview)
   - [Configuration](#configuration)
@@ -18,16 +19,14 @@
     - [Reference the Admin Profile](#reference-the-admin-profile)
     - [Create the Admin `ACL`](#create-the-admin-acl)
     - [Develop and Upload the Administrative Snippet](#develop-and-upload-the-administrative-snippet)
-    - [Update `BCMSecrets.h` and configure the `AppDelegate`](#update-bcmsecretsh-and-configure-the-appdelegate)
-  - [Patient Context](#patient-context)
+    - [Configuring your CloudMine App Secrets](#configuring-your-cloudmine-app-secrets-1)
+  - [Working with CareKit](#working-with-carekit)
     - [TODO: Creating a patient?](#todo-creating-a-patient)
     - [Creating the `CMHCarePlanStore`](#creating-the-cmhcareplanstore)
     - [Creating a New Activity](#creating-a-new-activity)
     - [Fetching Updates from CloudMine for the local `CMHCarePlanStore`](#fetching-updates-from-cloudmine-for-the-local-cmhcareplanstore)
-  - [Provider Context](#provider-context)
     - [Fetching All Patients](#fetching-all-patients)
     - [Adding New Administrative Users](#adding-new-administrative-users)
-- [Configuring your App Secrets with CMHealth](#configuring-your-app-secrets-with-cmhealth)
 - [Using the CloudMine iOS SDK with CMHealth](#using-the-cloudmine-ios-sdk-with-cmhealth)
 - [CMHealth Examples](#cmhealth-examples)
 - [Support](#support)
@@ -68,6 +67,23 @@ to save and fetch `ORKTaskResult` objects to and from the [CloudMine Connected H
 You can see the full documentation and class references on [CocoaPods](http://cocoadocs.org/docsets/CMHealth/)
 or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
 
+### Configuring your CloudMine App Secrets
+
+The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
+to provide proper credentials to the CloudMine backend.
+
+For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is needed:
+
+```Objective-C
+#import <CMHealth/CMHealth.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key"];	
+	return YES;
+}
+```
+
 ### Save
 
 ```Objective-C
@@ -103,7 +119,7 @@ or [GitHub](https://github.com/cloudmine/CMHealthSDK-iOS/tree/master/docs).
         }
     }];
 ```
-## Registration
+### Registering a User
 
 The SDK provides a user abstraction for managing your participant accounts, with straightforward
 methods for user authentication.
@@ -189,7 +205,7 @@ be instantiated and presented; the result is returned via a delegate callback.
 }
 ```
 
-## Consent
+### Maintaining Consent
 
 The SDK provides specific methods for archiving and fetching participant consent.
 In ResearchKit, user consent is collected in any `ORKTask` with special consent and signature
@@ -252,6 +268,8 @@ The automatic timestamps (`auto_ts`) feature must be enabled for your `app_id`. 
 
 Once `auto_ts` is enabled, all application and user-level objects will be updated with `__updated__` and `__created__` key-value pairs, which will automatically be maintained by the CloudMine platform. 
 
+*Note: `auto_ts` is a cached configuration value, and it may take up to 15 minutes for the setting to take full effect.*
+
 #### Request
 ```http
 curl -X POST \
@@ -298,7 +316,7 @@ curl -X POST \
 2. `api_key`: Required. Available within the Compass Dashboard.
 3. `credentials.email`: Required. Refers to the administrative user's email address. 
 4. `credentials.password`: Required. Sets the initial administrative password. 
-5. TODO: `profile.email`: Required. Refers to the administrative user's email address. 
+5. `profile.email`: Required. Refers to the administrative user's email address. 
 
 #### Response
 ```http
@@ -431,18 +449,14 @@ Please take note of the `__id__` value returned for the newly created `ACL`. It 
 
 ### Develop and Upload the Administrative Snippet
 
-The Administrative snippet is used to ensure that all patient-generated data is properly exposed to admin users of the framework. An example snippet is provided in [AdministrativeSnippet/Example.js](AdministrativeSnippet/Example.js). 
+When an `OCKCarePlanEvent` or `OCKCarePlanActivity` object is saved, the Snippet is responsible for adding the admin `ACL` id value to the `[__access__]` field of the object, allowing for it to be shared with any CareKit admin user. An example snippet is provided here: [docs/AdministrativeSnippet/Example.js](#docs/AdministrativeSnippet/Example.js).
 
-TODO: The client-side should take care to handle any errors that are returned via this snippet. 
+Once completed, ensure that the Snippet is uploaded to CloudMine via the Compass dashboard. Take note of the name used to create it, as it wil be required when configuring your CloudMine app secrets in the next step.  
 
-### Update `BCMSecrets.h` and configure the `AppDelegate`
-
-```
-some example here
-```
+### Configuring your CloudMine App Secrets
 
 Finally, the configuration in your
-`AppDelegate` is simple:
+`AppDelegate` is simple. Simply provide the CloudMine `app_id`, `api_key` and `shared_snippet_name` from the previous step CK objects will be synching in no time:
 
 ```Objective-C
 #import <CMHealth/CMHealth.h>
@@ -457,7 +471,7 @@ Congrats! You are now ready to begin building your application using the `CMHeal
 
 *Note: the `Master API Key` is required in order to execute many of the above cURLs. It is strongly recommended to cycle the Master API Key after completing configuration or to ensure that it is safeguarded when used client side to prevent unauthorized access to your application's data.*
 
-## Patient Context 
+## Working with CareKit
 
 Your patient-facing app can be built using all native CareKit components with very little 
 deviation from a standard CareKit app. 
@@ -529,11 +543,9 @@ with all data that has been added remotely since the last time it was called suc
 
 This allows your app to sync across devices and sessions with minimal effort.
 
-## Provider Context
-
-To help organizations access the patient-generated data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. 
-
 ### Fetching All Patients
+
+To help organizations access the patient-generated CareKit data, the `CMHealth` SDK allows for fetching an aggregated view of all patients and their activity/event data based on the `ACL` we created in the configuration section. 
 
 To fetch a list of `OCKPatient` instances for use within your application, call the
 `fetchAllPatientsWithCompletion:` class method on `CMHCarePlanStore`.
@@ -554,30 +566,11 @@ Subsequent calls to this class method will return a list of updated patients, bu
 intelligently sync _only_ data added or updated since the
 last time it was called.
 
-*TODO: Any changes made to the patient's data using the Care Team Dashboard 
-will be automatically pushed to CloudMine's backend.*
-
 ### Adding New Administrative Users
 
 ```
 some stuff here
-```
-
-# Configuring your App Secrets with CMHealth
-
-The CMHealth SDK should be [installed](#installation) via CocoaPods. The SDK should be configured in your `AppDelegate` class
-to provide proper credentials to the CloudMine backend.
-
-For ResearchKit Apps, an App Identifier and App Secret (API Key) is all that is needed:
-
-```Objective-C
-#import <CMHealth/CMHealth.h>
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    [CMHealth setAppIdentifier:@"My-CloudMine-App-ID" appSecret:@"My-CloudMine-API-Key"];	
-	return YES;
-}
+isAdmin=true
 ```
 
  
