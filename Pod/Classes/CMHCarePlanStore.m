@@ -165,6 +165,12 @@
                 patientDetail = user.email;
             }
             
+            NSDictionary *patientInfo = nil;
+            
+            if (nil != profile.photoId) {
+                patientInfo = @{ @"photoId" : [profile.photoId copy] };
+            }
+            
             NSURL *patientDir = [CMHCarePlanStore persistenceDirectoryNamed:user.objectId];
             __block CMHCarePlanStore *patientStore = nil;
             
@@ -202,7 +208,7 @@
                                                                 monogram:nil
                                                                    image:nil
                                                               categories:nil
-                                                                userInfo:nil];
+                                                                userInfo:patientInfo];
             [mutablePatients addObject:patient];
         }
         

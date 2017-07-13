@@ -1,5 +1,6 @@
 #import <CareKit/CareKit.h>
-#import <CloudMine/CloudMine.h>
+#import <CloudMine/CMCoding.h>
+#import <CMHealth/CMHUser.h>
 
 @interface OCKCarePlanActivity (CMHealth)<CMCoding>
 
@@ -14,4 +15,10 @@
 @end
 
 @interface OCKCarePlanThreshold (CMHealth)<CMCoding>
+@end
+
+@interface OCKPatient (CMHealth)
+
+- (void)fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block;
+
 @end
