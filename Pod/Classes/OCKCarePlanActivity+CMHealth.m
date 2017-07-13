@@ -12,7 +12,6 @@
     return (areEqual(self.title, other.title) &&
             areEqual(self.text, other.text) &&
             areEqual(self.instructions, other.instructions) &&
-            areEqual(self.tintColor, other.tintColor) &&
             [self.schedule isEqualExceptEndDate:other.schedule] &&
             (self.type == other.type) &&
             areEqual(self.identifier, other.identifier) &&
