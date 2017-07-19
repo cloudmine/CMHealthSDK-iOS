@@ -20,7 +20,7 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - CareKit (1.2.0)
+  - CareKit (1.2.1)
   - CloudMine (1.7.15):
     - AFNetworking (~> 2.6.3)
     - CloudMine/no-arc (= 1.7.15)
@@ -35,32 +35,23 @@ PODS:
   - Specta (1.0.6)
 
 DEPENDENCIES:
-  - CareKit (from `git@github.com:cloudmine/CareKit.git`, branch `cm-patched`)
   - CMHealth (from `../`)
   - Expecta
   - Specta
 
 EXTERNAL SOURCES:
-  CareKit:
-    :branch: cm-patched
-    :git: git@github.com:cloudmine/CareKit.git
   CMHealth:
     :path: ../
 
-CHECKOUT OPTIONS:
-  CareKit:
-    :commit: 65e9d2c9489f0f7cdf415e906b844dc355b2a160
-    :git: git@github.com:cloudmine/CareKit.git
-
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
-  CareKit: 94c2322c43a138c5334bd41853d009cf1b8fefb5
+  CareKit: aa0c8a57c1a2d7cfb46ff3981fe1503f02ca302e
   CloudMine: a465ed5e1d37385bd076aad15407afef3c686041
   CMHealth: c7a513beb7af2befab8e0cc1be2accad1fabcdd8
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   ResearchKit: 3533ea3a2270e4ed7ff830e19755dc959fdfd430
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
 
-PODFILE CHECKSUM: b6a10da165d0e9373799523164e121fe33889e90
+PODFILE CHECKSUM: e0bfe980733a4ec4564367b8513faf76065ffb83
 
 COCOAPODS: 1.2.1

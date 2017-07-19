@@ -4,7 +4,6 @@ use_frameworks!
 
 target 'CMHealth_Example' do
   pod 'CMHealth', :path => '../'
-  pod 'CareKit', :git => 'git@github.com:cloudmine/CareKit.git', :branch => 'cm-patched'
 
   target 'CMHealth_Tests' do
     inherit! :search_paths
