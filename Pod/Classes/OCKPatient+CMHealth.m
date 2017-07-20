@@ -8,8 +8,7 @@ NSString * const _Nonnull CMHPatientUserInfoPhotoIdKey = @"com.cloudmineinc.com.
 
 @implementation OCKPatient (CMHealth)
 
-// TODO: Accessorthe patient data
-// TODO SOMEDAY: Update patient data from provider side
+// TODO SOMEDAY: Allow updating the patient data from provider side
 
 - (CMHUserData *)cmh_patientUserData
 {

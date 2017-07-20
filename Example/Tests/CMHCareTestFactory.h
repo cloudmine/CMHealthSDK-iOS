@@ -8,4 +8,8 @@
 + (NSDateComponents *)weekInTheFutureComponents;
 + (OCKCarePlanEventResult *)assessmentEventResult;
 
++ (NSString *)genderString;
++ (NSDate *)dateOfBirth;
++ (NSDictionary *)userDataUserInfo;
+
 @end
