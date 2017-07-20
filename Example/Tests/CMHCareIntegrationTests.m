@@ -9,6 +9,7 @@
 #import <CMHealth/CMHInternalUser.h>
 #import <CMHealth/CMHCareObjectSaver.h>
 #import <CMHealth/CMHCarePlanStoreVendor.h>
+#import <CMHealth/CareKit+CMHealth.h>
 
 @interface CMHCareIntegrationTestUtils : NSObject
 + (NSURL *)persistenceDirectory;
@@ -570,6 +571,27 @@ describe(@"CMHCareIntegration", ^{
         }
         
         expect(adminPatient).to.beNil();
+        
+        // Ensure the admin can fetch the patient's profile image
+        
+        __block BOOL photoFetchSuccess = NO;
+        __block UIImage *profileImage = nil;
+        __block NSError *fetchError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [testPatient fetchProfileImageWithCompletion:^(BOOL success, UIImage *image, NSError *error) {
+                photoFetchSuccess = success;
+                profileImage = image;
+                fetchError = error;
+                done();
+            }];
+        });
+        
+        expect(photoFetchSuccess).to.beTruthy();
+        expect(fetchError).to.beNil();
+        expect(profileImage).notTo.beNil();
+        expect(profileImage.size.width).to.equal(1.0f);
+        expect(profileImage.size.height).to.equal(1.0f);
         
         // Ensure the assessement activity matches that added as a patient
         
