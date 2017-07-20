@@ -1,6 +1,7 @@
 #import "OCKPatient+CMHealth.h"
 #import <CloudMine/CloudMine.h>
 #import "CMHCarePlanStore.h"
+#import "CMHUserData.h"
 
 NSString * const _Nonnull CMHPatientUserInfoUserDataKey = @"com.cloudmineinc.com.CMHealth.PhotoId";
 NSString * const _Nonnull CMHPatientUserInfoPhotoIdKey = @"com.cloudmineinc.com.CMHealth.PatientData";
@@ -9,6 +10,19 @@ NSString * const _Nonnull CMHPatientUserInfoPhotoIdKey = @"com.cloudmineinc.com.
 
 // TODO: Accessorthe patient data
 // TODO SOMEDAY: Update patient data from provider side
+
+- (CMHUserData *)cmh_patientUserData
+{
+    if (![self.store isKindOfClass:[CMHCarePlanStore class]] ||
+        nil == self.userInfo ||
+        nil == self.userInfo[CMHPatientUserInfoUserDataKey] ||
+        ![(NSObject *)self.userInfo[CMHPatientUserInfoUserDataKey] isKindOfClass:[CMHUserData class]])
+    {
+        return nil;
+    }
+    
+    return (CMHUserData *)self.userInfo[CMHPatientUserInfoUserDataKey];
+}
 
 - (void)cmh_fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block
 {

@@ -6,6 +6,7 @@ extern NSString * const _Nonnull CMHPatientUserInfoPhotoIdKey;
 
 @interface OCKPatient (CMHealth)
 
+@property (nonatomic, nullable, readonly) CMHUserData *cmh_patientUserData;
 - (void)cmh_fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block;
 
 @end
