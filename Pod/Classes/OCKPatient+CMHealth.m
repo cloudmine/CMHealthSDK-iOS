@@ -2,13 +2,19 @@
 #import <CloudMine/CloudMine.h>
 #import "CMHCarePlanStore.h"
 
+NSString * const _Nonnull CMHPatientUserInfoUserDataKey = @"com.cloudmineinc.com.CMHealth.PhotoId";
+NSString * const _Nonnull CMHPatientUserInfoPhotoIdKey = @"com.cloudmineinc.com.CMHealth.PatientData";
+
 @implementation OCKPatient (CMHealth)
+
+// TODO: Accessorthe patient data
+// TODO SOMEDAY: Update patient data from provider side
 
 - (void)cmh_fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block
 {
     if (![self.store isKindOfClass:[CMHCarePlanStore class]] ||
         nil == self.userInfo ||
-        nil == self.userInfo[@"photoId"])
+        nil == self.userInfo[CMHPatientUserInfoPhotoIdKey])
     {
         if (nil != block) {
             block(YES, nil, nil);
@@ -17,7 +23,7 @@
         return;
     }
     
-    NSString *photoId = (NSString *)self.userInfo[@"photoId"];
+    NSString *photoId = (NSString *)self.userInfo[CMHPatientUserInfoPhotoIdKey];
     CMStoreOptions *shareOption = [CMStoreOptions new];
     shareOption.shared = YES;
     

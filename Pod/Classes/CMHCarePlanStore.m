@@ -13,6 +13,8 @@
 #import "CMHCarePlanStoreVendor.h"
 #import "CMHSyncStamper.h"
 #import "CMHAutoPager.h"
+#import "CMHUserData_internal.h"
+#import "OCKPatient+CMHealth.h"
 
 @interface CMHCarePlanStore ()<OCKCarePlanStoreDelegate>
 
@@ -145,8 +147,9 @@
             NSString *patientName = user.email;
             NSString *patientDetail = nil;
             CMHInternalProfile *profile = [CMHCarePlanStore profileForUser:(CMHInternalUser *)user from:allProfiles];
+            CMHUserData *userData = [[CMHUserData alloc] initWithInternalProfile:profile userId:user.objectId];
             
-            if (nil == profile || profile.isAdmin) {
+            if (nil == profile || profile.isAdmin || nil == userData) {
                 continue;
             }
 
@@ -168,7 +171,10 @@
             NSDictionary *patientInfo = nil;
             
             if (nil != profile.photoId) {
-                patientInfo = @{ @"photoId" : [profile.photoId copy] };
+                patientInfo =  @{ CMHPatientUserInfoUserDataKey: userData,
+                                  CMHPatientUserInfoPhotoIdKey: profile.photoId, };
+            } else {
+                patientInfo = @{ CMHPatientUserInfoUserDataKey: userData, };
             }
             
             NSURL *patientDir = [CMHCarePlanStore persistenceDirectoryNamed:user.objectId];

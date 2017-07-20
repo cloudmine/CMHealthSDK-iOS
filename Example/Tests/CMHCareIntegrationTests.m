@@ -579,7 +579,7 @@ describe(@"CMHCareIntegration", ^{
         __block NSError *fetchError = nil;
         
         waitUntil(^(DoneCallback done) {
-            [testPatient fetchProfileImageWithCompletion:^(BOOL success, UIImage *image, NSError *error) {
+            [testPatient cmh_fetchProfileImageWithCompletion:^(BOOL success, UIImage *image, NSError *error) {
                 photoFetchSuccess = success;
                 profileImage = image;
                 fetchError = error;
