@@ -11,6 +11,7 @@
 #import "CMHLoginViewController.h"
 #import "CMHCarePlanStore.h"
 #import "CMHCareSyncBlocks.h"
+#import "OCKPatient+CMHealth.h"
 
 /**
  *  CMHealth is the easiest way to add secure, HIPAA compliant cloud data storage and user

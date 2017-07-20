@@ -16,9 +16,3 @@
 
 @interface OCKCarePlanThreshold (CMHealth)<CMCoding>
 @end
-
-@interface OCKPatient (CMHealth)
-
-- (void)fetchProfileImageWithCompletion:(_Nullable CMHFetchProfileImageCompletion)block;
-
-@end
