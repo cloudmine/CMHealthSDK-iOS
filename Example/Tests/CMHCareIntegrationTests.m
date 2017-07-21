@@ -9,6 +9,7 @@
 #import <CMHealth/CMHInternalUser.h>
 #import <CMHealth/CMHCareObjectSaver.h>
 #import <CMHealth/CMHCarePlanStoreVendor.h>
+#import <CMHealth/CareKit+CMHealth.h>
 
 @interface CMHCareIntegrationTestUtils : NSObject
 + (NSURL *)persistenceDirectory;
@@ -85,6 +86,31 @@ describe(@"CMHCareIntegration", ^{
         expect([CMHUser currentUser].userData.email).to.equal(emailAddress);
         expect([CMHUser currentUser].userData.userId).notTo.beNil();
         expect([CMHUser currentUser].userData.isAdmin).to.beFalsy();
+    });
+    
+    it(@"should let us update the user's profile data", ^{
+        __block CMHUserData *updateUserData = nil;
+        __block NSError *updateError = nil;
+        
+        CMHMutableUserData *mutableUserData = [[CMHUser currentUser].userData mutableCopy];
+        mutableUserData.gender = CMHCareTestFactory.genderString;
+        mutableUserData.dateOfBirth = CMHCareTestFactory.dateOfBirth;
+        mutableUserData.userInfo = CMHCareTestFactory.userDataUserInfo;
+        
+        waitUntil(^(DoneCallback done) {
+            [[CMHUser currentUser] updateUserData:mutableUserData withCompletion:^(CMHUserData * _Nullable userData, NSError * _Nullable error) {
+                updateUserData = userData;
+                updateError = error;
+                done();
+            }];
+        });
+        
+        expect(updateError).to.beNil();
+        expect(updateUserData == [CMHUser currentUser].userData).to.beTruthy();
+        expect(updateUserData.isAdmin).to.equal(NO);
+        expect(updateUserData.gender).to.equal(CMHCareTestFactory.genderString);
+        expect(updateUserData.dateOfBirth).to.equal(CMHCareTestFactory.dateOfBirth);
+        expect(updateUserData.userInfo).to.equal(CMHCareTestFactory.userDataUserInfo);
     });
     
     it(@"should upload a user's profile photo", ^{
@@ -570,6 +596,35 @@ describe(@"CMHCareIntegration", ^{
         }
         
         expect(adminPatient).to.beNil();
+        
+        // Ensure the patients user data is available and matches that set up
+        
+        expect(testPatient.cmh_patientUserData).notTo.beNil();
+        expect(testPatient.cmh_patientUserData.isAdmin).to.equal(NO);
+        expect(testPatient.cmh_patientUserData.gender).to.equal(CMHCareTestFactory.genderString);
+        expect(testPatient.cmh_patientUserData.dateOfBirth).to.equal(CMHCareTestFactory.dateOfBirth);
+        expect(testPatient.cmh_patientUserData.userInfo).to.equal(CMHCareTestFactory.userDataUserInfo);
+        
+        // Ensure the admin can fetch the patient's profile image
+        
+        __block BOOL photoFetchSuccess = NO;
+        __block UIImage *profileImage = nil;
+        __block NSError *fetchError = nil;
+        
+        waitUntil(^(DoneCallback done) {
+            [testPatient cmh_fetchProfileImageWithCompletion:^(BOOL success, UIImage *image, NSError *error) {
+                photoFetchSuccess = success;
+                profileImage = image;
+                fetchError = error;
+                done();
+            }];
+        });
+        
+        expect(photoFetchSuccess).to.beTruthy();
+        expect(fetchError).to.beNil();
+        expect(profileImage).notTo.beNil();
+        expect(profileImage.size.width).to.equal(1.0f);
+        expect(profileImage.size.height).to.equal(1.0f);
         
         // Ensure the assessement activity matches that added as a patient
         

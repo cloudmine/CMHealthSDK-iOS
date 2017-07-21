@@ -7,6 +7,24 @@ static NSString *const CMHIdentifierAssessmentPainTrack          = @"CMHPainTrac
 
 @implementation CMHCareTestFactory
 
++ (NSString *)genderString
+{
+    return @"female";
+}
+
++ (NSDate *)dateOfBirth
+{
+    return [NSDate dateWithTimeIntervalSince1970:116000];
+}
+
++ (NSDictionary *)userDataUserInfo
+{
+    return @{ @"key1" : @"A String element",
+              @"key2" : @YES,
+              @"key3" : @116,
+              @"key4" : @[@"Hello", @"World"] };
+}
+
 + (OCKCarePlanActivity *)interventionActivity
 {
     OCKCareSchedule *schedule = [OCKCareSchedule dailyScheduleWithStartDate:[self weekAgoComponents] occurrencesPerDay:3];

@@ -5,6 +5,7 @@
 #import "CMHErrorUtilities.h"
 #import "CMHConfiguration.h"
 #import "CMHCareObjectSaver.h"
+#import "CMHCareFileMetadata.h"
 
 @interface CMHInternalUser ()
 @property (nonatomic, nullable) CMHInternalProfile *profile;
@@ -154,11 +155,20 @@
         
         self.profile.photoId = response.key;
         
-        [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable error) {
-            if (nil != block) {
-                BOOL success = nil == error;
-                block(success, error);
+        [CMHInternalUser shareProfilePhotoWithId:self.profile.photoId completion:^(NSError * _Nullable shareError) {
+            if (nil != shareError) {
+                if (nil != block) {
+                    block(NO, shareError);
+                }
+                return;
             }
+            
+            [CMHInternalUser saveUserProfile:self.profile completion:^(NSError * _Nullable saveError) {
+                if (nil != block) {
+                    BOOL success = nil == saveError;
+                    block(success, saveError);
+                }
+            }];
         }];
     }];
 }
@@ -228,6 +238,21 @@
 }
 
 #pragma mark Private Helpers
+
++ (void)shareProfilePhotoWithId:(nonnull NSString *)photoId completion:(void (^_Nonnull)(NSError *_Nullable error))block
+{
+    if (![CMHConfiguration sharedConfiguration].shouldShareUserProfile) {
+        block(nil);
+        return;
+    }
+    
+    CMHCareFileMetadata *metadata = [[CMHCareFileMetadata alloc] initWithObjectId:photoId];
+    metadata.cmhOwnerId = [CMHInternalUser currentUser].objectId;
+    
+    [CMHCareObjectSaver saveCMHCareObject:metadata withCompletion:^(NSString * _Nullable status, NSError * _Nullable error) {
+        block(error);
+    }];
+}
 
 + (void)saveUserProfile:(nonnull CMHInternalProfile *)profile completion:(void (^_Nonnull)(NSError *_Nullable error))block
 {

@@ -1,5 +1,6 @@
 #import <CareKit/CareKit.h>
-#import <CloudMine/CloudMine.h>
+#import <CloudMine/CMCoding.h>
+#import <CMHealth/CMHUser.h>
 
 @interface OCKCarePlanActivity (CMHealth)<CMCoding>
 

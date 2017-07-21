@@ -1,4 +1,5 @@
 #import "CMHCarePlanStore.h"
+#import "CMHUser.h"
 
 @interface CMHCarePlanStore ()
 
