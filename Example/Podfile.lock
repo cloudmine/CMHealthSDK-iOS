@@ -28,7 +28,7 @@ PODS:
     - AFNetworking (~> 2.6.3)
   - CMHealth (0.6.0):
     - CareKit (~> 1.2)
-    - CloudMine (~> 1.7)
+    - CloudMine (~> 1.7.16)
     - ResearchKit (~> 1.3)
   - Expecta (1.0.6)
   - ResearchKit (1.5.2)
@@ -47,7 +47,7 @@ SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   CareKit: aa0c8a57c1a2d7cfb46ff3981fe1503f02ca302e
   CloudMine: aa3a609ab22eec132ff446839da0f97072d6b4ec
-  CMHealth: c7a513beb7af2befab8e0cc1be2accad1fabcdd8
+  CMHealth: 32b5fc2959fbfcd69c33cac5f8d3a43967d60b34
   Expecta: 3b6bd90a64b9a1dcb0b70aa0e10a7f8f631667d5
   ResearchKit: a5770681dd61afddd3d1f24d232b9abf00cba454
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465

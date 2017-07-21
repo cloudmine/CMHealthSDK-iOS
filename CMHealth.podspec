@@ -25,5 +25,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'ResearchKit', '~> 1.3'
   s.dependency 'CareKit', '~> 1.2'
-  s.dependency 'CloudMine', '~> 1.7'
+  s.dependency 'CloudMine', '~> 1.7.16'
 end
