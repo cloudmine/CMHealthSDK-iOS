@@ -1,3 +1,23 @@
+0.6.0 (July 24, 2017)
+====================
+The first full Beta of CMHealth, this release represents a major step forward in
+our support of Apple's CareKit framework. In particular, we've added support for
+CareKit version 1.2, released by Apple at the 2017 World Wide Developers Conference
+(WWDC). It's now possible to sync all data from your CareKit app seamlessly
+to the CloudMine Connected Health Cloud. Simply back your CareKit app with an
+instance of our `CMHCarePlanStore` and get intelligent cloud data syncing
+out of the box!
+
+Additionally, this release makes it possible to share patient data from
+CareKit with Care Providers and other parties through access control applied
+on the server. You can now create apps for doctors, therapists, or other parties
+to track their patients' progress and modify their Care Plans on the fly.
+
+Finally, this release includes improvements to the patient data stored along side
+the instance of `CMHUser`. Developers can now extend the `CMHUserData` model to store
+arbitrary profile data via the `userInfo` dictionary, as well as create and save
+mutable copies of existing patient data.
+
 0.5.0 (August 9, 2016)
 ====================
 A pre-Beta release of CMHealth that adds a convenient way to authenticate participants
