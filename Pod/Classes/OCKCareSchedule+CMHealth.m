@@ -1,6 +1,6 @@
 #import "OCKCareSchedule+CMHealth.h"
 
-@implementation OCKCareSchedule (CMHealth)
+@implementation OCKCareSchedule (CMHealthCompare)
 
 - (BOOL)isEqualExceptEndDate:(nullable OCKCareSchedule *)other
 {

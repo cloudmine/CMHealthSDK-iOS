@@ -1,6 +1,6 @@
 #import <CareKit/CareKit.h>
 
-@interface OCKCarePlanActivity (CMHealth)
+@interface OCKCarePlanActivity (CMHealthCompare)
 
 - (BOOL)isEqualExceptEndDate:(nullable OCKCarePlanActivity *)other;
 

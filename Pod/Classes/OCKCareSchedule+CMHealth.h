@@ -14,7 +14,7 @@ areEqual(id _Nullable obj1, id _Nullable obj2)
     return [obj1 isEqual:obj2];
 }
 
-@interface OCKCareSchedule (CMHealth)
+@interface OCKCareSchedule (CMHealthCompare)
 
 - (BOOL)isEqualExceptEndDate:(nullable OCKCareSchedule *)other;
 
