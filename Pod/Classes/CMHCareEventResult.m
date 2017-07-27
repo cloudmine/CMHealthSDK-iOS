@@ -23,19 +23,6 @@
     return self;
 }
 
-#pragma mark Public
-
-- (BOOL)isDataEquivalentOf:(OCKCarePlanEventResult *_Nullable)result
-{
-    if (nil == result) {
-        return NO;
-    }
-
-    return [self.valueString isEqualToString:result.valueString] &&
-    [self.unitString isEqualToString:result.unitString] &&
-    cmhAreObjectsEqual(self.userInfo, result.userInfo);
-}
-
 #pragma mark Getter-Setters
 
 - (OCKCarePlanEventResult *)result

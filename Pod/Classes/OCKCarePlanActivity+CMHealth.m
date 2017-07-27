@@ -1,7 +1,7 @@
 #import "OCKCarePlanActivity+CMHealth.h"
 #import "OCKCareSchedule+CMHealth.h"
 
-@implementation OCKCarePlanActivity (CMHealth)
+@implementation OCKCarePlanActivity (CMHealthCompare)
 
 - (BOOL)isEqualExceptEndDate:(nullable OCKCarePlanActivity *)other
 {
